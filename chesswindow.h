@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+class ChessWidget;
+
 class ChessWindow : public QMainWindow
 {
     Q_OBJECT
@@ -10,5 +12,8 @@ class ChessWindow : public QMainWindow
 public:
     ChessWindow(QWidget *parent = nullptr);
     ~ChessWindow();
+
+private:
+    ChessWidget *chessWidget;
 };
 #endif // CHESSWINDOW_H
