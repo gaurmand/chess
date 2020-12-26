@@ -26,6 +26,8 @@ public:
     bool switchActivePlayer();
     bool setActivePlayer();
 
+    ChessPiece* getChessPiece(Player player, PieceID id);
+
 private:
     bool isCastleAvailable[NUM_PLAYERS];
     IBP enPassantPosition;

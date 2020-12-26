@@ -7,6 +7,9 @@ class ChessPiece
 {
 public:
     ChessPiece();
+    IBP getIBP();
+    PieceType getType();
+    Player getOwner();
 
 private:
     PieceType type;

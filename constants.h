@@ -21,7 +21,7 @@ typedef std::string ChessMove;  //modified LAN string (https://en.wikipedia.org/
 typedef std::vector<ChessMove> ChessMoves;
 
 enum PieceType{KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
-enum PieceID{K, Q, RL, RR, BL, BR, NL, NR, PA, PB, PC, PD, PE, PG, PH, PI};
+enum PieceID{K, Q, RA, RH, BC, BF, NB, NG, PA, PB, PC, PD, PE, PG, PH, PI};
 enum Player{WHITE, BLACK};
 
 struct InternalBoardPosition
