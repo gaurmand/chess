@@ -4,13 +4,28 @@
 ChessWidget::ChessWidget(QWidget *parent)
     : QGraphicsView(parent)
 {
+    //init pixmaps
+    for(int i=0; i<NUM_PLAYERS; i++) {
+        for(int j=0; j<NUM_CHESS_PIECE_TYPES; j++) {
+            QString path = ":/images/%1%2.png";
+            if(Player(i) == WHITE) {
+                piecePixmaps[i][j] = new QPixmap();
+                piecePixmaps[i][j]->load(path.arg("w").arg(j));
+            } else {
+                piecePixmaps[i][j] = new QPixmap;
+                piecePixmaps[i][j]->load(path.arg("b").arg(j));
+            }
+        }
+    }
+
     //init chessboard
     chessBoard = new ChessBoardQGraphicsItem(this);
 
     //init chesspieces
     for(int i=0; i<NUM_PLAYERS; i++) {
         for(int j=0; j<NUM_CHESS_PIECES; j++) {
-            pieces[i][j] = new ChessPieceQGraphicsItem(this, game.getChessPiece(Player(i), PieceID(j)));
+            ChessPiece* piece = game.getChessPiece(Player(i), PieceID(j));
+            pieces[i][j] = new ChessPieceQGraphicsItem(this, piece);
         }
     }
 
@@ -27,20 +42,8 @@ ChessWidget::ChessWidget(QWidget *parent)
 
     //add chesspiece items to scene
     for(int i=0; i<NUM_PLAYERS; i++) {
-        for(int j=0; j<NUM_CHESS_PIECE_TYPES; j++) {
+        for(int j=0; j<NUM_CHESS_PIECES; j++) {
             scene->addItem(pieces[i][j]);
-        }
-    }
-
-    //init pixmaps
-    for(int i=0; i<NUM_PLAYERS; i++) {
-        for(int j=0; j<NUM_CHESS_PIECE_TYPES; j++) {
-            QString path = ":/images/%1%2.png";
-            if(i == WHITE) {
-                piecePixmaps[i][j].load(path.arg("w").arg(j));
-            } else {
-                piecePixmaps[i][j].load(path.arg("b").arg(j));
-            }
         }
     }
 
@@ -73,5 +76,5 @@ void ChessWidget::setInitialBoardState() {
 }
 
 QPixmap* ChessWidget::getPiecePixmap(PieceType type, Player player) {
-    return &piecePixmaps[player][type];
+    return piecePixmaps[player][type];
 }

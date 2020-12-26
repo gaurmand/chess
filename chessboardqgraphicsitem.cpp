@@ -17,7 +17,7 @@ void ChessBoardQGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphic
 {
     drawBoard(painter);
 
-////    paint test axes
+      //paint test axes
 //    painter->setPen(Qt::black);
 //    QLineF line;
 
@@ -30,7 +30,7 @@ void ChessBoardQGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphic
 //    line = QLineF(0,0,0,-1000);
 //    painter->drawLine(line);
 
-////    paint testbounds
+      //paint testbounds
 //    painter->setPen(Qt::black);
 //    painter->drawLine(QLineF(0,0,BOARD_WIDTH,0));
 //    painter->drawLine(QLineF(BOARD_WIDTH,0,BOARD_WIDTH,BOARD_HEIGHT));

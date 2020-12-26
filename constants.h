@@ -21,13 +21,13 @@ typedef std::string ChessMove;  //modified LAN string (https://en.wikipedia.org/
 typedef std::vector<ChessMove> ChessMoves;
 
 enum PieceType{KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
-enum PieceID{K, Q, RA, RH, BC, BF, NB, NG, PA, PB, PC, PD, PE, PG, PH, PI};
+enum PieceID{K, Q, RA, RH, BC, BF, NB, NG, PA, PB, PC, PD, PE, PF, PG, PH};
 enum Player{WHITE, BLACK};
 
 struct InternalBoardPosition
 {
-    unsigned char col;
     unsigned char row;
+    unsigned char col;
 };
 
 typedef std::string AlgebraicBoardPosition;

@@ -23,7 +23,7 @@ void ChessPieceQGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphic
 
 void ChessPieceQGraphicsItem::setBoardPosition()
 {
-    IBP pos = piece->getIBP();
+    IBP pos = piece->getIBPos();
     setPos(pos.col*SQUARE_WIDTH, pos.row*SQUARE_WIDTH);
 }
 

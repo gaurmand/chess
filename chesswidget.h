@@ -23,7 +23,7 @@ private:
     ChessGame game;
     ChessBoardQGraphicsItem* chessBoard;
     ChessPieceQGraphicsItem* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
-    QPixmap piecePixmaps[NUM_PLAYERS][NUM_CHESS_PIECE_TYPES];
+    QPixmap* piecePixmaps[NUM_PLAYERS][NUM_CHESS_PIECE_TYPES];
 
     QGraphicsScene* scene;
 };

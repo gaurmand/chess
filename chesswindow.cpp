@@ -4,7 +4,8 @@
 ChessWindow::ChessWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    this->setCentralWidget(chessWidget);
+    chessWidget = new ChessWidget;
+    setCentralWidget(chessWidget);
     setWindowTitle(tr("Cheese"));
 }
 

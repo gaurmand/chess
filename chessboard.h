@@ -9,10 +9,12 @@ class ChessBoard
 {
 public:
     ChessBoard();
-    ChessPiece* performMove(IBP src, IBP dst);
-    ChessPiece* performMove(ABP src, ABP dst);
+    ChessPiece* movePiece(IBP src, IBP dst);
+    ChessPiece* movePiece(ABP src, ABP dst);
     ChessPiece* getPiece(IBP src);
     ChessPiece* getPiece(ABP src);
+    void setPiece(ChessPiece* piece, IBP dst);
+    void setPiece(ChessPiece* piece, ABP dst);
 
 public:
     static IBP tranlateABPoIBP(ABP pos);
