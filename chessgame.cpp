@@ -4,18 +4,31 @@
 #include "chessgame.h"
 #include "chesspiece.h"
 
-ChessGame::ChessGame(BoardState state)
+ChessGame::ChessGame(GameState state)
 {
-    setBoardState(state);
-
+    //init moves array
     for (int i=0; i<NUM_PLAYERS; i++){
         for(int j=0; j<NUM_CHESS_PIECES; j++){
             moves[i][j] = nullptr;
         }
     }
+
+    setGameState(state);
 }
 
-bool ChessGame::isValidBoardState(BoardState state)
+ChessGame::ChessGame()
+{
+    //init moves array
+    for (int i=0; i<NUM_PLAYERS; i++){
+        for(int j=0; j<NUM_CHESS_PIECES; j++){
+            moves[i][j] = nullptr;
+        }
+    }
+
+    setInitialGameState();
+}
+
+bool ChessGame::isValidGameState(GameState state)
 {
     return true;
 }
@@ -37,19 +50,46 @@ void ChessGame::initChessPiece(Player player, PieceID id, PieceType type, IBP po
 {
     pieces[player][id] = new ChessPiece(player, type, pos);
     board.setPiece(pieces[player][id], pos);
+}
 
+void ChessGame::clearMoves()
+{
+    for (int i=0; i<NUM_PLAYERS; i++){
+        for(int j=0; j<NUM_CHESS_PIECES; j++){
+            if(moves[i][j] != nullptr) {
+                delete moves[i][j];
+                moves[i][j] = nullptr;
+            }
+        }
+    }
+    numAvailableMoves = 0;
 }
 
 ChessPiece* ChessGame::getChessPiece(Player player, PieceID id) {
     return pieces[player][id];
 }
 
-bool ChessGame::setBoardState(BoardState state)
+bool ChessGame::setGameState(GameState state)
 {
-    if(!isValidBoardState(state)) {
-        return false;
-    }
+    return true;
+}
 
+bool ChessGame::setInitialGameState()
+{
+    //set game state variables to initial state
+    for(int i=0; i<NUM_PLAYERS; i++) {
+        canKingsideCastle[i] = true;
+        canQueensideCastle[i] = true;
+        isInCheck[i] = false;
+    }
+    isEnPassantPossible = false;
+    enPassantPosition = {0,0};
+    activePlayer = WHITE;
+
+    //clear moves array and free memory
+    clearMoves();
+
+    //set white pieces to initial positions
     initChessPiece(WHITE, K, KING,      {7, 4});
     initChessPiece(WHITE, Q, QUEEN,     {7, 3});
     initChessPiece(WHITE, RA, ROOK,     {7, 0});
@@ -67,6 +107,7 @@ bool ChessGame::setBoardState(BoardState state)
     initChessPiece(WHITE, PG, PAWN,     {6, 6});
     initChessPiece(WHITE, PH, PAWN,     {6, 7});
 
+    //set black pieces to initial positions
     initChessPiece(BLACK, K, KING,      {0, 4});
     initChessPiece(BLACK, Q, QUEEN,     {0, 3});
     initChessPiece(BLACK, RA, ROOK,     {0, 0});

@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-typedef std::string BoardState; //FEN string (https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)
+typedef std::string GameState; //FEN string (https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)
 typedef std::string ChessMove;  //modified LAN string (https://en.wikipedia.org/wiki/Algebraic_notation_(chess))
 typedef std::vector<ChessMove> ChessMoves;
 

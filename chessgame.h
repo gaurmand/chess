@@ -8,13 +8,13 @@
 class ChessGame
 {
 public:
-    ChessGame(BoardState state);
-    ChessGame() : ChessGame(INIT_BOARD_STATE) {};
+    ChessGame(GameState state);
+    ChessGame();
     ~ChessGame();
 
-    bool isValidBoardState(BoardState state);
-    bool setBoardState(BoardState state);
-    bool setPiecesState(BoardState stat);
+    bool isValidGameState(GameState state);
+    bool setGameState(GameState state);
+    bool setInitialGameState();
 
     ChessPiece* getChessPiece(Player player, PieceID id);
 
@@ -35,18 +35,19 @@ public:
 
 protected:
     void initChessPiece(Player player, PieceID id, PieceType type, IBP pos);
+    void clearMoves();
 
 private:
     bool canKingsideCastle[NUM_PLAYERS] = {true, true};
     bool canQueensideCastle[NUM_PLAYERS] = {true, true};
     bool isInCheck[NUM_PLAYERS] = {false, false};
-    int numAvailableMoves = 0;
     int numFullmoves = 0;
     bool isEnPassantPossible = false;
     IBP enPassantPosition = {0,0};
     Player activePlayer = WHITE;
     ChessPiece* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     ChessMoves* moves[NUM_PLAYERS][NUM_CHESS_PIECES];
+    int numAvailableMoves = 0;
     ChessBoard board;
 };
 
