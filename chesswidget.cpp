@@ -53,6 +53,9 @@ ChessWidget::ChessWidget(QWidget *parent)
 
     //set min widget size
     setMinimumSize(400, 400);
+
+    //start new game
+    newGame(false);
 }
 
 ChessWidget::~ChessWidget() {
@@ -77,4 +80,43 @@ void ChessWidget::setInitialBoardState() {
 
 QPixmap* ChessWidget::getPiecePixmap(PieceType type, Player player) {
     return piecePixmaps[player][type];
+}
+
+void ChessWidget::newGame(bool isWAI)
+{
+    isWhiteAI = isWAI;
+    //game.newGame();
+    nextTurn();
+}
+
+void ChessWidget::nextTurn()
+{
+    game.generateMoves();
+//    ChessMove move = selectMove();
+//    performMove(move);
+}
+
+ChessMove ChessWidget::selectMove()
+{
+    bool isWhiteTurn = game.getActivePlayer() == WHITE;
+    if((!isWhiteTurn && isWhiteAI) || (isWhiteTurn && !isWhiteAI)) {
+        return playerSelectMove();
+    } else {
+        return AISelectMove();
+    }
+}
+
+ChessMove ChessWidget::playerSelectMove()
+{
+    return "e1e4";
+}
+
+ChessMove ChessWidget::AISelectMove()
+{
+    return "e1e4";
+}
+
+bool ChessWidget::performMove(ChessMove move)
+{
+    return true;
 }

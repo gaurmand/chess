@@ -19,12 +19,20 @@ public:
     void setInitialBoardState();
     QPixmap* getPiecePixmap(PieceType type, Player player);
 
+    void newGame(bool isWhiteAI);
+    void nextTurn();
+    ChessMove selectMove();
+    ChessMove playerSelectMove();
+    ChessMove AISelectMove();
+    bool performMove(ChessMove move);
+
 private:
     ChessGame game;
+    bool isWhiteAI;
+
     ChessBoardQGraphicsItem* chessBoard;
     ChessPieceQGraphicsItem* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     QPixmap* piecePixmaps[NUM_PLAYERS][NUM_CHESS_PIECE_TYPES];
-
     QGraphicsScene* scene;
 };
 

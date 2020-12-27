@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 #include "constants.h"
 #include "chessgame.h"
 #include "chesspiece.h"
@@ -6,12 +7,31 @@
 ChessGame::ChessGame(BoardState state)
 {
     setBoardState(state);
+
+    for (int i=0; i<NUM_PLAYERS; i++){
+        for(int j=0; j<NUM_CHESS_PIECES; j++){
+            moves[i][j] = nullptr;
+        }
+    }
 }
 
 bool ChessGame::isValidBoardState(BoardState state)
 {
     return true;
 }
+
+ChessGame::~ChessGame()
+{
+    for (int i=0; i<NUM_PLAYERS; i++){
+        for(int j=0; j<NUM_CHESS_PIECES; j++){
+            if(pieces[i][j])
+                delete pieces[i][j];
+            if(moves[i][j])
+                delete moves[i][j];
+        }
+    }
+}
+
 
 void ChessGame::initChessPiece(Player player, PieceID id, PieceType type, IBP pos)
 {
@@ -65,4 +85,93 @@ bool ChessGame::setBoardState(BoardState state)
     initChessPiece(BLACK, PH, PAWN,     {1, 7});
 
     return true;
+}
+
+void ChessGame::generateMoves() {
+    numAvailableMoves = 0;
+
+    for (int i=0; i<NUM_PLAYERS; i++){
+        for(int j=0; j<NUM_CHESS_PIECES; j++){
+            ChessPiece* piece = pieces[i][j];
+
+            if(moves[i][j] != nullptr) {
+                delete moves[i][j];
+            }
+
+            if(piece->isCaptured()) {
+                moves[i][j] = nullptr;
+            } else {
+                moves[i][j] = board.getValidMoves(piece);
+            }
+
+            if(moves[i][j] != nullptr) {
+                numAvailableMoves += moves[i][j]->size();
+            }
+        }
+    }
+
+    printGeneratedMoves();
+}
+
+void ChessGame::printGeneratedMoves()
+{
+    for (int i=0; i<NUM_PLAYERS; i++){
+        for(int j=0; j<NUM_CHESS_PIECES; j++){
+            ChessPiece* piece = pieces[i][j];
+
+            std::cout << piece->toString() << ": ";
+
+            if(!piece->isCaptured() && moves[i][j] != nullptr) {
+                std::cout << "(" << moves[i][j]->size() << ") " << movesToString(moves[i][j]);
+            }
+
+            std::cout << std::endl;
+        }
+    }
+}
+
+std::string ChessGame::movesToString(ChessMoves* moves)
+{
+    std::string res = "";
+    for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
+        ChessMove move = *it;
+        res += move;
+    }
+
+    return res;
+}
+
+Player ChessGame::getActivePlayer()
+{
+    return activePlayer;
+}
+
+void ChessGame::switchActivePlayer()
+{
+    if(activePlayer == WHITE)
+        activePlayer = BLACK;
+    else
+        activePlayer = WHITE;
+}
+
+void ChessGame::setActivePlayer(Player player)
+{
+    activePlayer = player;
+}
+
+bool ChessGame::isValidMoveAvailable()
+{
+    return numAvailableMoves != 0;
+}
+
+
+bool ChessGame::isCheckmate()
+{
+    return isInCheck[activePlayer] && !isValidMoveAvailable();
+}
+
+bool ChessGame::isStalemate()
+{
+    return !isInCheck[activePlayer] && !isValidMoveAvailable();
+
 }

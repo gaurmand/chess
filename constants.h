@@ -3,6 +3,12 @@
 
 #define NUM_ROWS 8
 #define NUM_COLS 8
+
+#define MAX_ROW_INDEX NUM_ROWS-1
+#define MIN_ROW_INDEX 0
+#define MAX_COL_INDEX NUM_COLS-1
+#define MIN_COL_INDEX 0
+
 #define SQUARE_WIDTH 90
 #define BOARD_WIDTH SQUARE_WIDTH*NUM_ROWS
 #define BOARD_HEIGHT SQUARE_WIDTH*NUM_COLS
@@ -26,8 +32,8 @@ enum Player{WHITE, BLACK};
 
 struct InternalBoardPosition
 {
-    unsigned char row;
-    unsigned char col;
+    int row;
+    int col;
 };
 
 typedef std::string AlgebraicBoardPosition;
