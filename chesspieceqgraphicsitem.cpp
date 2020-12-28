@@ -1,4 +1,6 @@
 #include <QPainter>
+#include <QGraphicsSceneEvent>
+#include <iostream>
 #include "chesswidget.h"
 #include "chesspieceqgraphicsitem.h"
 #include "chesspiece.h"
@@ -7,6 +9,7 @@ ChessPieceQGraphicsItem::ChessPieceQGraphicsItem(ChessWidget *cw,  ChessPiece* p
     : chessWidget(cw), piece(pc)
 {
     setZValue(1);
+    setFlag(ItemIsMovable);
     setBoardPosition();
     setPixmap();
 }
@@ -30,3 +33,39 @@ void ChessPieceQGraphicsItem::setBoardPosition()
 void ChessPieceQGraphicsItem::setPixmap(){
     piecePixmap = chessWidget->getPiecePixmap(piece->getType(), piece->getOwner());
 }
+
+void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    std::cout << piece->toString() << " clicked" << std::endl;
+    QGraphicsItem::mousePressEvent(event);
+}
+
+void ChessPieceQGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+    int x = event->scenePos().x();
+    int y = event->scenePos().y();
+
+    x = (x / SQUARE_WIDTH)*SQUARE_WIDTH;
+    y = (y / SQUARE_WIDTH)*SQUARE_WIDTH;
+//    std::cout << "(" << x  << "," << y << ")" << std::endl;
+
+    setPos(x,y);
+    update();
+
+    QGraphicsItem::mouseReleaseEvent(event);
+
+}
+
+//void ChessPieceQGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+//{
+//    std::cout << piece->toString() << " mouse move" << std::endl;
+//    QGraphicsItem::mouseMoveEvent(event);
+//}
+
+//void ChessPieceQGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+//{
+//    std::cout << piece->toString() << " mouse dbl click" << std::endl;
+//    QGraphicsItem::mouseDoubleClickEvent(event);
+//}
+
+

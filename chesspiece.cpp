@@ -49,17 +49,17 @@ std::string ChessPiece::toString() {
     std::string res = ChessBoard::tranlateIBPoABP(pos);
     switch(type) {
         case KING:
-            return res + ((owner == WHITE) ? "K" : "k");
+            return ((owner == WHITE) ? "K" : "k") + res;
         case QUEEN:
-            return res + ((owner == WHITE) ? "Q" : "q");
+            return ((owner == WHITE) ? "Q" : "q") + res;
         case ROOK:
-            return res + ((owner == WHITE) ? "R" : "r");
+            return ((owner == WHITE) ? "R" : "r") + res;
         case BISHOP:
-            return res + ((owner == WHITE) ? "B" : "b");
+            return ((owner == WHITE) ? "B" : "b") + res;
         case KNIGHT:
-            return res + ((owner == WHITE) ? "N" : "n");
+            return ((owner == WHITE) ? "N" : "n") + res;
         case PAWN:
-            return res + ((owner == WHITE) ? "P" : "p");
+            return ((owner == WHITE) ? "P" : "p") + res;
     }
 }
 

@@ -15,7 +15,8 @@ class ChessWidget : public QGraphicsView
 public:
     ChessWidget(QWidget *parent = nullptr);
     ~ChessWidget();
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
+
     void setInitialBoardState();
     QPixmap* getPiecePixmap(PieceType type, Player player);
 
