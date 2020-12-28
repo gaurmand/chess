@@ -8,13 +8,18 @@ class ChessPiece
 {
 public:
     ChessPiece(Player o, PieceType t, IBP p) : owner(o), type(t), pos(p) {}
-    ChessPiece() : ChessPiece(WHITE, PAWN, {0, 0}) {}
+    ChessPiece() {}
 
     IBP getIBPos();
-    void setIBPos(IBP newPos);
     PieceType getType();
     Player getOwner();
     bool isCaptured();
+
+    void setPiece(Player o, PieceType t, IBP p, bool c = false);
+    void setIBPos(IBP newPos);
+    void setType(PieceType newType);
+    void setCaptured(bool cap);
+
     std::string toString();
 
 private:

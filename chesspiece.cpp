@@ -12,12 +12,6 @@ IBP ChessPiece::getIBPos()
     return pos;
 }
 
-void ChessPiece::setIBPos(IBP newPos)
-{
-    pos = newPos;
-}
-
-
 PieceType ChessPiece::getType()
 {
     return type;
@@ -28,86 +22,45 @@ Player ChessPiece::getOwner()
     return owner;
 }
 
-//std::string ChessPiece::toString() {
-//    QString str = "%1 %2 (%3, %4)";
-//    if(owner == WHITE) {
-//        str = str.arg("white");
-//    } else {
-//        str = str.arg("black");
-//    }
+void ChessPiece::setPiece(Player o, PieceType t, IBP p, bool c)
+{
+    owner = o;
+    type = t;
+    pos = p;
+    captured = c;
+}
 
-//    switch(type) {
-//        case KING:
-//            str = str.arg("king");
-//            break;
-//        case QUEEN:
-//            str = str.arg("queen");
-//            break;
-//        case ROOK:
-//            str = str.arg("rook");
-//            break;
-//        case BISHOP:
-//            str = str.arg("bishop");
-//            break;
-//        case KNIGHT:
-//            str = str.arg("knight");
-//            break;
-//        case PAWN:
-//            str = str.arg("pawn");
-//            break;
-//    }
+void ChessPiece::setType(PieceType newType)
+{
+    type = newType;
+}
 
-//    return str.arg(pos.row).arg(pos.col).toStdString();
-//}
+void ChessPiece::setIBPos(IBP newPos)
+{
+    pos = newPos;
+}
+
+void ChessPiece::setCaptured(bool cap)
+{
+    captured = cap;
+}
 
 std::string ChessPiece::toString() {
-    std::string res = "";
-    if(owner == WHITE) {
-        switch(type) {
-            case KING:
-                res = "K";
-                break;
-            case QUEEN:
-                res = "Q";
-                break;
-            case ROOK:
-                res = "R";
-                break;
-            case BISHOP:
-                res = "B";
-                break;
-            case KNIGHT:
-                res = "N";
-                break;
-            case PAWN:
-                res = "P";
-                break;
-        }
-    } else {
-        switch(type) {
-            case KING:
-                res = "k";
-                break;
-            case QUEEN:
-                res = "q";
-                break;
-            case ROOK:
-                res = "r";
-                break;
-            case BISHOP:
-                res = "b";
-                break;
-            case KNIGHT:
-                res = "n";
-                break;
-            case PAWN:
-                res = "p";
-                break;
-        }
+    std::string res = ChessBoard::tranlateIBPoABP(pos);
+    switch(type) {
+        case KING:
+            return res + ((owner == WHITE) ? "K" : "k");
+        case QUEEN:
+            return res + ((owner == WHITE) ? "Q" : "q");
+        case ROOK:
+            return res + ((owner == WHITE) ? "R" : "r");
+        case BISHOP:
+            return res + ((owner == WHITE) ? "B" : "b");
+        case KNIGHT:
+            return res + ((owner == WHITE) ? "N" : "n");
+        case PAWN:
+            return res + ((owner == WHITE) ? "P" : "p");
     }
-
-    res += ChessBoard::tranlateIBPoABP(pos);
-    return res;
 }
 
 
