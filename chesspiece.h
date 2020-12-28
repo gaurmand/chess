@@ -7,9 +7,10 @@
 class ChessPiece
 {
 public:
-    ChessPiece(Player o, PieceType t, IBP p) : owner(o), type(t), pos(p) {}
-    ChessPiece() {}
+    ChessPiece(PieceID i, Player o, PieceType t, IBP p) : id(i), owner(o), type(t), pos(p) {}
+    ChessPiece(PieceID i) : id(i) {}
 
+    PieceID getId();
     IBP getIBPos();
     PieceType getType();
     Player getOwner();
@@ -23,6 +24,7 @@ public:
     std::string toString();
 
 private:
+    PieceID id;
     Player owner;
     PieceType type;
     IBP pos;

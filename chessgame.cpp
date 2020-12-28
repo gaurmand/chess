@@ -16,7 +16,7 @@ ChessGame::ChessGame(GameState state)
     //init pieces array
     for (int i=0; i<NUM_PLAYERS; i++){
         for(int j=0; j<NUM_CHESS_PIECES; j++){
-            pieces[i][j] = new ChessPiece;
+            pieces[i][j] = new ChessPiece(PieceID(j));
         }
     }
 
@@ -35,7 +35,7 @@ ChessGame::ChessGame()
     //init pieces array
     for (int i=0; i<NUM_PLAYERS; i++){
         for(int j=0; j<NUM_CHESS_PIECES; j++){
-            pieces[i][j] = new ChessPiece;
+            pieces[i][j] = new ChessPiece(PieceID(j));
         }
     }
 
@@ -78,9 +78,16 @@ void ChessGame::clearMoves()
     numAvailableMoves = 0;
 }
 
-ChessPiece* ChessGame::getChessPiece(Player player, PieceID id) {
+ChessPiece* ChessGame::getChessPiece(Player player, PieceID id)
+{
     return pieces[player][id];
 }
+
+ChessMoves* ChessGame::getChessMoves(Player player, PieceID id)
+{
+    return moves[player][id];
+}
+
 
 bool ChessGame::setGameState(GameState state)
 {

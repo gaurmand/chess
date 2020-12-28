@@ -17,6 +17,7 @@ public:
     bool setInitialGameState();
 
     ChessPiece* getChessPiece(Player player, PieceID id);
+    ChessMoves* getChessMoves(Player player, PieceID id);
 
     void generateMoves();
     void printGeneratedMoves();

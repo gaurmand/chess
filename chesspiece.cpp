@@ -7,6 +7,11 @@ bool ChessPiece::isCaptured()
     return captured;
 }
 
+PieceID ChessPiece::getId()
+{
+    return id;
+}
+
 IBP ChessPiece::getIBPos()
 {
     return pos;
