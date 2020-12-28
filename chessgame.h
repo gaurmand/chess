@@ -34,7 +34,7 @@ public:
     bool isValidMoveAvailable();
 
 protected:
-    void initChessPiece(Player player, PieceID id, PieceType type, IBP pos);
+    void initChessPiece( PieceID id, Player player, PieceType type, IBP pos);
     void clearMoves();
 
 private:

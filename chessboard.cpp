@@ -8,12 +8,18 @@ char colToFile[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
 
 ChessBoard::ChessBoard()
 {
+    clearBoard();
+}
+
+void ChessBoard::clearBoard()
+{
     for(int i=0; i<NUM_ROWS; i++) {
         for(int j=0; j<NUM_COLS; j++) {
             board[i][j] = nullptr;
         }
     }
 }
+
 
 ChessPiece* ChessBoard::movePiece(IBP src, IBP dst)
 {

@@ -9,6 +9,8 @@ class ChessBoard
 {
 public:
     ChessBoard();
+    void clearBoard();
+
     ChessPiece* movePiece(IBP src, IBP dst);
     ChessPiece* movePiece(ABP src, ABP dst);
     ChessPiece* getPiece(IBP src);
