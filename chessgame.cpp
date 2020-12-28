@@ -13,6 +13,13 @@ ChessGame::ChessGame(GameState state)
         }
     }
 
+    //init pieces array
+    for (int i=0; i<NUM_PLAYERS; i++){
+        for(int j=0; j<NUM_CHESS_PIECES; j++){
+            pieces[i][j] = new ChessPiece;
+        }
+    }
+
     setGameState(state);
 }
 
@@ -22,6 +29,13 @@ ChessGame::ChessGame()
     for (int i=0; i<NUM_PLAYERS; i++){
         for(int j=0; j<NUM_CHESS_PIECES; j++){
             moves[i][j] = nullptr;
+        }
+    }
+
+    //init pieces array
+    for (int i=0; i<NUM_PLAYERS; i++){
+        for(int j=0; j<NUM_CHESS_PIECES; j++){
+            pieces[i][j] = new ChessPiece;
         }
     }
 
@@ -37,8 +51,7 @@ ChessGame::~ChessGame()
 {
     for (int i=0; i<NUM_PLAYERS; i++){
         for(int j=0; j<NUM_CHESS_PIECES; j++){
-            if(pieces[i][j])
-                delete pieces[i][j];
+            delete pieces[i][j];
             if(moves[i][j])
                 delete moves[i][j];
         }
@@ -48,7 +61,7 @@ ChessGame::~ChessGame()
 
 void ChessGame::initChessPiece(Player player, PieceID id, PieceType type, IBP pos)
 {
-    pieces[player][id] = new ChessPiece(player, type, pos);
+    pieces[player][id]->setPiece(player, type, pos);
     board.setPiece(pieces[player][id], pos);
 }
 
