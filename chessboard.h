@@ -25,6 +25,8 @@ public:
 public:
     static IBP tranlateABPoIBP(ABP pos);
     static ABP tranlateIBPoABP(IBP pos);
+    static IBP getMoveSrc(ChessMove move);
+    static IBP getMoveDst(ChessMove move);
 
 protected:
     ChessMoves* getPawnMoves(ChessPiece* piece);
