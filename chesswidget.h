@@ -27,14 +27,37 @@ public:
     ChessMove AISelectMove();
     bool performMove(ChessMove move);
 
+    bool isReadyToDisplayMoves();
+    void setReadyToDisplayMoves();
+    void setUnreadyToDisplayMoves();
+
+    bool isPieceSelected();
+    PieceID getSelectedPiece();
+    void setSelectedPiece(PieceID pid);
+    void clearSelectedPiece();
+
+    BGState getBGState(int i, int j);
+    void updateChessBoard();
+
+    Player getActivePlayer();
+
+
+protected:
+    void computeBoardGraphicalStates();
+
 private:
     ChessGame game;
     bool isWhiteAI;
+    bool readyToDisplayMoves = false;
+    bool pieceSelected = false;
+    PieceID selectedPiece;
 
     ChessBoardQGraphicsItem* chessBoard;
+    BGState boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];
     ChessPieceQGraphicsItem* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     QPixmap* piecePixmaps[NUM_PLAYERS][NUM_CHESS_PIECE_TYPES];
     QGraphicsScene* scene;
+
 };
 
 #endif // CHESSWIDGET_H

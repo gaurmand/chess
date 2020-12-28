@@ -40,4 +40,7 @@ typedef std::string AlgebraicBoardPosition;
 typedef AlgebraicBoardPosition ABP;
 typedef InternalBoardPosition IBP;
 
+enum class BoardGraphicalState{NORMAL, SOURCE, MOVE, CAPTURE, CASTLE, PROMOTION, CHECK};
+typedef BoardGraphicalState BGState;
+
 #endif // CONSTANTS_H

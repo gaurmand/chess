@@ -2,6 +2,7 @@
 #define CHESSBOARDQGRAPHICSITEM_H
 
 #include <QGraphicsItem>
+#include "constants.h"
 
 class ChessWidget;
 
@@ -12,7 +13,9 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
-    void drawSquare(int i, int j, QPainter *painter, QColor color);
+    void drawNormalSquare(int i, int j, QPainter *painter);
+    void drawSquareState(int i, int j, QPainter *painter);
+    void drawCircle(int radius, QColor color, QPainter *painter);
     void drawBoard(QPainter *painter);
 
 private:

@@ -38,6 +38,18 @@ void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
     std::cout << piece->toString() << " clicked" << std::endl;
     QGraphicsItem::mousePressEvent(event);
+
+    if(chessWidget->getActivePlayer() == piece->getOwner()) {
+        if(chessWidget->isPieceSelected() && chessWidget->getSelectedPiece() == piece->getId()){
+            //if selected piece clicked -> clear selection
+            chessWidget->clearSelectedPiece();
+            chessWidget->updateChessBoard();
+        } else {
+            //if unselected piece clicked -> select piece
+            chessWidget->setSelectedPiece(piece->getId());
+            chessWidget->updateChessBoard();
+        }
+    }
 }
 
 void ChessPieceQGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
