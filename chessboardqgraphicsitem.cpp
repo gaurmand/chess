@@ -78,7 +78,7 @@ void ChessBoardQGraphicsItem::drawCircle(int radius, QColor color, QPainter *pai
     painter->setPen(Qt::NoPen);
     painter->setBrush(color);
 
-    QPointF center = {45, 45};
+    QPointF center = {SQUARE_WIDTH/2, SQUARE_WIDTH/2};
     painter->drawEllipse(center, radius,  radius);
 }
 
