@@ -43,4 +43,7 @@ typedef InternalBoardPosition IBP;
 enum class BoardGraphicalState{NORMAL, SOURCE, MOVE, CAPTURE, CASTLE, PROMOTION, CHECK};
 typedef BoardGraphicalState BGState;
 
+#define CHESSBOARD_QGRAPHICSITEM_TYPE 65537
+#define CHESSPIECE_QGRAPHICSITEM_TYPE 65538
+
 #endif // CONSTANTS_H
