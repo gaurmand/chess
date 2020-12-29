@@ -36,7 +36,6 @@ void ChessPieceQGraphicsItem::setPixmap(){
 
 void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    std::cout << piece->toString() << " clicked" << std::endl;
     QGraphicsItem::mousePressEvent(event);
 
     if(chessWidget->getActivePlayer() == piece->getOwner()) {
@@ -44,10 +43,12 @@ void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
             //if selected piece clicked -> clear selection
             chessWidget->clearSelectedPiece();
             chessWidget->updateChessBoard();
+            std::cout << "Deselected piece: " << piece->toString() << std::endl;
         } else {
             //if unselected piece clicked -> select piece
             chessWidget->setSelectedPiece(piece->getId());
             chessWidget->updateChessBoard();
+            std::cout << "Selected piece: " << piece->toString() << std::endl;
         }
     }
 }
