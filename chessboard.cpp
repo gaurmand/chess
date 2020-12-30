@@ -206,15 +206,23 @@ ABP ChessBoard::tranlateIBPoABP(IBP pos)
     return file+std::to_string(rank);
 }
 
-IBP ChessBoard::getMoveSrc(ChessMove move)
+IBP ChessBoard::getMoveSrcIBP(ChessMove move)
 {
     ABP src = move.substr(0,2);
     return ChessBoard::tranlateABPoIBP(src);
 }
-
-IBP ChessBoard::getMoveDst(ChessMove move)
+IBP ChessBoard::getMoveDstIBP(ChessMove move)
 {
     ABP dst = move.substr(2,2);
     return ChessBoard::tranlateABPoIBP(dst);
+}
+ABP ChessBoard::getMoveSrcABP(ChessMove move)
+{
+    return move.substr(0,2);
+}
+
+ABP ChessBoard::getMoveDstABP(ChessMove move)
+{
+    return move.substr(2,2);
 }
 
