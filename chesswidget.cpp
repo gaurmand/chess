@@ -111,9 +111,46 @@ void ChessWidget::chessPieceItemMousePress(ChessPiece* piece)
 void ChessWidget::chessBoardItemMousePress(IBP pos)
 {
     if(isPieceSelected()) {
-        deselectPiece();
+        PieceID pid = selectedPiece->getId();
+        BGState bgs = boardGraphicalState[pid][pos.row][pos.col];
+
+        switch(bgs) {
+            case BGState::MOVE:
+            case BGState::CAPTURE:
+            case BGState::CASTLE:
+            case BGState::PROMOTION:
+            {
+                ChessMove move = getPlayerSelectedMove(selectedPiece, pos);
+                if(!move.empty()) {
+                    playerTurn(move);
+                }
+                return;
+            }
+            case BGState::SOURCE:
+            case BGState::NORMAL:
+            default:
+                deselectPiece();
+                return;
+        }
+
     }
 }
+
+ChessMove ChessWidget::getPlayerSelectedMove(ChessPiece* piece, IBP moveDst)
+{
+    ABP moveDstABP = ChessBoard::tranlateIBPoABP(moveDst);
+    ChessMoves* moves = game.getChessMoves(piece->getOwner(), piece->getId());
+
+    for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
+        ChessMove move = *it;
+        ABP dst = ChessBoard::getMoveDstABP(move);
+        if(dst == moveDstABP) {
+            return move;
+        }
+    }
+    return "";
+}
+
 
 void ChessWidget::chessPieceItemMouseRelease(ChessPiece* piece, QPointF point)
 {
@@ -166,7 +203,7 @@ void ChessWidget::newGame(bool isWAI)
     //game.newGame();
     setUnreadyToDisplayMoves();
     deselectPiece()  ;
-    nextTurn();
+    startTurn();
 }
 
 bool ChessWidget::isReadyToDisplayMoves()
@@ -221,34 +258,28 @@ BGState ChessWidget::getBGState(int i, int j)
 }
 
 
-void ChessWidget::nextTurn()
+void ChessWidget::startTurn()
 {
     game.generateMoves();
     computeBoardGraphicalStates();
     setReadyToDisplayMoves();
-
-//    ChessMove move = selectMove();
-//    performMove(move);
 }
 
-ChessMove ChessWidget::selectMove()
+void ChessWidget::completeTurn(ChessMove move)
 {
-    bool isWhiteTurn = game.getActivePlayer() == WHITE;
-    if((!isWhiteTurn && isWhiteAI) || (isWhiteTurn && !isWhiteAI)) {
-        return playerSelectMove();
-    } else {
-        return AISelectMove();
-    }
+    playerTurn(move);
 }
 
-ChessMove ChessWidget::playerSelectMove()
+
+void ChessWidget::playerTurn(ChessMove move)
 {
-    return "e1e4";
+    std::cout << "Selected move: " << move << std::endl;
+    return;
 }
 
-ChessMove ChessWidget::AISelectMove()
+void ChessWidget::AITurn(ChessMove move)
 {
-    return "e1e4";
+    return;
 }
 
 bool ChessWidget::performMove(ChessMove move)
@@ -282,10 +313,9 @@ void ChessWidget::computeBoardGraphicalStates()
 
         for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
             ChessMove move = *it;
-            IBP dst = ChessBoard::getMoveDst(move);
+            IBP dst = ChessBoard::getMoveDstIBP(move);
             boardGraphicalState[pid][dst.row][dst.col] = BGState::MOVE;
         }
-
     }
 }
 

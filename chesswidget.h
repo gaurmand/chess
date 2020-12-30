@@ -31,10 +31,10 @@ public:
     QPixmap* getPiecePixmap(PieceType type, Player player);
 
     void newGame(bool isWhiteAI);
-    void nextTurn();
-    ChessMove selectMove();
-    ChessMove playerSelectMove();
-    ChessMove AISelectMove();
+    void startTurn();
+    void completeTurn(ChessMove move);
+    void playerTurn(ChessMove move);
+    void AITurn(ChessMove move);
     bool performMove(ChessMove move);
 
     bool isReadyToDisplayMoves();
@@ -53,6 +53,7 @@ public:
 
 protected:
     void computeBoardGraphicalStates();
+    ChessMove getPlayerSelectedMove(ChessPiece* piece, IBP moveDst);
 
 private:
     bool isRecentSelection = false;
