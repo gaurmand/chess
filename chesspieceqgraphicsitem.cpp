@@ -8,7 +8,7 @@
 ChessPieceQGraphicsItem::ChessPieceQGraphicsItem(ChessWidget *cw,  ChessPiece* pc)
     : chessWidget(cw), piece(pc)
 {
-    setZValue(1);
+    setZValue(0);
     setFlag(ItemIsMovable);
     setBoardPosition();
     setPixmap();
@@ -36,37 +36,20 @@ void ChessPieceQGraphicsItem::setPixmap(){
 
 void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    QGraphicsItem::mousePressEvent(event);
+    setZValue(1);
+    chessWidget->chessPieceItemMousePress(piece);
 
-    if(chessWidget->getActivePlayer() == piece->getOwner()) {
-        if(chessWidget->isPieceSelected() && chessWidget->getSelectedPiece() == piece->getId()){
-            //if selected piece clicked -> clear selection
-            chessWidget->clearSelectedPiece();
-            chessWidget->updateChessBoard();
-            std::cout << "Deselected piece: " << piece->toString() << std::endl;
-        } else {
-            //if unselected piece clicked -> select piece
-            chessWidget->setSelectedPiece(piece->getId());
-            chessWidget->updateChessBoard();
-            std::cout << "Selected piece: " << piece->toString() << std::endl;
-        }
-    }
+    QGraphicsItem::mousePressEvent(event);
 }
 
 void ChessPieceQGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-    int x = event->scenePos().x();
-    int y = event->scenePos().y();
-
-    x = (x / SQUARE_WIDTH)*SQUARE_WIDTH;
-    y = (y / SQUARE_WIDTH)*SQUARE_WIDTH;
-//    std::cout << "(" << x  << "," << y << ")" << std::endl;
-
-    setPos(x,y);
+    setZValue(0);
+    chessWidget->chessPieceItemMouseRelease(piece, event->scenePos());
+    setBoardPosition();
     update();
 
     QGraphicsItem::mouseReleaseEvent(event);
-
 }
 
 //void ChessPieceQGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)

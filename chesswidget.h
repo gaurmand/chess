@@ -16,6 +16,16 @@ public:
     ChessWidget(QWidget *parent = nullptr);
     ~ChessWidget();
     void resizeEvent(QResizeEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+//    void mouseReleaseEvent(QMouseEvent* event) override;
+    void chessPieceItemMousePress(ChessPiece* piece);
+    void chessPieceItemMouseRelease(ChessPiece* piece, QPointF point);
+    void chessBoardItemMousePress(IBP pos);
+    void selectPiece(ChessPiece* piece);
+    void deselectPiece();
+    static IBP getChessboardPosition(QPointF point);
+    static bool isClickInChessBoard(QPointF point);
+    static bool isSamePosition(IBP p1, IBP p2);
 
     void setInitialBoardState();
     QPixmap* getPiecePixmap(PieceType type, Player player);
@@ -32,12 +42,11 @@ public:
     void setUnreadyToDisplayMoves();
 
     bool isPieceSelected();
-    PieceID getSelectedPiece();
+    ChessPiece* getSelectedPiece();
     void setSelectedPiece(PieceID pid);
     void clearSelectedPiece();
 
     BGState getBGState(int i, int j);
-    void updateChessBoard();
 
     Player getActivePlayer();
 
@@ -46,11 +55,12 @@ protected:
     void computeBoardGraphicalStates();
 
 private:
+    bool isRecentSelection = false;
     ChessGame game;
     bool isWhiteAI;
     bool readyToDisplayMoves = false;
     bool pieceSelected = false;
-    PieceID selectedPiece;
+    ChessPiece* selectedPiece;
 
     ChessBoardQGraphicsItem* chessBoard;
     BGState boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];

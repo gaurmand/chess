@@ -1,4 +1,6 @@
 #include <QFrame>
+#include <QMouseEvent>
+#include <iostream>
 #include "chesswidget.h"
 
 ChessWidget::ChessWidget(QWidget *parent)
@@ -83,6 +85,73 @@ void ChessWidget::resizeEvent(QResizeEvent *event) {
     fitInView(QRect(0,0,BOARD_WIDTH, BOARD_HEIGHT), Qt::AspectRatioMode::KeepAspectRatio);
 }
 
+void ChessWidget::mousePressEvent(QMouseEvent* event)
+{
+    QGraphicsItem* item = itemAt(event->pos());
+    if(item && item->type() == CHESSBOARD_QGRAPHICSITEM_TYPE) {
+        IBP clickedPos = ChessWidget::getChessboardPosition(event->pos());
+        chessBoardItemMousePress(clickedPos);
+    }
+    QGraphicsView::mousePressEvent(event);
+}
+
+void ChessWidget::chessPieceItemMousePress(ChessPiece* piece)
+{
+    bool cond1 = !isPieceSelected() && getActivePlayer() == piece->getOwner();  //no piece is selected and any owned piece is clicked
+    bool cond2 = isPieceSelected() && getSelectedPiece() != piece;              //a piece is currently selected and any other owned piece is clicked
+
+    if(cond1 || cond2) {
+        selectPiece(piece);
+
+        //set flag to prevent next mouse release event from deselecting
+        isRecentSelection = true;
+    }
+}
+
+void ChessWidget::chessBoardItemMousePress(IBP pos)
+{
+    if(isPieceSelected()) {
+        deselectPiece();
+    }
+}
+
+void ChessWidget::chessPieceItemMouseRelease(ChessPiece* piece, QPointF point)
+{
+    IBP clickedPos = ChessWidget::getChessboardPosition(point);
+    if(!ChessWidget::isSamePosition(clickedPos, piece->getIBPos())) {
+        //if piece dragged to different square -> deselect
+        deselectPiece();
+    }else if(isRecentSelection) {
+        //if mouse press event just selected piece -> ignore mouse release
+        isRecentSelection = false;
+    } else {
+        deselectPiece();
+    }
+}
+
+IBP ChessWidget::getChessboardPosition(QPointF point)
+{
+    int x = point.x();
+    int y = point.y();
+
+    int i = (y / SQUARE_WIDTH);
+    int j = (x / SQUARE_WIDTH);
+    return {i,j};
+}
+
+bool ChessWidget::isClickInChessBoard(QPointF point)
+{
+    int x = point.x();
+    int y = point.y();
+    return (x >= 0 && x<=BOARD_WIDTH) && (y>=0 && y<=BOARD_HEIGHT);
+}
+
+bool ChessWidget::isSamePosition(IBP p1, IBP p2)
+{
+    return p1.col == p2.col && p1.row == p2.row;
+}
+
+
 void ChessWidget::setInitialBoardState() {
 
 }
@@ -96,7 +165,7 @@ void ChessWidget::newGame(bool isWAI)
     isWhiteAI = isWAI;
     //game.newGame();
     setUnreadyToDisplayMoves();
-    clearSelectedPiece();
+    deselectPiece()  ;
     nextTurn();
 }
 
@@ -115,24 +184,29 @@ void ChessWidget::setUnreadyToDisplayMoves()
     readyToDisplayMoves = false;
 }
 
+void ChessWidget::selectPiece(ChessPiece* piece)
+{
+    pieceSelected = true;
+    selectedPiece = piece;
+    chessBoard->update();
+    std::cout << "Selected piece: " << piece->toString() << std::endl;
+}
+
+void ChessWidget::deselectPiece()
+{
+    std::cout << "Deselected piece: " << ((pieceSelected) ? selectedPiece->toString() : "") << std::endl;
+    pieceSelected = false;
+    chessBoard->update();
+}
+
 
 bool ChessWidget::isPieceSelected()
 {
     return pieceSelected;
 }
 
-void ChessWidget::setSelectedPiece(PieceID pid)
-{
-    pieceSelected = true;
-    selectedPiece = pid;
-}
 
-void ChessWidget::clearSelectedPiece()
-{
-    pieceSelected = false;
-}
-
-PieceID ChessWidget::getSelectedPiece()
+ChessPiece* ChessWidget::getSelectedPiece()
 {
     return selectedPiece;
 }
@@ -140,7 +214,7 @@ PieceID ChessWidget::getSelectedPiece()
 BGState ChessWidget::getBGState(int i, int j)
 {
     if(pieceSelected) {
-        return boardGraphicalState[selectedPiece][i][j];
+        return boardGraphicalState[selectedPiece->getId()][i][j];
     } else {
         return BGState::NORMAL;
     }
@@ -213,11 +287,6 @@ void ChessWidget::computeBoardGraphicalStates()
         }
 
     }
-}
-
-void ChessWidget::updateChessBoard()
-{
-    chessBoard->update();
 }
 
 Player ChessWidget::getActivePlayer()
