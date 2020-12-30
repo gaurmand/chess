@@ -98,7 +98,7 @@ void ChessWidget::mousePressEvent(QMouseEvent* event)
 void ChessWidget::chessPieceItemMousePress(ChessPiece* piece)
 {
     bool cond1 = !isPieceSelected() && getActivePlayer() == piece->getOwner();  //no piece is selected and any owned piece is clicked
-    bool cond2 = isPieceSelected() && getSelectedPiece() != piece;              //a piece is currently selected and any other owned piece is clicked
+    bool cond2 = isPieceSelected() && getActivePlayer() == piece->getOwner() && getSelectedPiece() != piece;              //a piece is currently selected and any other owned piece is clicked
 
     if(cond1 || cond2) {
         selectPiece(piece);
