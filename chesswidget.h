@@ -53,6 +53,8 @@ public:
 protected:
     void computeBoardGraphicalStates();
     ChessMove getPlayerSelectedMove(ChessPiece* piece, IBP moveDst);
+    void setPiecesMovable(Player player);
+    void setAllPiecesUnmovable();
 
 private:
     ChessGame game;

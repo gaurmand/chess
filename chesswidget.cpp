@@ -1,5 +1,6 @@
 #include <QFrame>
 #include <QMouseEvent>
+#include <QGraphicsItem>
 #include <iostream>
 #include "chesswidget.h"
 
@@ -200,6 +201,7 @@ void ChessWidget::newGame()
 {
     setUnreadyToDisplayMoves();
     deselectPiece();
+    setAllPiecesUnmovable();
     game.setInitialGameState();
     startTurn();
 }
@@ -266,6 +268,7 @@ void ChessWidget::startTurn()
         game.generateMoves();
         computeBoardGraphicalStates();
         setReadyToDisplayMoves();
+        setPiecesMovable(active);
     } else {
         //AI player -> wait for move from chess engine
     }
@@ -285,6 +288,7 @@ void ChessWidget::completeTurn(ChessMove move)
 void ChessWidget::playerTurn(ChessMove move)
 {
     deselectPiece();
+    setAllPiecesUnmovable();
     std::cout << "Selected move: " << move << std::endl;
     return;
 }
@@ -334,4 +338,23 @@ void ChessWidget::computeBoardGraphicalStates()
 Player ChessWidget::getActivePlayer()
 {
     return game.getActivePlayer();
+}
+
+void ChessWidget::setPiecesMovable(Player player)
+{
+    Player active = player;
+    Player inactive = (player == WHITE ? BLACK : WHITE);
+
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
+        pieces[active][pid]->setFlag(QGraphicsItem::ItemIsMovable, true);
+        pieces[inactive][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
+    }
+}
+
+void ChessWidget::setAllPiecesUnmovable()
+{
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
+        pieces[WHITE][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
+        pieces[BLACK][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
+    }
 }
