@@ -66,7 +66,7 @@ ChessWidget::ChessWidget(QWidget *parent)
     setMinimumSize(400, 400);
 
     //start new game
-    newGame(false);
+    newGame();
 }
 
 ChessWidget::~ChessWidget() {
@@ -122,7 +122,7 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
             {
                 ChessMove move = getPlayerSelectedMove(selectedPiece, pos);
                 if(!move.empty()) {
-                    playerTurn(move);
+                    completeTurn(move);
                 }
                 return;
             }
@@ -132,7 +132,6 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
                 deselectPiece();
                 return;
         }
-
     }
 }
 
@@ -197,12 +196,11 @@ QPixmap* ChessWidget::getPiecePixmap(PieceType type, Player player) {
     return piecePixmaps[player][type];
 }
 
-void ChessWidget::newGame(bool isWAI)
+void ChessWidget::newGame()
 {
-    isWhiteAI = isWAI;
-    //game.newGame();
     setUnreadyToDisplayMoves();
-    deselectPiece()  ;
+    deselectPiece();
+    game.setInitialGameState();
     startTurn();
 }
 
@@ -257,22 +255,36 @@ BGState ChessWidget::getBGState(int i, int j)
     }
 }
 
-
 void ChessWidget::startTurn()
 {
-    game.generateMoves();
-    computeBoardGraphicalStates();
-    setReadyToDisplayMoves();
+    Player active = game.getActivePlayer();
+    PlayerType ptype = playerType[active];
+    std::cout << "Start turn: " << (active == WHITE ? "White " : "Black ") << (ptype == PlayerType::HUMAN ? "(Human)" : "(AI)") << std::endl;
+
+    if(ptype == PlayerType::HUMAN) {
+        //HUMAN player -> wait for them to select move
+        game.generateMoves();
+        computeBoardGraphicalStates();
+        setReadyToDisplayMoves();
+    } else {
+        //AI player -> wait for move from chess engine
+    }
 }
 
 void ChessWidget::completeTurn(ChessMove move)
 {
-    playerTurn(move);
+    if(playerType[game.getActivePlayer()] == PlayerType::HUMAN) {
+        playerTurn(move);
+    } else {
+        AITurn(move);
+    }
+    game.switchActivePlayer();
+    startTurn();
 }
-
 
 void ChessWidget::playerTurn(ChessMove move)
 {
+    deselectPiece();
     std::cout << "Selected move: " << move << std::endl;
     return;
 }

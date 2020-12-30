@@ -30,7 +30,7 @@ public:
     void setInitialBoardState();
     QPixmap* getPiecePixmap(PieceType type, Player player);
 
-    void newGame(bool isWhiteAI);
+    void newGame();
     void startTurn();
     void completeTurn(ChessMove move);
     void playerTurn(ChessMove move);
@@ -50,15 +50,15 @@ public:
 
     Player getActivePlayer();
 
-
 protected:
     void computeBoardGraphicalStates();
     ChessMove getPlayerSelectedMove(ChessPiece* piece, IBP moveDst);
 
 private:
-    bool isRecentSelection = false;
     ChessGame game;
-    bool isWhiteAI;
+    PlayerType playerType[NUM_PLAYERS] = {PlayerType::HUMAN, PlayerType::HUMAN};
+
+    bool isRecentSelection = false;
     bool readyToDisplayMoves = false;
     bool pieceSelected = false;
     ChessPiece* selectedPiece;
