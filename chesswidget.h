@@ -47,8 +47,6 @@ public:
 
     BGState getBGState(int i, int j);
 
-    Player getActivePlayer();
-
 protected:
     void computeBoardGraphicalStates();
     ChessMove getPlayerSelectedMove(ChessPiece* piece, IBP moveDst);

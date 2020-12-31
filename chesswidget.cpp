@@ -98,14 +98,22 @@ void ChessWidget::mousePressEvent(QMouseEvent* event)
 
 void ChessWidget::chessPieceItemMousePress(ChessPiece* piece)
 {
-    bool cond1 = !isPieceSelected() && getActivePlayer() == piece->getOwner();  //no piece is selected and any owned piece is clicked
-    bool cond2 = isPieceSelected() && getActivePlayer() == piece->getOwner() && getSelectedPiece() != piece;              //a piece is currently selected and any other owned piece is clicked
+    //no piece is selected and any owned piece is clicked
+    bool cond1 = !isPieceSelected() && game.getActivePlayer() == piece->getOwner();
+
+    //a piece is currently selected and any other owned piece is clicked
+    bool cond2 = isPieceSelected() && game.getActivePlayer() == piece->getOwner() && getSelectedPiece() != piece;
+
+    //a piece is selected and an enemy piece is clicked -> treat as chessboard click
+    bool cond3 = isPieceSelected() && game.getActivePlayer() != piece->getOwner();
 
     if(cond1 || cond2) {
         selectPiece(piece);
 
         //set flag to prevent next mouse release event from deselecting
         isRecentSelection = true;
+    } else if(cond3) {
+        chessBoardItemMousePress(piece->getIBPos());
     }
 }
 
@@ -121,6 +129,11 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
             case BGState::CASTLE:
             case BGState::PROMOTION:
             {
+                ChessPiece* captured = game.getChessPiece(pos);
+                if(captured) {
+                    pieces[captured->getOwner()][captured->getId()]->hide();
+                }
+
                 ChessMove move = getPlayerSelectedMove(selectedPiece, pos);
                 if(!move.empty()) {
                     completeTurn(move);
@@ -336,11 +349,6 @@ void ChessWidget::computeBoardGraphicalStates()
             boardGraphicalState[pid][dst.row][dst.col] = BGState::MOVE;
         }
     }
-}
-
-Player ChessWidget::getActivePlayer()
-{
-    return game.getActivePlayer();
 }
 
 void ChessWidget::setPiecesMovable(Player player)

@@ -88,6 +88,10 @@ ChessMoves* ChessGame::getChessMoves(Player player, PieceID id)
     return moves[player][id];
 }
 
+ChessPiece* ChessGame::getChessPiece(IBP pos)
+{
+    return board.getPiece(pos);
+}
 
 bool ChessGame::setGameState(GameState state)
 {

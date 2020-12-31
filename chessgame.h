@@ -18,6 +18,7 @@ public:
 
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(Player player, PieceID id);
+    ChessPiece* getChessPiece(IBP pos);
 
     void generateMoves();
     void printGeneratedMoves();
