@@ -25,7 +25,7 @@ ChessWidget::ChessWidget(QWidget *parent)
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
         for(int i=0; i<NUM_ROWS; i++) {
             for(int j=0; j<NUM_COLS; j++) {
-                boardGraphicalState[pid][i][j] = BGState::NORMAL;
+                boardGraphicalState[pid][i][j] = BGS::NONE;
             }
         }
     }
@@ -121,13 +121,13 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
 {
     if(isPieceSelected()) {
         PieceID pid = selectedPiece->getId();
-        BGState bgs = boardGraphicalState[pid][pos.row][pos.col];
+        BGS bgs = boardGraphicalState[pid][pos.row][pos.col];
 
         switch(bgs) {
-            case BGState::MOVE:
-            case BGState::CAPTURE:
-            case BGState::CASTLE:
-            case BGState::PROMOTION:
+            case BGS::NORMAL_MOVE:
+            case BGS::CAPTURE:
+            case BGS::CASTLE:
+            case BGS::PROMOTION:
             {
                 ChessPiece* captured = game.getChessPiece(pos);
                 if(captured) {
@@ -140,8 +140,8 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
                 }
                 return;
             }
-            case BGState::SOURCE:
-            case BGState::NORMAL:
+            case BGS::SOURCE:
+            case BGS::NONE:
             default:
                 deselectPiece();
                 return;
@@ -261,12 +261,12 @@ ChessPiece* ChessWidget::getSelectedPiece()
     return selectedPiece;
 }
 
-BGState ChessWidget::getBGState(int i, int j)
+BGS ChessWidget::getBGState(int i, int j)
 {
     if(pieceSelected) {
         return boardGraphicalState[selectedPiece->getId()][i][j];
     } else {
-        return BGState::NORMAL;
+        return BGS::NORMAL_MOVE;
     }
 }
 
@@ -331,13 +331,13 @@ void ChessWidget::computeBoardGraphicalStates()
         //initialize board states for that piece to normal
         for(int i=0; i<NUM_ROWS; i++) {
             for(int j=0; j<NUM_COLS; j++) {
-                boardGraphicalState[pid][i][j] = BGState::NORMAL;
+                boardGraphicalState[pid][i][j] = BGS::NONE;
             }
         }
 
         //set piece square as source
         IBP pos = piece->getIBPos();
-        boardGraphicalState[pid][pos.row][pos.col] = BGState::SOURCE;
+        boardGraphicalState[pid][pos.row][pos.col] = BGS::SOURCE;
 
         //for each move, set dst square board state
         if(moves == nullptr)
@@ -346,7 +346,7 @@ void ChessWidget::computeBoardGraphicalStates()
         for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
             ChessMove move = *it;
             IBP dst = ChessBoard::getMoveDstIBP(move);
-            boardGraphicalState[pid][dst.row][dst.col] = BGState::MOVE;
+            boardGraphicalState[pid][dst.row][dst.col] = BGS::NORMAL_MOVE;
         }
     }
 }

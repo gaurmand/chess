@@ -23,13 +23,25 @@
 #include <vector>
 
 typedef std::string GameState; //FEN string (https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation)
-typedef std::string ChessMove;  //modified LAN string (https://en.wikipedia.org/wiki/Algebraic_notation_(chess))
-typedef std::vector<ChessMove> ChessMoves;
 
 enum PieceType{KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
 enum PieceID{K, Q, RA, RH, BC, BF, NB, NG, PA, PB, PC, PD, PE, PF, PG, PH};
 enum Player{WHITE, BLACK};
 
+/*
+ * BOARD POSITION
+ * InternalBoardPosition: (row, column) pair representing postions on the chess board
+ * (0,0) (0,1) .. (0,7)
+ * (1,0) (1,1) .. (1,7)
+ *   :     :        :
+ * (7,0) (7,1) .. (7,7)
+ *
+ * AlgebraicBoardPosition: (file, rank) pair representing postions on the chess board
+ * a8 b8 .. h8
+ * a7 b7 .. h7
+ * :  :     :
+ * a1 b1 .. h1
+*/
 struct InternalBoardPosition
 {
     int row;
@@ -40,12 +52,19 @@ typedef std::string AlgebraicBoardPosition;
 typedef AlgebraicBoardPosition ABP;
 typedef InternalBoardPosition IBP;
 
-enum class BoardGraphicalState{NORMAL, SOURCE, MOVE, CAPTURE, CASTLE, PROMOTION, CHECK};
-typedef BoardGraphicalState BGState;
+/*
+ * CHESS MOVES
+ * ChessMove: string containing src and dst positions of move (modified long algebraic notation)
+ * e.g. e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)
+ * https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
+*/
 
-enum class PlayerType{HUMAN, AI};
+typedef std::string ChessMove;
+typedef std::vector<ChessMove> ChessMoves;
 
-#define CHESSBOARD_QGRAPHICSITEM_TYPE 65537
-#define CHESSPIECE_QGRAPHICSITEM_TYPE 65538
+enum class ChessMoveType {NONE, NORMAL, CAPTURE, SHORT_CASTLE, LONG_CASTLE, PROMOTION, EN_PASSANT};
+
+enum class BoardGraphicalState{NONE, SOURCE, NORMAL_MOVE, CAPTURE, CASTLE, PROMOTION, CHECK};
+typedef BoardGraphicalState BGS;
 
 #endif // CONSTANTS_H

@@ -1,6 +1,8 @@
 #ifndef CHESSBOARDQGRAPHICSITEM_H
 #define CHESSBOARDQGRAPHICSITEM_H
 
+#define CHESSBOARD_QGRAPHICSITEM_TYPE 65537
+
 #include <QGraphicsItem>
 #include "constants.h"
 

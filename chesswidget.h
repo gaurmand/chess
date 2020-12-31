@@ -9,6 +9,8 @@
 #include "chessboardqgraphicsitem.h"
 #include "chesspieceqgraphicsitem.h"
 
+enum class PlayerType{HUMAN, AI};
+
 class ChessWidget : public QGraphicsView
 {
     Q_OBJECT
@@ -45,7 +47,7 @@ public:
     void setSelectedPiece(PieceID pid);
     void clearSelectedPiece();
 
-    BGState getBGState(int i, int j);
+    BGS getBGState(int i, int j);
 
 protected:
     void computeBoardGraphicalStates();
@@ -64,7 +66,7 @@ private:
     ChessPiece* selectedPiece;
 
     ChessBoardQGraphicsItem* chessBoard;
-    BGState boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];
+    BGS boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];
     ChessPieceQGraphicsItem* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     QPixmap* piecePixmaps[NUM_PLAYERS][NUM_CHESS_PIECE_TYPES];
     QGraphicsScene* scene;

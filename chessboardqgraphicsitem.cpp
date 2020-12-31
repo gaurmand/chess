@@ -40,15 +40,14 @@ void ChessBoardQGraphicsItem::drawSquareState(int i, int j, QPainter *painter)
     painter->save();
     painter->translate(j*SQUARE_WIDTH, i*SQUARE_WIDTH);
 
-    BGState bgs = chessWidget->getBGState(i,j);
+    BGS bgs = chessWidget->getBGState(i,j);
     switch(bgs) {
-        case BGState::SOURCE:
+        case BGS::SOURCE:
             painter->fillRect(squareRect, QColor(224, 224, 117));
             break;
-        case BGState::MOVE:
+        case BGS::NORMAL_MOVE:
             drawCircle(20, QColor(164, 164, 164, 100), painter);
             break;
-        case BGState::NORMAL:
         default:
             break;
     }
