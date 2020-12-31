@@ -35,7 +35,6 @@ public:
     void completeTurn(ChessMove move);
     void playerTurn(ChessMove move);
     void AITurn(ChessMove move);
-    bool performMove(ChessMove move);
 
     bool isReadyToDisplayMoves();
     void setReadyToDisplayMoves();
@@ -55,6 +54,7 @@ protected:
     ChessMove getPlayerSelectedMove(ChessPiece* piece, IBP moveDst);
     void setPiecesMovable(Player player);
     void setAllPiecesUnmovable();
+    void updatePieces();
 
 private:
     ChessGame game;

@@ -199,7 +199,7 @@ std::string ChessGame::movesToString(ChessMoves* moves)
     std::string res = "";
     for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
         ChessMove move = *it;
-        res += move;
+        res += move + " ";
     }
 
     return res;
@@ -238,4 +238,14 @@ bool ChessGame::isStalemate()
 {
     return !isInCheck[activePlayer] && !isValidMoveAvailable();
 
+}
+
+bool ChessGame::performMove(ChessMove move)
+{
+    if(board.isValidMove(move)) {
+        board.performMove(move);
+        switchActivePlayer();
+        return true;
+    }
+    return false;
 }

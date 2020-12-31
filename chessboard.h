@@ -21,6 +21,7 @@ public:
     ChessMoves* getValidMoves(ChessPiece* piece);
     ChessMoves* getLegalMoves(ChessPiece* piece);
     bool isValidMove(ChessMove move);
+    void performMove(ChessMove move);
 
 public:
     static IBP tranlateABPoIBP(ABP pos);

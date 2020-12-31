@@ -276,12 +276,21 @@ void ChessWidget::startTurn()
 
 void ChessWidget::completeTurn(ChessMove move)
 {
+    std::cout << "Selected move: " << move << std::endl;
+
     if(playerType[game.getActivePlayer()] == PlayerType::HUMAN) {
         playerTurn(move);
     } else {
         AITurn(move);
     }
-    game.switchActivePlayer();
+
+    if(game.performMove(move)) {
+        std::cout << "Performed move: " << move << std::endl;
+    } else {
+        std::cout << "Move failed: " << move << std::endl;
+    }
+
+    updatePieces();
     startTurn();
 }
 
@@ -289,18 +298,12 @@ void ChessWidget::playerTurn(ChessMove move)
 {
     deselectPiece();
     setAllPiecesUnmovable();
-    std::cout << "Selected move: " << move << std::endl;
     return;
 }
 
 void ChessWidget::AITurn(ChessMove move)
 {
     return;
-}
-
-bool ChessWidget::performMove(ChessMove move)
-{
-    return true;
 }
 
 void ChessWidget::computeBoardGraphicalStates()
@@ -356,5 +359,15 @@ void ChessWidget::setAllPiecesUnmovable()
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
         pieces[WHITE][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
         pieces[BLACK][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
+    }
+}
+
+void ChessWidget::updatePieces()
+{
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
+        pieces[WHITE][pid]->setBoardPosition();
+        pieces[BLACK][pid]->setBoardPosition();
+        pieces[WHITE][pid]->update();
+        pieces[BLACK][pid]->update();
     }
 }

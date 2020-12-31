@@ -31,6 +31,7 @@ ChessPiece* ChessBoard::movePiece(IBP src, IBP dst)
     if(srcPiece == nullptr)
         return nullptr;
 
+    setPiece(nullptr, src);
     setPiece(srcPiece, dst);
     return dstPiece;
 }
@@ -180,6 +181,17 @@ ChessMoves* ChessBoard::getPawnMoves(ChessPiece* piece)
 bool ChessBoard::isValidMove(ChessMove move)
 {
     return true;
+}
+
+void ChessBoard::performMove(ChessMove move)
+{
+    IBP src = ChessBoard::ChessBoard::getMoveSrcIBP(move);
+    IBP dst = ChessBoard::ChessBoard::getMoveDstIBP(move);
+    ChessPiece* captured = movePiece(src, dst);
+    if(captured != nullptr) {
+        captured->setCaptured(true);
+        board[captured->getIBPos().row][captured->getIBPos().col] = nullptr;
+    }
 }
 
 ChessMove ChessBoard::createMove(IBP src, IBP dst, bool isPromotion, PieceType promotiontType)
