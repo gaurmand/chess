@@ -190,7 +190,6 @@ void ChessBoard::performMove(ChessMove move)
     ChessPiece* captured = movePiece(src, dst);
     if(captured != nullptr) {
         captured->setCaptured(true);
-        board[captured->getIBPos().row][captured->getIBPos().col] = nullptr;
     }
 }
 
