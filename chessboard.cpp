@@ -35,14 +35,17 @@ ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece)
 {
     ChessMoves* validMoves;
     switch(piece->getType()) {
+        case PAWN:
+            validMoves = getValidPawnMoves(piece);
+            break;
         case KING:
+            validMoves = getValidKingMoves(piece);
+            break;
         case QUEEN:
         case ROOK:
         case BISHOP:
         case KNIGHT:
             return nullptr;
-        case PAWN:
-            return validMoves = getValidPawnMoves(piece);
     }
 
     if(validMoves == nullptr) {
@@ -53,7 +56,7 @@ ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece)
     ChessMoves* legalMoves = new ChessMoves;
 
     //filter out illegal moves (i.e. moves that put our king in check)
-    for(ChessMoves::iterator it = legalMoves->begin(); it != legalMoves->end(); ++it) {
+    for(ChessMoves::iterator it = validMoves->begin(); it != validMoves->end(); ++it) {
         ChessMove move = *it;
         if(isMoveLegal(move, false)) {
             legalMoves->push_back(move);
@@ -166,6 +169,94 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
             ChessPiece* twoBottomPiece = getPiece(twoBottom);
             if(!twoBottomPiece) {
                 moves->push_back(createMove(pos, twoBottom));
+            }
+        }
+    }
+
+
+    if(moves->size() > 0) {
+        return moves;
+    } else {
+        delete moves;
+        return nullptr;
+    }
+}
+
+ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece)
+{
+    ChessMoves* moves = new ChessMoves;
+    Player player = piece->getOwner();
+    IBP pos = piece->getIBPos();
+
+    IBP top = {pos.row-1, pos.col};
+    IBP topLeft = {pos.row-1, pos.col-1};
+    IBP topRight = {pos.row-1, pos.col+1};
+    IBP left = {pos.row, pos.col-1};
+    IBP right = {pos.row, pos.col+1};
+    IBP bottom = {pos.row+1, pos.col};
+    IBP bottomLeft = {pos.row+1, pos.col-1};
+    IBP bottomRight = {pos.row+1, pos.col+1};
+
+    //check left square
+    if(pos.col-1 >= MIN_COL_INDEX) {
+        ChessPiece* leftPiece = getPiece(left);
+        if(!leftPiece || leftPiece->getOwner() != player) {
+            moves->push_back(createMove(pos, left));
+        }
+    }
+
+    //check right square
+    if(pos.col+1 <= MAX_COL_INDEX) {
+        ChessPiece* rightPiece = getPiece(right);
+        if(!rightPiece || rightPiece->getOwner() != player) {
+            moves->push_back(createMove(pos, right));
+        }
+    }
+
+    if(pos.row-1 >= MIN_ROW_INDEX) {
+        //check top square
+        ChessPiece* topPiece = getPiece(top);
+        if(!topPiece || topPiece->getOwner() != player) {
+            moves->push_back(createMove(pos, top));
+        }
+
+        //check top left square
+        if(pos.col-1 >= MIN_COL_INDEX) {
+            ChessPiece* topLeftPiece = getPiece(topLeft);
+            if(!topLeftPiece || topLeftPiece->getOwner() != player) {
+                moves->push_back(createMove(pos, topLeft));
+            }
+        }
+
+        //check top right square
+        if(pos.col+1 <= MAX_COL_INDEX) {
+            ChessPiece* topRightPiece = getPiece(topRight);
+            if(!topRightPiece || topRightPiece->getOwner() != player) {
+                moves->push_back(createMove(pos, topRight));
+            }
+        }
+    }
+
+    if(pos.row+1 <= MAX_ROW_INDEX) {
+        //check bottom square
+        ChessPiece* bottomPiece = getPiece(bottom);
+        if(!bottomPiece || bottomPiece->getOwner() != player) {
+            moves->push_back(createMove(pos, bottom));
+        }
+
+        //check bottom left square
+        if(pos.col-1 >= MIN_COL_INDEX) {
+            ChessPiece* bottomLeftPiece = getPiece(bottomLeft);
+            if(!bottomLeftPiece || bottomLeftPiece->getOwner() != player) {
+                moves->push_back(createMove(pos, bottomLeft));
+            }
+        }
+
+        //check bottom right square
+        if(pos.col+1 <= MAX_COL_INDEX) {
+            ChessPiece* bottomRightPiece = getPiece(bottomRight);
+            if(!bottomRightPiece || bottomRightPiece->getOwner() != player) {
+                moves->push_back(createMove(pos, bottomRight));
             }
         }
     }
