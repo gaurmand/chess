@@ -19,7 +19,7 @@ public:
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(Player player, PieceID id);
 
-    void generateLegalMoves();
+    void generateAvailableMoves();
     void printAvailableMoves();
     static  std::string movesToString(ChessMoves* moves);
 

@@ -276,7 +276,6 @@ void ChessWidget::startTurn()
 
     if(ptype == PlayerType::HUMAN) {
         //HUMAN player -> wait for them to select move
-        game.generateLegalMoves();
         computeBoardGraphicalStates();
         setReadyToDisplayMoves();
         setPiecesMovable(active);

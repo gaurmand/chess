@@ -134,9 +134,12 @@ void ChessGame::setInitialGameState()
     initChessPiece(PF, BLACK, PAWN,     {1, 5});
     initChessPiece(PG, BLACK, PAWN,     {1, 6});
     initChessPiece(PH, BLACK, PAWN,     {1, 7});
+
+    generateAvailableMoves();
+    printAvailableMoves();
 }
 
-void ChessGame::generateLegalMoves() {
+void ChessGame::generateAvailableMoves() {
     numAvailableMoves = 0;
 
     for (int i=0; i<NUM_PLAYERS; i++){
@@ -158,8 +161,6 @@ void ChessGame::generateLegalMoves() {
             }
         }
     }
-
-    printAvailableMoves();
 }
 
 void ChessGame::printAvailableMoves()
@@ -192,12 +193,20 @@ std::string ChessGame::movesToString(ChessMoves* moves)
 
 bool ChessGame::performMove(ChessMove move)
 {
-    if(isMoveLegal(move)) {
-        ChessBoard::performMove(move);
-        switchActivePlayer();
-        return true;
+    //update board state
+    ChessBoard::performMove(move);
+
+    //update game state
+    numHalfMoves++;
+    if(active == BLACK) {
+        numFullMoves++;
     }
-    return false;
+
+    switchActivePlayer();
+
+    generateAvailableMoves();
+    printAvailableMoves();
+    return true;
 }
 
 Player ChessGame::getActivePlayer()
