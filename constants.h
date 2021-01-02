@@ -40,7 +40,7 @@ typedef std::vector<ChessMove> ChessMoves;
 
 enum class ChessMoveType {NONE, NORMAL, CAPTURE, SHORT_CASTLE, LONG_CASTLE, PROMOTION, EN_PASSANT};
 
-enum class BoardGraphicalState{NONE, SOURCE, NORMAL_MOVE, CAPTURE, CASTLE, PROMOTION, CHECK};
-typedef BoardGraphicalState BGS;
+enum class SquareGraphicalState{NONE, SOURCE, NORMAL_MOVE, CAPTURE};
+typedef SquareGraphicalState SGS;
 
 #endif // CONSTANTS_H

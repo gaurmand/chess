@@ -27,7 +27,8 @@ bool ChessBoard::isMoveValid(ChessMove move)
 
 bool ChessBoard::isMoveCapture(ChessMove move)
 {
-    return true;
+    IBP dst = BoardPosition::getMoveDstIBP(move);
+    return (getPiece(dst) != nullptr);
 }
 
 ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece)

@@ -47,7 +47,7 @@ public:
     void setSelectedPiece(PieceID pid);
     void clearSelectedPiece();
 
-    BGS getBGState(int i, int j);
+    SGS getBGState(int i, int j);
 
 protected:
     void computeBoardGraphicalStates();
@@ -66,7 +66,7 @@ private:
     ChessPiece* selectedPiece;
 
     ChessBoardQGraphicsItem* chessBoard;
-    BGS boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];
+    SGS boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];
     ChessPieceQGraphicsItem* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     QPixmap* piecePixmaps[NUM_PLAYERS][NUM_CHESS_PIECE_TYPES];
     QGraphicsScene* scene;
