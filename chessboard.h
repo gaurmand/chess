@@ -32,7 +32,6 @@ protected:
     void pushDiagonalMoves(ChessMoves* moves, ChessPiece* srcPiece);
     bool pushMoveHelper(ChessMoves* moves, ChessPiece* srcPiece, IBP dst);
 
-
     ChessMove createMove(IBP src, IBP dst, bool isPromotion = false, PieceType promotionType = QUEEN);
 
     bool canShortCastle[NUM_PLAYERS];

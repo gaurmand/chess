@@ -98,12 +98,13 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
             return nullptr;
         }
 
-        //if pawn in starting row (6), push double advance move
-        if(pos.row == 6) {
+        bool topMove = pushNormalMove(moves, piece, {pos.row-1, pos.col}); //push top move
+
+        //if pawn in starting row (6) and top square is empty, push double advance move
+        if(pos.row == 6 && topMove) {
             pushNormalMove(moves, piece, {pos.row-2, pos.col});
         }
 
-        pushNormalMove(moves, piece, {pos.row-1, pos.col}); //push top move
         pushCapture(moves, piece, {pos.row-1, pos.col-1}); //push top left capture
         pushCapture(moves, piece, {pos.row-1, pos.col+1}); //push top right capture
     } else {
@@ -114,12 +115,14 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
             return nullptr;
         }
 
-        //if pawn in starting row (1), push double advance move
-        if(pos.row == 1) {
+        bool bottom = pushNormalMove(moves, piece, {pos.row+1, pos.col}); //push bottom move
+
+        //if pawn in starting row (1) and bottom square is empty, push double advance move
+        if(pos.row == 1 && bottom) {
             pushNormalMove(moves, piece, {pos.row+2, pos.col});
         }
 
-        pushNormalMove(moves, piece, {pos.row+1, pos.col}); //push bottom move
+
         pushCapture(moves, piece, {pos.row+1, pos.col-1}); //push bottom left capture
         pushCapture(moves, piece, {pos.row+1, pos.col+1}); //push bottom right capture
     }
@@ -232,8 +235,9 @@ bool ChessBoard::pushMove(ChessMoves* moves,  ChessPiece* srcPiece, IBP dst)
     ChessPiece* dstPiece = getPiece(dst);
     if(!dstPiece || dstPiece->getOwner() != srcPiece->getOwner()) {
         moves->push_back(createMove(srcPiece->getIBPos(), dst));
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool ChessBoard::pushCapture(ChessMoves* moves, ChessPiece* srcPiece, IBP dst)
@@ -251,8 +255,9 @@ bool ChessBoard::pushCapture(ChessMoves* moves, ChessPiece* srcPiece, IBP dst)
     ChessPiece* dstPiece = getPiece(dst);
     if(dstPiece && dstPiece->getOwner() != srcPiece->getOwner()) {
         moves->push_back(createMove(srcPiece->getIBPos(), dst));
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool ChessBoard::pushNormalMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst)
@@ -270,8 +275,9 @@ bool ChessBoard::pushNormalMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst
     ChessPiece* dstPiece = getPiece(dst);
     if(!dstPiece) {
         moves->push_back(createMove(srcPiece->getIBPos(), dst));
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool ChessBoard::pushMoveHelper(ChessMoves* moves, ChessPiece* srcPiece, IBP dst)
