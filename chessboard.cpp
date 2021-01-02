@@ -84,10 +84,6 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
     IBP pos = piece->getIBPos();
 
     if(player == WHITE){
-        IBP top = {pos.row-1, pos.col};
-        IBP topLeft = {pos.row-1, pos.col-1};
-        IBP topRight = {pos.row-1, pos.col+1};
-        IBP twoTop = {pos.row-2, pos.col};
 
         //ignore if in row 0
         if(pos.row == 0) {
@@ -95,43 +91,15 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
             return nullptr;
         }
 
-        //if no piece in top pos -> push move
-        ChessPiece* topPiece = getPiece(top);
-        if(!topPiece) {
-            moves->push_back(createMove(pos, top));
-        }
-
-        //if pawn not in leftmost column, check top left capture
-        if(pos.col-1 >= MIN_COL_INDEX) {
-            //if enemy piece in top left pos -> push capture
-            ChessPiece* topLeftPiece = getPiece(topLeft);
-            if(topLeftPiece && topLeftPiece->getOwner() != player) {
-                moves->push_back(createMove(pos, topLeft));
-            }
-        }
-
-        //if pawn not in rightmost column, check top right capture
-        if(pos.col+1 <= MAX_COL_INDEX) {
-            //if enemy piece in top right pos -> push capture
-            ChessPiece* topRightPiece = getPiece(topRight);
-            if(topRightPiece && topRightPiece->getOwner() != player) {
-                moves->push_back(createMove(pos, topRight));
-            }
-        }
-
-        //if pawn in starting row (6), check double advance
+        //if pawn in starting row (6), push double advance move
         if(pos.row == 6) {
-            //if no piece in two top pos -> push move
-            ChessPiece* twoTopPiece = getPiece(twoTop);
-            if(!twoTopPiece) {
-                moves->push_back(createMove(pos, twoTop));
-            }
+            pushNormalMove(moves, piece, {pos.row-2, pos.col});
         }
+
+        pushNormalMove(moves, piece, {pos.row-1, pos.col}); //push top move
+        pushCapture(moves, piece, {pos.row-1, pos.col-1}); //push top left capture
+        pushCapture(moves, piece, {pos.row-1, pos.col+1}); //push top right capture
     } else {
-        IBP bottom = {pos.row+1, pos.col};
-        IBP bottomLeft = {pos.row+1, pos.col-1};
-        IBP bottomRight = {pos.row+1, pos.col+1};
-        IBP twoBottom = {pos.row+2, pos.col};
 
         //ignore if in row 7
         if(pos.row == 7) {
@@ -139,38 +107,14 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
             return nullptr;
         }
 
-        //if no piece in bottom pos -> push move
-        ChessPiece* bottomPiece = getPiece(bottom);
-        if(!bottomPiece) {
-            moves->push_back(createMove(pos, bottom));
-        }
-
-        //if pawn not in leftmost column, check bottom left capture
-        if(pos.col-1 >= MIN_COL_INDEX) {
-            //if enemy piece in bottom left pos -> push capture
-            ChessPiece* bottomLeftPiece = getPiece(bottomLeft);
-            if(bottomLeftPiece && bottomLeftPiece->getOwner() != player) {
-                moves->push_back(createMove(pos, bottomLeft));
-            }
-        }
-
-        //if pawn not in rightmost column, check bottom right capture
-        if(pos.col+1 <= MAX_COL_INDEX) {
-            //if enemy piece in bottom right pos -> push capture
-            ChessPiece* bottomRightPiece = getPiece(bottomRight);
-            if(bottomRightPiece && bottomRightPiece->getOwner() != player) {
-                moves->push_back(createMove(pos, bottomRight));
-            }
-        }
-
-        //if pawn in starting row (1), check double advance
+        //if pawn in starting row (1), push double advance move
         if(pos.row == 1) {
-            //if no piece in two top pos -> push move
-            ChessPiece* twoBottomPiece = getPiece(twoBottom);
-            if(!twoBottomPiece) {
-                moves->push_back(createMove(pos, twoBottom));
-            }
+            pushNormalMove(moves, piece, {pos.row+2, pos.col});
         }
+
+        pushNormalMove(moves, piece, {pos.row+1, pos.col}); //push bottom move
+        pushCapture(moves, piece, {pos.row+1, pos.col-1}); //push bottom left capture
+        pushCapture(moves, piece, {pos.row+1, pos.col+1}); //push bottom right capture
     }
 
 
@@ -185,82 +129,16 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
 ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece)
 {
     ChessMoves* moves = new ChessMoves;
-    Player player = piece->getOwner();
     IBP pos = piece->getIBPos();
 
-    IBP top = {pos.row-1, pos.col};
-    IBP topLeft = {pos.row-1, pos.col-1};
-    IBP topRight = {pos.row-1, pos.col+1};
-    IBP left = {pos.row, pos.col-1};
-    IBP right = {pos.row, pos.col+1};
-    IBP bottom = {pos.row+1, pos.col};
-    IBP bottomLeft = {pos.row+1, pos.col-1};
-    IBP bottomRight = {pos.row+1, pos.col+1};
-
-    //check left square
-    if(pos.col-1 >= MIN_COL_INDEX) {
-        ChessPiece* leftPiece = getPiece(left);
-        if(!leftPiece || leftPiece->getOwner() != player) {
-            moves->push_back(createMove(pos, left));
-        }
-    }
-
-    //check right square
-    if(pos.col+1 <= MAX_COL_INDEX) {
-        ChessPiece* rightPiece = getPiece(right);
-        if(!rightPiece || rightPiece->getOwner() != player) {
-            moves->push_back(createMove(pos, right));
-        }
-    }
-
-    if(pos.row-1 >= MIN_ROW_INDEX) {
-        //check top square
-        ChessPiece* topPiece = getPiece(top);
-        if(!topPiece || topPiece->getOwner() != player) {
-            moves->push_back(createMove(pos, top));
-        }
-
-        //check top left square
-        if(pos.col-1 >= MIN_COL_INDEX) {
-            ChessPiece* topLeftPiece = getPiece(topLeft);
-            if(!topLeftPiece || topLeftPiece->getOwner() != player) {
-                moves->push_back(createMove(pos, topLeft));
-            }
-        }
-
-        //check top right square
-        if(pos.col+1 <= MAX_COL_INDEX) {
-            ChessPiece* topRightPiece = getPiece(topRight);
-            if(!topRightPiece || topRightPiece->getOwner() != player) {
-                moves->push_back(createMove(pos, topRight));
-            }
-        }
-    }
-
-    if(pos.row+1 <= MAX_ROW_INDEX) {
-        //check bottom square
-        ChessPiece* bottomPiece = getPiece(bottom);
-        if(!bottomPiece || bottomPiece->getOwner() != player) {
-            moves->push_back(createMove(pos, bottom));
-        }
-
-        //check bottom left square
-        if(pos.col-1 >= MIN_COL_INDEX) {
-            ChessPiece* bottomLeftPiece = getPiece(bottomLeft);
-            if(!bottomLeftPiece || bottomLeftPiece->getOwner() != player) {
-                moves->push_back(createMove(pos, bottomLeft));
-            }
-        }
-
-        //check bottom right square
-        if(pos.col+1 <= MAX_COL_INDEX) {
-            ChessPiece* bottomRightPiece = getPiece(bottomRight);
-            if(!bottomRightPiece || bottomRightPiece->getOwner() != player) {
-                moves->push_back(createMove(pos, bottomRight));
-            }
-        }
-    }
-
+    pushMove(moves, piece, {pos.row, pos.col-1});   //push left move
+    pushMove(moves, piece, {pos.row, pos.col+1});   //push right move
+    pushMove(moves, piece, {pos.row-1, pos.col});   //push top move
+    pushMove(moves, piece, {pos.row-1, pos.col-1}); //push topLeft move
+    pushMove(moves, piece, {pos.row-1, pos.col+1}); //push topRight move
+    pushMove(moves, piece, {pos.row+1, pos.col});   //push bottom move
+    pushMove(moves, piece, {pos.row+1, pos.col-1}); //push bottomLeft move
+    pushMove(moves, piece, {pos.row+1, pos.col+1}); //push bottomRight move
 
     if(moves->size() > 0) {
         return moves;
@@ -268,6 +146,63 @@ ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece)
         delete moves;
         return nullptr;
     }
+}
+
+bool ChessBoard::pushMove(ChessMoves* moves,  ChessPiece* srcPiece, IBP dst)
+{
+    //check if invalid dst
+    if(dst.row < MIN_ROW_INDEX || dst.row > MAX_ROW_INDEX) {
+        return false;
+    }
+
+    if(dst.col < MIN_COL_INDEX || dst.col > MAX_COL_INDEX) {
+        return false;
+    }
+
+    //check if dst is empty or enemy piece
+    ChessPiece* dstPiece = getPiece(dst);
+    if(!dstPiece || dstPiece->getOwner() != srcPiece->getOwner()) {
+        moves->push_back(createMove(srcPiece->getIBPos(), dst));
+    }
+    return true;
+}
+
+bool ChessBoard::pushCapture(ChessMoves* moves, ChessPiece* srcPiece, IBP dst)
+{
+    //check if invalid dst
+    if(dst.row < MIN_ROW_INDEX || dst.row > MAX_ROW_INDEX) {
+        return false;
+    }
+
+    if(dst.col < MIN_COL_INDEX || dst.col > MAX_COL_INDEX) {
+        return false;
+    }
+
+    //check if dst is enemy piece
+    ChessPiece* dstPiece = getPiece(dst);
+    if(dstPiece && dstPiece->getOwner() != srcPiece->getOwner()) {
+        moves->push_back(createMove(srcPiece->getIBPos(), dst));
+    }
+    return true;
+}
+
+bool ChessBoard::pushNormalMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst)
+{
+    //check if invalid dst
+    if(dst.row < MIN_ROW_INDEX || dst.row > MAX_ROW_INDEX) {
+        return false;
+    }
+
+    if(dst.col < MIN_COL_INDEX || dst.col > MAX_COL_INDEX) {
+        return false;
+    }
+
+    //check if dst is empty
+    ChessPiece* dstPiece = getPiece(dst);
+    if(!dstPiece) {
+        moves->push_back(createMove(srcPiece->getIBPos(), dst));
+    }
+    return true;
 }
 
 ChessMove ChessBoard::createMove(IBP src, IBP dst, bool isPromotion, PieceType promotiontType)

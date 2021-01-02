@@ -25,6 +25,10 @@ protected:
     ChessMoves* getValidKnightMoves(ChessPiece* piece);
     ChessMoves* getValidPawnMoves(ChessPiece* piece);
 
+    bool pushMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst);
+    bool pushCapture(ChessMoves* moves, ChessPiece* srcPiece, IBP dst);
+    bool pushNormalMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst);
+
     ChessMove createMove(IBP src, IBP dst, bool isPromotion = false, PieceType promotionType = QUEEN);
 
     bool canShortCastle[NUM_PLAYERS];
