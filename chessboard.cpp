@@ -44,8 +44,10 @@ ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece)
         case KNIGHT:
             validMoves = getValidKnightMoves(piece);
             break;
-        case QUEEN:
         case ROOK:
+            validMoves = getValidRookMoves(piece);
+            break;
+        case QUEEN:
         case BISHOP:
             return nullptr;
     }
@@ -172,6 +174,19 @@ ChessMoves* ChessBoard::getValidKnightMoves(ChessPiece* piece)
     }
 }
 
+ChessMoves* ChessBoard::getValidRookMoves(ChessPiece* piece)
+{
+    ChessMoves* moves = new ChessMoves;
+    pushStraightMoves(moves, piece);
+
+    if(moves->size() > 0) {
+        return moves;
+    } else {
+        delete moves;
+        return nullptr;
+    }
+}
+
 bool ChessBoard::pushMove(ChessMoves* moves,  ChessPiece* srcPiece, IBP dst)
 {
     //check if invalid dst
@@ -227,6 +242,79 @@ bool ChessBoard::pushNormalMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst
         moves->push_back(createMove(srcPiece->getIBPos(), dst));
     }
     return true;
+}
+
+void ChessBoard::pushStraightMoves(ChessMoves* moves, ChessPiece* srcPiece)
+{
+    IBP src = srcPiece->getIBPos();
+
+    //check col below
+    for(int i = src.row+1; i<=MAX_ROW_INDEX; i++){
+        IBP dst = {i, src.col};
+        ChessPiece* dstPiece = getPiece(dst);
+
+        if(dstPiece) {
+            if(dstPiece->getOwner() != srcPiece->getOwner()) {
+                //if dst is enemy piece, push capture
+                moves->push_back(createMove(src, dst));
+            }
+            break; //end search
+        } else {
+            //if dst is empty -> push move, continue search
+            moves->push_back(createMove(src, dst));
+        }
+    }
+
+    //check col above
+    for(int i = src.row-1; i>=MIN_ROW_INDEX; i--){
+        IBP dst = {i, src.col};
+        ChessPiece* dstPiece = getPiece(dst);
+
+        if(dstPiece) {
+            if(dstPiece->getOwner() != srcPiece->getOwner()) {
+                //if dst is enemy piece, push capture
+                moves->push_back(createMove(src, dst));
+            }
+            break; //end search
+        } else {
+            //if dst is empty -> push move, continue search
+            moves->push_back(createMove(src, dst));
+        }
+    }
+
+    //check row right
+    for(int j = src.col+1; j<=MAX_COL_INDEX; j++){
+        IBP dst = {src.row, j};
+        ChessPiece* dstPiece = getPiece(dst);
+
+        if(dstPiece) {
+            if(dstPiece->getOwner() != srcPiece->getOwner()) {
+                //if dst is enemy piece, push capture
+                moves->push_back(createMove(src, dst));
+            }
+            break; //end search
+        } else {
+            //if dst is empty -> push move, continue search
+            moves->push_back(createMove(src, dst));
+        }
+    }
+
+    //check row left
+    for(int j = src.col-1; j>=MIN_COL_INDEX; j--){
+        IBP dst = {src.row, j};
+        ChessPiece* dstPiece = getPiece(dst);
+
+        if(dstPiece) {
+            if(dstPiece->getOwner() != srcPiece->getOwner()) {
+                //if dst is enemy piece, push capture
+                moves->push_back(createMove(src, dst));
+            }
+            break; //end search
+        } else {
+            //if dst is empty -> push move, continue search
+            moves->push_back(createMove(src, dst));
+        }
+    }
 }
 
 ChessMove ChessBoard::createMove(IBP src, IBP dst, bool isPromotion, PieceType promotiontType)
