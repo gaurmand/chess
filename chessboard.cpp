@@ -274,76 +274,48 @@ bool ChessBoard::pushNormalMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst
     return true;
 }
 
+bool ChessBoard::pushMoveHelper(ChessMoves* moves, ChessPiece* srcPiece, IBP dst)
+{
+    ChessPiece* dstPiece = getPiece(dst);
+    if(dstPiece) {
+        if(dstPiece->getOwner() != srcPiece->getOwner()) {
+            //if dst is enemy piece, push capture
+            moves->push_back(createMove(srcPiece->getIBPos(), dst));
+        }
+        return true; //end search
+    } else {
+        //if dst is empty -> push move, continue search
+        moves->push_back(createMove(srcPiece->getIBPos(), dst));
+        return false;
+    }
+}
+
 void ChessBoard::pushStraightMoves(ChessMoves* moves, ChessPiece* srcPiece)
 {
     IBP src = srcPiece->getIBPos();
 
     //check down col
     for(int i = src.row+1; i<=MAX_ROW_INDEX; i++){
-        IBP dst = {i, src.col};
-        ChessPiece* dstPiece = getPiece(dst);
-
-        if(dstPiece) {
-            if(dstPiece->getOwner() != srcPiece->getOwner()) {
-                //if dst is enemy piece, push capture
-                moves->push_back(createMove(src, dst));
-            }
-            break; //end search
-        } else {
-            //if dst is empty -> push move, continue search
-            moves->push_back(createMove(src, dst));
-        }
+        if(pushMoveHelper(moves, srcPiece, {i, src.col}))
+            break;
     }
 
     //check up col
     for(int i = src.row-1; i>=MIN_ROW_INDEX; i--){
-        IBP dst = {i, src.col};
-        ChessPiece* dstPiece = getPiece(dst);
-
-        if(dstPiece) {
-            if(dstPiece->getOwner() != srcPiece->getOwner()) {
-                //if dst is enemy piece, push capture
-                moves->push_back(createMove(src, dst));
-            }
-            break; //end search
-        } else {
-            //if dst is empty -> push move, continue search
-            moves->push_back(createMove(src, dst));
-        }
+        if(pushMoveHelper(moves, srcPiece, {i, src.col}))
+            break;
     }
 
     //check right row
     for(int j = src.col+1; j<=MAX_COL_INDEX; j++){
-        IBP dst = {src.row, j};
-        ChessPiece* dstPiece = getPiece(dst);
-
-        if(dstPiece) {
-            if(dstPiece->getOwner() != srcPiece->getOwner()) {
-                //if dst is enemy piece, push capture
-                moves->push_back(createMove(src, dst));
-            }
-            break; //end search
-        } else {
-            //if dst is empty -> push move, continue search
-            moves->push_back(createMove(src, dst));
-        }
+        if(pushMoveHelper(moves, srcPiece, {src.row, j}))
+            break;
     }
 
     //check left row
     for(int j = src.col-1; j>=MIN_COL_INDEX; j--){
-        IBP dst = {src.row, j};
-        ChessPiece* dstPiece = getPiece(dst);
-
-        if(dstPiece) {
-            if(dstPiece->getOwner() != srcPiece->getOwner()) {
-                //if dst is enemy piece, push capture
-                moves->push_back(createMove(src, dst));
-            }
-            break; //end search
-        } else {
-            //if dst is empty -> push move, continue search
-            moves->push_back(createMove(src, dst));
-        }
+        if(pushMoveHelper(moves, srcPiece, {src.row, j}))
+            break;
     }
 }
 
@@ -353,70 +325,26 @@ void ChessBoard::pushDiagonalMoves(ChessMoves* moves, ChessPiece* srcPiece)
 
     //check bottom right diagonal
     for(int i = src.row+1, j = src.col+1; i<=MAX_ROW_INDEX && j<=MAX_COL_INDEX; i++, j++){
-        IBP dst = {i, j};
-        ChessPiece* dstPiece = getPiece(dst);
-
-        if(dstPiece) {
-            if(dstPiece->getOwner() != srcPiece->getOwner()) {
-                //if dst is enemy piece, push capture
-                moves->push_back(createMove(src, dst));
-            }
-            break; //end search
-        } else {
-            //if dst is empty -> push move, continue search
-            moves->push_back(createMove(src, dst));
-        }
+        if(pushMoveHelper(moves, srcPiece, {i, j}))
+            break;
     }
 
     //check top left diagonal
     for(int i = src.row-1, j = src.col-1; i>=MIN_ROW_INDEX && j>=MIN_COL_INDEX; i--, j--){
-        IBP dst = {i, j};
-        ChessPiece* dstPiece = getPiece(dst);
-
-        if(dstPiece) {
-            if(dstPiece->getOwner() != srcPiece->getOwner()) {
-                //if dst is enemy piece, push capture
-                moves->push_back(createMove(src, dst));
-            }
-            break; //end search
-        } else {
-            //if dst is empty -> push move, continue search
-            moves->push_back(createMove(src, dst));
-        }
+        if(pushMoveHelper(moves, srcPiece, {i, j}))
+            break;
     }
 
     //check top right diagonal
     for(int i = src.row-1, j = src.col+1; i>=MIN_ROW_INDEX && j<=MAX_COL_INDEX; i--, j++){
-        IBP dst = {i, j};
-        ChessPiece* dstPiece = getPiece(dst);
-
-        if(dstPiece) {
-            if(dstPiece->getOwner() != srcPiece->getOwner()) {
-                //if dst is enemy piece, push capture
-                moves->push_back(createMove(src, dst));
-            }
-            break; //end search
-        } else {
-            //if dst is empty -> push move, continue search
-            moves->push_back(createMove(src, dst));
-        }
+        if(pushMoveHelper(moves, srcPiece, {i, j}))
+            break;
     }
 
     //check bottom left diagonal
     for(int i = src.row+1, j = src.col-1; i<=MAX_ROW_INDEX && j>=MIN_COL_INDEX; i++, j--){
-        IBP dst = {i, j};
-        ChessPiece* dstPiece = getPiece(dst);
-
-        if(dstPiece) {
-            if(dstPiece->getOwner() != srcPiece->getOwner()) {
-                //if dst is enemy piece, push capture
-                moves->push_back(createMove(src, dst));
-            }
-            break; //end search
-        } else {
-            //if dst is empty -> push move, continue search
-            moves->push_back(createMove(src, dst));
-        }
+        if(pushMoveHelper(moves, srcPiece, {i, j}))
+            break;
     }
 }
 
