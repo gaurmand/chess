@@ -84,6 +84,7 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
         IBP top = {pos.row-1, pos.col};
         IBP topLeft = {pos.row-1, pos.col-1};
         IBP topRight = {pos.row-1, pos.col+1};
+        IBP twoTop = {pos.row-2, pos.col};
 
         //ignore if in row 0
         if(pos.row == 0) {
@@ -114,10 +115,20 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
                 moves->push_back(createMove(pos, topRight));
             }
         }
+
+        //if pawn in starting row (6), check double advance
+        if(pos.row == 6) {
+            //if no piece in two top pos -> push move
+            ChessPiece* twoTopPiece = getPiece(twoTop);
+            if(!twoTopPiece) {
+                moves->push_back(createMove(pos, twoTop));
+            }
+        }
     } else {
         IBP bottom = {pos.row+1, pos.col};
         IBP bottomLeft = {pos.row+1, pos.col-1};
         IBP bottomRight = {pos.row+1, pos.col+1};
+        IBP twoBottom = {pos.row+2, pos.col};
 
         //ignore if in row 7
         if(pos.row == 7) {
@@ -146,6 +157,15 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
             ChessPiece* bottomRightPiece = getPiece(bottomRight);
             if(bottomRightPiece && bottomRightPiece->getOwner() != player) {
                 moves->push_back(createMove(pos, bottomRight));
+            }
+        }
+
+        //if pawn in starting row (1), check double advance
+        if(pos.row == 1) {
+            //if no piece in two top pos -> push move
+            ChessPiece* twoBottomPiece = getPiece(twoBottom);
+            if(!twoBottomPiece) {
+                moves->push_back(createMove(pos, twoBottom));
             }
         }
     }
