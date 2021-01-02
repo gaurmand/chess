@@ -41,10 +41,12 @@ ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece)
         case KING:
             validMoves = getValidKingMoves(piece);
             break;
+        case KNIGHT:
+            validMoves = getValidKnightMoves(piece);
+            break;
         case QUEEN:
         case ROOK:
         case BISHOP:
-        case KNIGHT:
             return nullptr;
     }
 
@@ -139,6 +141,28 @@ ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece)
     pushMove(moves, piece, {pos.row+1, pos.col});   //push bottom move
     pushMove(moves, piece, {pos.row+1, pos.col-1}); //push bottomLeft move
     pushMove(moves, piece, {pos.row+1, pos.col+1}); //push bottomRight move
+
+    if(moves->size() > 0) {
+        return moves;
+    } else {
+        delete moves;
+        return nullptr;
+    }
+}
+
+ChessMoves* ChessBoard::getValidKnightMoves(ChessPiece* piece)
+{
+    ChessMoves* moves = new ChessMoves;
+    IBP pos = piece->getIBPos();
+
+    pushMove(moves, piece, {pos.row-2, pos.col+1});   //push top-right hook move
+    pushMove(moves, piece, {pos.row-1, pos.col+2});   //push right-top hook move
+    pushMove(moves, piece, {pos.row+1, pos.col+2});   //push right-bottom hook move
+    pushMove(moves, piece, {pos.row+2, pos.col+1}); //push bottom-right hook move
+    pushMove(moves, piece, {pos.row+2, pos.col-1}); //push bottom-left hook move
+    pushMove(moves, piece, {pos.row+1, pos.col-2});   //push left-bottom hook move
+    pushMove(moves, piece, {pos.row-1, pos.col-2}); //push left-top hook move
+    pushMove(moves, piece, {pos.row-2, pos.col-1}); //push top-left hook move
 
     if(moves->size() > 0) {
         return moves;
