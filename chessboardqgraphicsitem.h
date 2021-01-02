@@ -5,6 +5,7 @@
 
 #include <QGraphicsItem>
 #include "constants.h"
+#include "boardposition.h"
 
 class ChessWidget;
 
@@ -23,12 +24,16 @@ public:
     void drawSquareState(int i, int j, QPainter *painter);
     void drawCircle(int radius, QColor color, QPainter *painter);
     void drawBoard(QPainter *painter);
+    void setCheck(IBP pos);
+    void clearCheck();
 
 private:
     ChessWidget* chessWidget;
     QColor white;
     QColor black;
     QRect squareRect;
+    bool isCheck;
+    IBP checkPos;
 };
 
 #endif // CHESSBOARDQGRAPHICSITEM_H

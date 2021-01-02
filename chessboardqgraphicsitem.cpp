@@ -63,10 +63,12 @@ void ChessBoardQGraphicsItem::drawNormalSquare(int i, int j, QPainter *painter)
 {
     painter->save();
     painter->translate(j*SQUARE_WIDTH, i*SQUARE_WIDTH);
-    if((i+j) % 2 == 0) {
+    if(isCheck && i == checkPos.row && j == checkPos.col) {
+        //paint red square
+        painter->fillRect(squareRect, QColor(227, 29, 29, 200));
+    } else if((i+j) % 2 == 0) {
         //paint white square
         painter->fillRect(squareRect, white);
-
     } else {
         //paint black square
         painter->fillRect(squareRect, black);
@@ -98,8 +100,16 @@ void ChessBoardQGraphicsItem::drawBoard(QPainter *painter)
             }
         }
     }
+}
 
+void ChessBoardQGraphicsItem::setCheck(IBP pos){
+    isCheck = true;
+    checkPos = pos;
+}
 
+void ChessBoardQGraphicsItem::clearCheck()
+{
+    isCheck = false;
 }
 
 

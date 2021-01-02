@@ -39,6 +39,8 @@ protected:
     void switchActivePlayer();
     void setActivePlayer(Player player);
 
+    bool isPlayerInCheck(Player player);
+
 private:
     int numHalfMoves;
     int numFullMoves;

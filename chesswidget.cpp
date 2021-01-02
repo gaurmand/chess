@@ -350,6 +350,16 @@ void ChessWidget::computeBoardGraphicalStates()
             }
         }
     }
+
+    //clear any previous check
+    chessBoard->clearCheck();
+
+    //if active king in check, set king square check state
+    if(game.isCheck()) {
+        IBP kingPos = game.getChessPiece(activePlayer, K)->getIBPos();
+        chessBoard->setCheck(kingPos);
+    }
+
 }
 
 void ChessWidget::setPiecesMovable(Player player)

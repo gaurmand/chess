@@ -205,6 +205,8 @@ bool ChessGame::performMove(ChessMove move)
 
     generateAvailableMoves();
     printAvailableMoves(active);
+
+    _isCheck = isPlayerInCheck(active);
     return true;
 }
 
@@ -225,6 +227,31 @@ void ChessGame::switchActivePlayer()
 void ChessGame::setActivePlayer(Player player)
 {
     active = player;
+}
+
+bool ChessGame::isPlayerInCheck(Player player)
+{
+    Player curr = player;
+    Player other = (player == WHITE) ? BLACK : WHITE;
+    IBP kingPos = getChessPiece(curr, K)->getIBPos();
+
+    //for each move available to the other player, determine if any are checks (i.e. capture curr player's king)
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
+        ChessMoves* moves = getChessMoves(other, PieceID(pid));
+
+        if(moves == nullptr)
+            continue;
+
+        for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
+            ChessMove move = *it;
+            IBP dst = BoardPosition::getMoveDstIBP(move);
+            if(dst.row == kingPos.row && dst.col == kingPos.col) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool ChessGame::isValidMoveAvailable()
