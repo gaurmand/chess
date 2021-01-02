@@ -29,6 +29,7 @@ protected:
     bool pushCapture(ChessMoves* moves, ChessPiece* srcPiece, IBP dst);
     bool pushNormalMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst);
     void pushStraightMoves(ChessMoves* moves, ChessPiece* srcPiece);
+    void pushDiagonalMoves(ChessMoves* moves, ChessPiece* srcPiece);
 
     ChessMove createMove(IBP src, IBP dst, bool isPromotion = false, PieceType promotionType = QUEEN);
 
