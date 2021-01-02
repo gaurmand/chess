@@ -51,7 +51,8 @@ ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece)
             validMoves = getValidBishopMoves(piece);
             break;
         case QUEEN:
-            return nullptr;
+            validMoves = getValidQueenMoves(piece);
+        break;
     }
 
     if(validMoves == nullptr) {
@@ -192,6 +193,20 @@ ChessMoves* ChessBoard::getValidRookMoves(ChessPiece* piece)
 ChessMoves* ChessBoard::getValidBishopMoves(ChessPiece* piece)
 {
     ChessMoves* moves = new ChessMoves;
+    pushDiagonalMoves(moves, piece);
+
+    if(moves->size() > 0) {
+        return moves;
+    } else {
+        delete moves;
+        return nullptr;
+    }
+}
+
+ChessMoves* ChessBoard::getValidQueenMoves(ChessPiece* piece)
+{
+    ChessMoves* moves = new ChessMoves;
+    pushStraightMoves(moves, piece);
     pushDiagonalMoves(moves, piece);
 
     if(moves->size() > 0) {
