@@ -129,7 +129,7 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
             case BGS::CASTLE:
             case BGS::PROMOTION:
             {
-                ChessPiece* captured = game.getChessPiece(pos);
+                ChessPiece* captured = game.getPiece(pos);
                 if(captured) {
                     pieces[captured->getOwner()][captured->getId()]->hide();
                 }
@@ -151,12 +151,12 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
 
 ChessMove ChessWidget::getPlayerSelectedMove(ChessPiece* piece, IBP moveDst)
 {
-    ABP moveDstABP = ChessBoard::tranlateIBPoABP(moveDst);
+    ABP moveDstABP = BoardPosition::tranlateIBPoABP(moveDst);
     ChessMoves* moves = game.getChessMoves(piece->getOwner(), piece->getId());
 
     for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
         ChessMove move = *it;
-        ABP dst = ChessBoard::getMoveDstABP(move);
+        ABP dst = BoardPosition::getMoveDstABP(move);
         if(dst == moveDstABP) {
             return move;
         }
@@ -278,7 +278,7 @@ void ChessWidget::startTurn()
 
     if(ptype == PlayerType::HUMAN) {
         //HUMAN player -> wait for them to select move
-        game.generateMoves();
+        game.generateLegalMoves();
         computeBoardGraphicalStates();
         setReadyToDisplayMoves();
         setPiecesMovable(active);
@@ -345,7 +345,7 @@ void ChessWidget::computeBoardGraphicalStates()
 
         for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
             ChessMove move = *it;
-            IBP dst = ChessBoard::getMoveDstIBP(move);
+            IBP dst = BoardPosition::getMoveDstIBP(move);
             boardGraphicalState[pid][dst.row][dst.col] = BGS::NORMAL_MOVE;
         }
     }

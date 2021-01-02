@@ -2,41 +2,35 @@
 #define CHESSBOARD_H
 
 #include "constants.h"
+#include "board.h"
+#include "boardposition.h"
 
 class ChessPiece;
 
-class ChessBoard
+class ChessBoard : public Board
 {
 public:
-    ChessBoard();
-    void clearBoard();
-
-    ChessPiece* movePiece(IBP src, IBP dst);
-    ChessPiece* movePiece(ABP src, ABP dst);
-    ChessPiece* getPiece(IBP src);
-    ChessPiece* getPiece(ABP src);
-    void setPiece(ChessPiece* piece, IBP dst);
-    void setPiece(ChessPiece* piece, ABP dst);
-
-    ChessMoves* getValidMoves(ChessPiece* piece);
-    ChessMoves* getLegalMoves(ChessPiece* piece);
-    bool isValidMove(ChessMove move);
-    void performMove(ChessMove move);
-
-public:
-    static IBP tranlateABPoIBP(ABP pos);
-    static ABP tranlateIBPoABP(IBP pos);
-    static IBP getMoveSrcIBP(ChessMove move);
-    static IBP getMoveDstIBP(ChessMove move);
-    static ABP getMoveSrcABP(ChessMove move);
-    static ABP getMoveDstABP(ChessMove move);
+    ChessBoard() : Board() {}
+    bool isMoveValid(ChessMove move);
+    bool isMoveLegal(ChessMove move, bool checkIfValid = true);
+    bool isMoveCapture(ChessMove move);
+    virtual bool performMove(ChessMove move);
 
 protected:
-    ChessMoves* getPawnMoves(ChessPiece* piece);
-    ChessMove createMove(IBP src, IBP dst, bool isPromotion = false, PieceType promotiontType = QUEEN);
+    ChessMoves* getLegalMoves(ChessPiece* piece);
+    ChessMoves* getValidKingMoves(ChessPiece* piece);
+    ChessMoves* getValidQueenMoves(ChessPiece* piece);
+    ChessMoves* getValidRookMoves(ChessPiece* piece);
+    ChessMoves* getValidBishopMoves(ChessPiece* piece);
+    ChessMoves* getValidKnightMoves(ChessPiece* piece);
+    ChessMoves* getValidPawnMoves(ChessPiece* piece);
 
-private:
-    ChessPiece* board[NUM_ROWS][NUM_COLS];
+    ChessMove createMove(IBP src, IBP dst, bool isPromotion = false, PieceType promotionType = QUEEN);
+
+    bool canShortCastle[NUM_PLAYERS];
+    bool canLongCastle[NUM_PLAYERS];
+    bool canEnPassant;
+    IBP enPassantPosition;
 };
 
 #endif // CHESSBOARD_H

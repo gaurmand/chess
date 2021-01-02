@@ -1,0 +1,137 @@
+Board
+{
+public:
+    Board();
+    ChessPiece* getPiece(IBP pos);
+    void printBoard();
+
+protected:
+    void setPiece(ChessPiece* piece, IBP pos);
+    ChessPiece* movePiece(IBP src, IBP dst);
+    void clearBoard();
+
+private:
+    ChessPiece* board[NUM_ROWS][NUM_COLS];
+};
+
+getPiece:
+1) returns piece at pos
+
+setPiece:
+1) sets piece's pos property to new pos
+2) sets piece at the new positioon on the board
+
+=========================================================================
+
+ChessBoard : public Board
+{
+public:
+	ChessBoard();
+	ChessMoves* getLegalMoves(ChessPiece* piece);
+  bool isMoveValid(ChessMove move);
+	bool isMoveLegal(ChessMove move, bool checkIfValid = true);
+  bool isMoveCapture(ChessMove move);
+	virtual bool performMove(ChessMove move);
+
+protected:
+	ChessMoves* getValidKingMoves(ChessPiece* piece);
+	ChessMoves* getValidQueenMoves(ChessPiece* piece);
+	ChessMoves* getValidRookMoves(ChessPiece* piece);
+	ChessMoves* getValidBishopMoves(ChessPiece* piece);
+	ChessMoves* getValidKnightMoves(ChessPiece* piece);
+	ChessMoves* getValidPawnMoves(ChessPiece* piece);
+	
+	ChessMove createMove(IBP src, IBP dst, bool isPromotion = false; PieceType promotionType = QUEEN);
+  
+  bool canShortCastle[NUM_PLAYERS];
+  bool canLongCastle[NUM_PLAYERS];
+  bool canEnPassant;
+  IBP enPassantPosition;
+};
+
+getLegalMoves:
+1) Calculates all possible valid moves of that piece according to its type (i.e. call appropraiate getValidMoves() method)
+2) Filters out moves that would result in the active player's king being in check
+3) Return the remaining list of moves (or nullptr if list is empty)
+
+isMoveLegal:
+1) If checkIfValid flag is set, check if move is valid before continuing
+2) Check if performing the move will result in the active player being in check
+
+isMoveValid:
+1) Get piece at src position
+2) Call appropriate getPosssibleMoves() method to get list of possible moves
+3) Check if it's in list of possible moves
+
+performMove:
+1) Performs the move by changing the state of the board and related properties
+- NORMAL MOVE: move piece from src to dst
+- CAPTURE: move piece, mark piece at dst as captured
+- PAWN DOUBLE ADVANCE: move pawn, set en passant flag as active and store en passant position
+- KING/ROOK MOVES: set appropriate castling flags
+- PAWN PROMOTION: move pawn, change pawn to specified type
+- CASTLE: move king, move rook according to active player and short/long castle, set castling flags
+
+isMoveCapture:
+1)Get move dst
+2)Check if piece at board dst position
+
+getValid____Moves: Returns list of possible moves for a particular piece type (might not be legal)
+- KING: move one square in any direction, castles
+- QUEEN: move on left diagonal, right diagonal, rows, cols
+- ROOK: move on rows, cols
+- BISHOP: move on left diagonals, right diagonals
+- KNGIHT: move in L-shapes
+- PAWN: top move, top left/right captures, double advance, promotion, en passant
+
+createMove:
+1) Translate src and dst to ABP
+2) Concatenate src and dst ABPs into string
+3) If promotion, append promotion char to string
+
+=================================================================================
+
+ChessGame : public ChessBoard
+{
+public:
+  ChessGame();
+  ~ChessGame();
+  bool setGameState(GameState state);
+  void setInitialGameState();
+  static bool isValidGameState(GameState state);
+  
+  ChessPiece* getChessPiece(Player player, PieceID id);
+  ChessMoves* getChessMoves(Player player, PieceID id);
+  
+  void generateLegalMoves();
+  void printAvailableMoves();
+  static  std::string movesToString(ChessMoves* moves);
+
+  bool performMove(ChessMove move) override;
+  
+  Player getActivePlayer();
+  void switchActivePlayer();
+  void setActivePlayer(Player player);
+  
+  bool isValidMoveAvailable();
+  bool isCheck();
+  bool isCheckmate();
+  bool isStalemate();
+  
+protected:
+  void initChessPiece(PieceID id, Player player, PieceType type, IBP pos);
+  void clearMoves();
+  
+private:
+  int numHalfMoves = 0;
+  int numFullMoves = 0;
+  Player active = WHITE;
+  
+  ChessPiece* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
+  ChessMoves* moves[NUM_PLAYERS][NUM_CHESS_PIECES];
+  
+  int numAvailableMoves = 0;
+  bool _isCheck = false;
+  bool _isCheckmate = false;
+  bool _isStalemate = false;
+};

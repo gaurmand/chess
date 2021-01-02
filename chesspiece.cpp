@@ -51,7 +51,7 @@ void ChessPiece::setCaptured(bool cap)
 }
 
 std::string ChessPiece::toString() {
-    std::string res = ChessBoard::tranlateIBPoABP(pos);
+    std::string res = BoardPosition::tranlateIBPoABP(pos);
     switch(type) {
         case KING:
             return ((owner == WHITE) ? "K" : "k") + res;

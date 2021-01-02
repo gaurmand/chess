@@ -3,85 +3,37 @@
 #include "chessboard.h"
 #include "chesspiece.h"
 
-int rowToRank[8] = {8, 7, 6, 5, 4, 3, 2, 1};
-char colToFile[8] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-std::map<int, int> rankToRow = {{1, 7}, {2, 6}, {3, 5}, {4, 4}, {5, 3}, {6, 2}, {7, 1}, {8, 0}};
-std::map<char, int> fileToCol = {{'a', 0}, {'b', 1}, {'c', 2}, {'d', 3}, {'e', 4}, {'f', 5}, {'g', 6}, {'h', 7}};
-
-ChessBoard::ChessBoard()
+bool ChessBoard::performMove(ChessMove move)
 {
-    clearBoard();
+    IBP src = BoardPosition::getMoveSrcIBP(move);
+    IBP dst = BoardPosition::getMoveDstIBP(move);
+    ChessPiece* captured = movePiece(src, dst);
+    if(captured != nullptr) {
+        captured->setCaptured(true);
+    }
+
+    return true;
 }
 
-void ChessBoard::clearBoard()
+bool ChessBoard::isMoveLegal(ChessMove move, bool checkIfValid)
 {
-    for(int i=0; i<NUM_ROWS; i++) {
-        for(int j=0; j<NUM_COLS; j++) {
-            board[i][j] = nullptr;
-        }
-    }
+    return true;
 }
 
-
-ChessPiece* ChessBoard::movePiece(IBP src, IBP dst)
+bool ChessBoard::isMoveValid(ChessMove move)
 {
-    ChessPiece* dstPiece = getPiece(dst);
-    ChessPiece* srcPiece = getPiece(src);
-
-    if(srcPiece == nullptr)
-        return nullptr;
-
-    setPiece(nullptr, src);
-    setPiece(srcPiece, dst);
-    return dstPiece;
+    return true;
 }
 
-ChessPiece* ChessBoard::getPiece(IBP src)
+bool ChessBoard::isMoveCapture(ChessMove move)
 {
-    return board[src.row][src.col];
-}
-
-void ChessBoard::setPiece(ChessPiece* piece, IBP dst)
-{
-    if(piece) {
-        piece->setIBPos(dst);
-    }
-    board[dst.row][dst.col] = piece;
-}
-
-ChessMoves* ChessBoard::getValidMoves(ChessPiece* piece)
-{
-    ChessMoves* legalMoves = getLegalMoves(piece);
-    if(legalMoves == nullptr) {
-        return nullptr;
-    }
-    ChessMoves* validMoves = new ChessMoves;
-
-    for(ChessMoves::iterator it = legalMoves->begin(); it != legalMoves->end(); ++it) {
-        ChessMove move = *it;
-        if(isValidMove(move)) {
-            validMoves->push_back(move);
-        }
-    }
-
-//    //Using copy_if
-//    std::copy_if (legalMoves->begin(), legalMoves->end(), std::back_inserter(validMoves), &ChessBoard::isValidMove);
-
-    if(legalMoves != nullptr) {
-        delete legalMoves;
-    }
-
-    if(validMoves->size() > 0) {
-        return validMoves;
-    } else {
-        return nullptr;
-    }
+    return true;
 }
 
 ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece)
 {
-    PieceType type = piece->getType();
-    switch(type) {
+    ChessMoves* validMoves;
+    switch(piece->getType()) {
         case KING:
         case QUEEN:
         case ROOK:
@@ -89,11 +41,39 @@ ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece)
         case KNIGHT:
             return nullptr;
         case PAWN:
-            return getPawnMoves(piece);
+            return validMoves = getValidPawnMoves(piece);
+    }
+
+    if(validMoves == nullptr) {
+        //if no valid moves, return nullptr
+        return nullptr;
+    }
+
+    ChessMoves* legalMoves = new ChessMoves;
+
+    //filter out illegal moves (i.e. moves that put our king in check)
+    for(ChessMoves::iterator it = legalMoves->begin(); it != legalMoves->end(); ++it) {
+        ChessMove move = *it;
+        if(isMoveLegal(move, false)) {
+            legalMoves->push_back(move);
+        }
+    }
+
+    //Using copy_if to filter
+//    std::copy_if (legalMoves->begin(), legalMoves->end(), std::back_inserter(validMoves), &ChessBoard::isValidMove);
+
+    delete validMoves;
+
+    //return legalMoves unlesss it's empty
+    if(!legalMoves->empty()) {
+        return legalMoves;
+    } else {
+        delete legalMoves;
+        return nullptr;
     }
 }
 
-ChessMoves* ChessBoard::getPawnMoves(ChessPiece* piece)
+ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
 {
     ChessMoves* moves = new ChessMoves;
     Player player = piece->getOwner();
@@ -178,62 +158,12 @@ ChessMoves* ChessBoard::getPawnMoves(ChessPiece* piece)
     }
 }
 
-bool ChessBoard::isValidMove(ChessMove move)
-{
-    return true;
-}
-
-void ChessBoard::performMove(ChessMove move)
-{
-    IBP src = ChessBoard::ChessBoard::getMoveSrcIBP(move);
-    IBP dst = ChessBoard::ChessBoard::getMoveDstIBP(move);
-    ChessPiece* captured = movePiece(src, dst);
-    if(captured != nullptr) {
-        captured->setCaptured(true);
-    }
-}
-
 ChessMove ChessBoard::createMove(IBP src, IBP dst, bool isPromotion, PieceType promotiontType)
 {
     ChessMove res = "";
-    ABP srcABP = ChessBoard::tranlateIBPoABP(src);
-    ABP dstABP = ChessBoard::tranlateIBPoABP(dst);
+    ABP srcABP = BoardPosition::tranlateIBPoABP(src);
+    ABP dstABP = BoardPosition::tranlateIBPoABP(dst);
     res = srcABP + dstABP;
 
     return res;
 }
-
-IBP ChessBoard::tranlateABPoIBP(ABP pos)
-{
-    int rank = std::stoi(pos.substr(1,1));
-    char file = pos[0];
-    return {rankToRow[rank],fileToCol[file]};
-}
-
-ABP ChessBoard::tranlateIBPoABP(IBP pos)
-{
-    int rank = rowToRank[pos.row];
-    char file = colToFile[pos.col];
-    return file+std::to_string(rank);
-}
-
-IBP ChessBoard::getMoveSrcIBP(ChessMove move)
-{
-    ABP src = move.substr(0,2);
-    return ChessBoard::tranlateABPoIBP(src);
-}
-IBP ChessBoard::getMoveDstIBP(ChessMove move)
-{
-    ABP dst = move.substr(2,2);
-    return ChessBoard::tranlateABPoIBP(dst);
-}
-ABP ChessBoard::getMoveSrcABP(ChessMove move)
-{
-    return move.substr(0,2);
-}
-
-ABP ChessBoard::getMoveDstABP(ChessMove move)
-{
-    return move.substr(2,2);
-}
-

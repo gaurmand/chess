@@ -3,6 +3,7 @@
 
 #include <string>
 #include "constants.h"
+#include "boardposition.h"
 
 class ChessPiece
 {

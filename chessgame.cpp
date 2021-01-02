@@ -4,26 +4,7 @@
 #include "chessgame.h"
 #include "chesspiece.h"
 
-ChessGame::ChessGame(GameState state)
-{
-    //init moves array
-    for (int i=0; i<NUM_PLAYERS; i++){
-        for(int j=0; j<NUM_CHESS_PIECES; j++){
-            moves[i][j] = nullptr;
-        }
-    }
-
-    //init pieces array
-    for (int i=0; i<NUM_PLAYERS; i++){
-        for(int j=0; j<NUM_CHESS_PIECES; j++){
-            pieces[i][j] = new ChessPiece(PieceID(j));
-        }
-    }
-
-    setGameState(state);
-}
-
-ChessGame::ChessGame()
+ChessGame::ChessGame() : ChessBoard()
 {
     //init moves array
     for (int i=0; i<NUM_PLAYERS; i++){
@@ -42,11 +23,6 @@ ChessGame::ChessGame()
     setInitialGameState();
 }
 
-bool ChessGame::isValidGameState(GameState state)
-{
-    return true;
-}
-
 ChessGame::~ChessGame()
 {
     for (int i=0; i<NUM_PLAYERS; i++){
@@ -62,7 +38,7 @@ ChessGame::~ChessGame()
 void ChessGame::initChessPiece(PieceID id, Player player, PieceType type, IBP pos)
 {
     pieces[player][id]->setPiece(player, type, pos);
-    board.setPiece(pieces[player][id], pos);
+    setPiece(pieces[player][id], pos);
 }
 
 void ChessGame::clearMoves()
@@ -88,9 +64,9 @@ ChessMoves* ChessGame::getChessMoves(Player player, PieceID id)
     return moves[player][id];
 }
 
-ChessPiece* ChessGame::getChessPiece(IBP pos)
+bool ChessGame::isValidGameState(GameState state)
 {
-    return board.getPiece(pos);
+    return true;
 }
 
 bool ChessGame::setGameState(GameState state)
@@ -98,23 +74,30 @@ bool ChessGame::setGameState(GameState state)
     return true;
 }
 
-bool ChessGame::setInitialGameState()
+void ChessGame::setInitialGameState()
 {
-    //set game state variables to initial state
+    //set game state variables to intial state
+    numHalfMoves = 0;
+    numFullMoves = 0;
+    active = WHITE;
+    numAvailableMoves = 0;
+    _isCheck = false;
+    _isCheckmate = false;
+    _isStalemate = false;
+
+    //set move state variables to initial state
     for(int i=0; i<NUM_PLAYERS; i++) {
-        canKingsideCastle[i] = true;
-        canQueensideCastle[i] = true;
-        isInCheck[i] = false;
+        canShortCastle[i] = true;
+        canLongCastle[i] = true;
     }
-    isEnPassantPossible = false;
-    enPassantPosition = {0,0};
-    activePlayer = WHITE;
+    canEnPassant = false;
+    enPassantPosition = {0, 0};
 
     //clear moves array and free memory
     clearMoves();
 
     //clear chess board
-    board.clearBoard();
+    clearBoard();
 
     //set white pieces to initial positions
     initChessPiece(K, WHITE, KING,      {7, 4});
@@ -151,11 +134,9 @@ bool ChessGame::setInitialGameState()
     initChessPiece(PF, BLACK, PAWN,     {1, 5});
     initChessPiece(PG, BLACK, PAWN,     {1, 6});
     initChessPiece(PH, BLACK, PAWN,     {1, 7});
-
-    return true;
 }
 
-void ChessGame::generateMoves() {
+void ChessGame::generateLegalMoves() {
     numAvailableMoves = 0;
 
     for (int i=0; i<NUM_PLAYERS; i++){
@@ -169,7 +150,7 @@ void ChessGame::generateMoves() {
             if(piece->isCaptured()) {
                 moves[i][j] = nullptr;
             } else {
-                moves[i][j] = board.getValidMoves(piece);
+                moves[i][j] = getLegalMoves(piece);
             }
 
             if(moves[i][j] != nullptr) {
@@ -178,10 +159,10 @@ void ChessGame::generateMoves() {
         }
     }
 
-    printGeneratedMoves();
+    printAvailableMoves();
 }
 
-void ChessGame::printGeneratedMoves()
+void ChessGame::printAvailableMoves()
 {
     for (int i=0; i<NUM_PLAYERS; i++){
         for(int j=0; j<NUM_CHESS_PIECES; j++){
@@ -209,47 +190,51 @@ std::string ChessGame::movesToString(ChessMoves* moves)
     return res;
 }
 
-Player ChessGame::getActivePlayer()
-{
-    return activePlayer;
-}
-
-void ChessGame::switchActivePlayer()
-{
-    if(activePlayer == WHITE)
-        activePlayer = BLACK;
-    else
-        activePlayer = WHITE;
-}
-
-void ChessGame::setActivePlayer(Player player)
-{
-    activePlayer = player;
-}
-
-bool ChessGame::isValidMoveAvailable()
-{
-    return numAvailableMoves != 0;
-}
-
-
-bool ChessGame::isCheckmate()
-{
-    return isInCheck[activePlayer] && !isValidMoveAvailable();
-}
-
-bool ChessGame::isStalemate()
-{
-    return !isInCheck[activePlayer] && !isValidMoveAvailable();
-
-}
-
 bool ChessGame::performMove(ChessMove move)
 {
-    if(board.isValidMove(move)) {
-        board.performMove(move);
+    if(isMoveLegal(move)) {
+        ChessBoard::performMove(move);
         switchActivePlayer();
         return true;
     }
     return false;
+}
+
+Player ChessGame::getActivePlayer()
+{
+    return active;
+}
+
+void ChessGame::switchActivePlayer()
+{
+    if(active == WHITE) {
+        active = BLACK;
+    } else {
+        active = WHITE;
+    }
+}
+
+void ChessGame::setActivePlayer(Player player)
+{
+    active = player;
+}
+
+bool ChessGame::isValidMoveAvailable()
+{
+    return numAvailableMoves > 0;
+}
+
+bool ChessGame::isCheck()
+{
+    return _isCheck;
+}
+
+bool ChessGame::isCheckmate()
+{
+    return _isCheckmate;
+}
+
+bool ChessGame::isStalemate()
+{
+    return _isStalemate;
 }

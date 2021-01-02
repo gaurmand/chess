@@ -29,30 +29,6 @@ enum PieceID{K, Q, RA, RH, BC, BF, NB, NG, PA, PB, PC, PD, PE, PF, PG, PH};
 enum Player{WHITE, BLACK};
 
 /*
- * BOARD POSITION
- * InternalBoardPosition: (row, column) pair representing postions on the chess board
- * (0,0) (0,1) .. (0,7)
- * (1,0) (1,1) .. (1,7)
- *   :     :        :
- * (7,0) (7,1) .. (7,7)
- *
- * AlgebraicBoardPosition: (file, rank) pair representing postions on the chess board
- * a8 b8 .. h8
- * a7 b7 .. h7
- * :  :     :
- * a1 b1 .. h1
-*/
-struct InternalBoardPosition
-{
-    int row;
-    int col;
-};
-
-typedef std::string AlgebraicBoardPosition;
-typedef AlgebraicBoardPosition ABP;
-typedef InternalBoardPosition IBP;
-
-/*
  * CHESS MOVES
  * ChessMove: string containing src and dst positions of move (modified long algebraic notation)
  * e.g. e2e4, e7e5, e1g1 (white short castling), e7e8q (for promotion)

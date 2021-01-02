@@ -1,56 +1,55 @@
 #ifndef CHESSGAME_H
 #define CHESSGAME_H
 
+#include <string>
+
 #include "constants.h"
 #include "chesspiece.h"
 #include "chessboard.h"
 
-class ChessGame
+class ChessGame : public ChessBoard
 {
 public:
-    ChessGame(GameState state);
     ChessGame();
     ~ChessGame();
-
-    bool isValidGameState(GameState state);
     bool setGameState(GameState state);
-    bool setInitialGameState();
+    void setInitialGameState();
+    static bool isValidGameState(GameState state);
 
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(Player player, PieceID id);
-    ChessPiece* getChessPiece(IBP pos);
 
-    void generateMoves();
-    void printGeneratedMoves();
-    std::string movesToString(ChessMoves* moves);
+    void generateLegalMoves();
+    void printAvailableMoves();
+    static  std::string movesToString(ChessMoves* moves);
 
-    bool performMove(ChessMove move);
-    bool performMoves(ChessMoves moves);
+    bool performMove(ChessMove move) override;
 
     Player getActivePlayer();
     void switchActivePlayer();
     void setActivePlayer(Player player);
 
+    bool isValidMoveAvailable();
+    bool isCheck();
     bool isCheckmate();
     bool isStalemate();
-    bool isValidMoveAvailable();
 
 protected:
-    void initChessPiece( PieceID id, Player player, PieceType type, IBP pos);
+    void initChessPiece(PieceID id, Player player, PieceType type, IBP pos);
     void clearMoves();
 
 private:
-    bool canKingsideCastle[NUM_PLAYERS] = {true, true};
-    bool canQueensideCastle[NUM_PLAYERS] = {true, true};
-    bool isInCheck[NUM_PLAYERS] = {false, false};
-    int numFullmoves = 0;
-    bool isEnPassantPossible = false;
-    IBP enPassantPosition = {0,0};
-    Player activePlayer = WHITE;
+    int numHalfMoves;
+    int numFullMoves;
+    Player active;
+
     ChessPiece* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     ChessMoves* moves[NUM_PLAYERS][NUM_CHESS_PIECES];
-    int numAvailableMoves = 0;
-    ChessBoard board;
+
+    int numAvailableMoves;
+    bool _isCheck;
+    bool _isCheckmate;
+    bool _isStalemate;
 };
 
 #endif // CHESSGAME_H
