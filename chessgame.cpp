@@ -136,7 +136,7 @@ void ChessGame::setInitialGameState()
     initChessPiece(PH, BLACK, PAWN,     {1, 7});
 
     generateAvailableMoves();
-    printAvailableMoves();
+    printAvailableMoves(WHITE);
 }
 
 void ChessGame::generateAvailableMoves() {
@@ -163,20 +163,19 @@ void ChessGame::generateAvailableMoves() {
     }
 }
 
-void ChessGame::printAvailableMoves()
+void ChessGame::printAvailableMoves(Player player)
 {
-    for (int i=0; i<NUM_PLAYERS; i++){
-        for(int j=0; j<NUM_CHESS_PIECES; j++){
-            ChessPiece* piece = pieces[i][j];
+    std::cout << "Print available moves (" << ((player == WHITE) ? "White)" : "Black)") << std::endl;
+    for(int j=0; j<NUM_CHESS_PIECES; j++){
+        ChessPiece* piece = pieces[player][j];
 
-            std::cout << piece->toString() << ": ";
+        std::cout << piece->toString() << ": ";
 
-            if(!piece->isCaptured() && moves[i][j] != nullptr) {
-                std::cout << "(" << moves[i][j]->size() << ") " << movesToString(moves[i][j]);
-            }
-
-            std::cout << std::endl;
+        if(!piece->isCaptured() && moves[player][j] != nullptr) {
+            std::cout << "(" << moves[player][j]->size() << ") " << movesToString(moves[player][j]);
         }
+
+        std::cout << std::endl;
     }
 }
 
@@ -205,7 +204,7 @@ bool ChessGame::performMove(ChessMove move)
     switchActivePlayer();
 
     generateAvailableMoves();
-    printAvailableMoves();
+    printAvailableMoves(active);
     return true;
 }
 

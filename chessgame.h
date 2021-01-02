@@ -19,15 +19,9 @@ public:
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(Player player, PieceID id);
 
-    void generateAvailableMoves();
-    void printAvailableMoves();
-    static  std::string movesToString(ChessMoves* moves);
-
     bool performMove(ChessMove move) override;
 
     Player getActivePlayer();
-    void switchActivePlayer();
-    void setActivePlayer(Player player);
 
     bool isValidMoveAvailable();
     bool isCheck();
@@ -37,6 +31,13 @@ public:
 protected:
     void initChessPiece(PieceID id, Player player, PieceType type, IBP pos);
     void clearMoves();
+
+    void generateAvailableMoves();
+    void printAvailableMoves(Player player);
+    static  std::string movesToString(ChessMoves* moves);
+
+    void switchActivePlayer();
+    void setActivePlayer(Player player);
 
 private:
     int numHalfMoves;
