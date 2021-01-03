@@ -7,6 +7,39 @@ bool ChessBoard::performMove(ChessMove move)
 {
     IBP src = BoardPosition::getMoveSrcIBP(move);
     IBP dst = BoardPosition::getMoveDstIBP(move);
+
+    ChessPiece* srcPiece = getPiece(src);
+    Player player = srcPiece->getOwner();
+
+    switch(srcPiece->getType()) {
+        case KING:
+            //if king move -> set castling flags
+            canShortCastle[player] = false;
+            canLongCastle[player] = false;
+
+            //if move is castle -> move rook
+            if(move == "e1g1") {            //white short castle
+                movePiece({7,7}, {7,5});
+            } else if(move == "e8g8") {     //black short castle
+                movePiece({0,7}, {0,5});
+            } else if(move == "e1c1") {     //white long castle
+                movePiece({7,0}, {7,3});
+            } else if(move == "e8c8") {     //white black castle
+                movePiece({0,0}, {0,3});
+            }
+            break;
+        case ROOK:
+            //if rook move -> set castling flags
+            if(srcPiece->getId() == RA) {
+                canLongCastle[player] = false;
+            } else {
+                canShortCastle[player] = false;
+            }
+            break;
+        default:
+            break;
+    }
+
     ChessPiece* captured = movePiece(src, dst);
     if(captured != nullptr) {
         captured->setCaptured(true);
@@ -140,6 +173,7 @@ ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece)
 {
     ChessMoves* moves = new ChessMoves;
     IBP pos = piece->getIBPos();
+    Player player = piece->getOwner();
 
     pushMove(moves, piece, {pos.row, pos.col-1});   //push left move
     pushMove(moves, piece, {pos.row, pos.col+1});   //push right move
@@ -149,6 +183,26 @@ ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece)
     pushMove(moves, piece, {pos.row+1, pos.col});   //push bottom move
     pushMove(moves, piece, {pos.row+1, pos.col-1}); //push bottomLeft move
     pushMove(moves, piece, {pos.row+1, pos.col+1}); //push bottomRight move
+
+    //check short castle
+    if(canShortCastle[player]) {
+        ChessPiece* fPiece = getPiece({pos.row, 5});
+        ChessPiece* gPiece = getPiece({pos.row, 6});
+        if(!fPiece && !gPiece) {
+            pushNormalMove(moves, piece, {pos.row, 6});
+        }
+    }
+
+    //check long castle
+    if(canLongCastle[player]) {
+        ChessPiece* bPiece = getPiece({pos.row, 1});
+        ChessPiece* cPiece = getPiece({pos.row, 2});
+        ChessPiece* dPiece = getPiece({pos.row, 3});
+
+        if(!bPiece && !cPiece && !dPiece) {
+            pushNormalMove(moves, piece, {pos.row, 2});
+        }
+    }
 
     if(moves->size() > 0) {
         return moves;
