@@ -386,6 +386,8 @@ void ChessWidget::updatePieces()
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
         pieces[WHITE][pid]->setBoardPosition();
         pieces[BLACK][pid]->setBoardPosition();
+        pieces[WHITE][pid]->setPixmap();
+        pieces[BLACK][pid]->setPixmap();
         pieces[WHITE][pid]->update();
         pieces[BLACK][pid]->update();
     }

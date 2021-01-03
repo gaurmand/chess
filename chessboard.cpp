@@ -36,6 +36,11 @@ bool ChessBoard::performMove(ChessMove move)
                 canShortCastle[player] = false;
             }
             break;
+        case PAWN:
+            //if promotion -> promote pawn (auto queen for now)
+            if (move.size() == 5) {
+                srcPiece->setType(QUEEN);
+            }
         default:
             break;
     }
@@ -140,6 +145,7 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
 
         pushCapture(moves, piece, {pos.row-1, pos.col-1}); //push top left capture
         pushCapture(moves, piece, {pos.row-1, pos.col+1}); //push top right capture
+
     } else {
 
         //ignore if in row 7
@@ -158,6 +164,14 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
 
         pushCapture(moves, piece, {pos.row+1, pos.col-1}); //push bottom left capture
         pushCapture(moves, piece, {pos.row+1, pos.col+1}); //push bottom right capture
+    }
+
+    //if in last row, make each move a promotion (automatic queen promotion for now)
+    if((player == WHITE && pos.row == 1) || (player == BLACK && pos.row == 6)) {
+        for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
+            ChessMove move = *it;
+            *it = move + 'q';
+        }
     }
 
 
