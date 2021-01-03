@@ -11,6 +11,8 @@ bool ChessBoard::performMove(ChessMove move)
     ChessPiece* srcPiece = getPiece(src);
     Player player = srcPiece->getOwner();
 
+    bool nextTurnEnPassant = false;
+
     switch(srcPiece->getType()) {
         case KING:
             //if king move -> set castling flags
@@ -37,10 +39,36 @@ bool ChessBoard::performMove(ChessMove move)
             }
             break;
         case PAWN:
+        {
+            //if double advance -> set en passant flags
+            if(player == WHITE && src.row == 6 && dst.row == 4) {
+                nextTurnEnPassant = true;
+                enPassantPosition = {5, src.col};
+            } else if(player == BLACK && src.row == 1 && dst.row == 3) {
+                nextTurnEnPassant = true;
+                enPassantPosition = {2, src.col};
+            }
+
+            //if en passant -> capture pawn above enPassantPosition
+            if(canEnPassant && enPassantPosition.row == dst.row && enPassantPosition.col == dst.col) {
+                ChessPiece* capturedPawn;
+                if(player == WHITE) {
+                    //captured pawn is black
+                    capturedPawn = getPiece({3, dst.col});
+                } else {
+                    //capture pawn is white
+                    capturedPawn = getPiece({4, dst.col});
+                }
+                setPiece(nullptr, capturedPawn->getIBPos());
+                capturedPawn->setCaptured(true);
+            }
+
+
             //if promotion -> promote pawn (auto queen for now)
             if (move.size() == 5) {
                 srcPiece->setType(QUEEN);
             }
+        }
         default:
             break;
     }
@@ -49,6 +77,10 @@ bool ChessBoard::performMove(ChessMove move)
     if(captured != nullptr) {
         captured->setCaptured(true);
     }
+
+    //if pawn double advanced, signal that en passant possible
+    //otherwise set to false (can only en passant on immediate turn right after enemy double advance)
+    canEnPassant = nextTurnEnPassant;
 
     return true;
 }
@@ -130,12 +162,6 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
 
     if(player == WHITE){
 
-        //ignore if in row 0
-        if(pos.row == 0) {
-            delete moves;
-            return nullptr;
-        }
-
         bool topMove = pushNormalMove(moves, piece, {pos.row-1, pos.col}); //push top move
 
         //if pawn in starting row (6) and top square is empty, push double advance move
@@ -147,12 +173,6 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
         pushCapture(moves, piece, {pos.row-1, pos.col+1}); //push top right capture
 
     } else {
-
-        //ignore if in row 7
-        if(pos.row == 7) {
-            delete moves;
-            return nullptr;
-        }
 
         bool bottom = pushNormalMove(moves, piece, {pos.row+1, pos.col}); //push bottom move
 
@@ -174,6 +194,19 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
         }
     }
 
+    //check for en passant moves
+    if(canEnPassant) {
+        bool enPassantTopRight = (pos.row-1) == enPassantPosition.row && (pos.col+1) == enPassantPosition.col;
+        bool enPassantTopLeft = (pos.row-1) == enPassantPosition.row && (pos.col-1) == enPassantPosition.col;
+        bool enPassantBottomRight = (pos.row+1) == enPassantPosition.row && (pos.col+1) == enPassantPosition.col;
+        bool enPassantBottomLeft = (pos.row+1) == enPassantPosition.row && (pos.col-1) == enPassantPosition.col;
+
+        if(player == WHITE && (enPassantTopRight || enPassantTopLeft)) {
+            pushNormalMove(moves, piece, enPassantPosition);
+        } else if(player == BLACK && (enPassantBottomRight || enPassantBottomLeft)) {
+            pushNormalMove(moves, piece, enPassantPosition);
+        }
+    }
 
     if(moves->size() > 0) {
         return moves;

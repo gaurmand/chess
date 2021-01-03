@@ -67,6 +67,3 @@ std::string ChessPiece::toString() {
             return ((owner == WHITE) ? "P" : "p") + res;
     }
 }
-
-
-
