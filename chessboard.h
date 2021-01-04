@@ -17,8 +17,8 @@ public:
     virtual bool performMove(ChessMove move);
 
 protected:
-    ChessMoves* getLegalMoves(ChessPiece* piece);
-    ChessMoves* getValidKingMoves(ChessPiece* piece);
+    ChessMoves* getLegalMoves(ChessPiece* piece, bool checkCastles);
+    ChessMoves* getValidKingMoves(ChessPiece* piece, bool checkCastles);
     ChessMoves* getValidQueenMoves(ChessPiece* piece);
     ChessMoves* getValidRookMoves(ChessPiece* piece);
     ChessMoves* getValidBishopMoves(ChessPiece* piece);

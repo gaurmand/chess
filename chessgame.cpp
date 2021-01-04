@@ -135,30 +135,28 @@ void ChessGame::setInitialGameState()
     initChessPiece(PG, BLACK, PAWN,     {1, 6});
     initChessPiece(PH, BLACK, PAWN,     {1, 7});
 
-    generateAvailableMoves();
+    generateAvailableMoves(WHITE, false);
     printAvailableMoves(WHITE);
 }
 
-void ChessGame::generateAvailableMoves() {
+void ChessGame::generateAvailableMoves(Player player, bool checkCastles) {
     numAvailableMoves = 0;
 
-    for (int i=0; i<NUM_PLAYERS; i++){
-        for(int j=0; j<NUM_CHESS_PIECES; j++){
-            ChessPiece* piece = pieces[i][j];
+    for(int j=0; j<NUM_CHESS_PIECES; j++){
+        ChessPiece* piece = pieces[player][j];
 
-            if(moves[i][j] != nullptr) {
-                delete moves[i][j];
-            }
+        if(moves[player][j] != nullptr) {
+            delete moves[player][j];
+        }
 
-            if(piece->isCaptured()) {
-                moves[i][j] = nullptr;
-            } else {
-                moves[i][j] = getLegalMoves(piece);
-            }
+        if(piece->isCaptured()) {
+            moves[player][j] = nullptr;
+        } else {
+            moves[player][j] = getLegalMoves(piece, checkCastles);
+        }
 
-            if(moves[i][j] != nullptr) {
-                numAvailableMoves += moves[i][j]->size();
-            }
+        if(moves[player][j] != nullptr) {
+            numAvailableMoves += moves[player][j]->size();
         }
     }
 }
@@ -192,6 +190,7 @@ std::string ChessGame::movesToString(ChessMoves* moves)
 
 bool ChessGame::performMove(ChessMove move)
 {
+
     //update board state
     ChessBoard::performMove(move);
 
@@ -201,12 +200,13 @@ bool ChessGame::performMove(ChessMove move)
         numFullMoves++;
     }
 
+    generateAvailableMoves(active);
     switchActivePlayer();
+    _isCheck = isPlayerInCheck(active);
 
-    generateAvailableMoves();
+    generateAvailableMoves(active, !_isCheck); //enable castles if not in check
     printAvailableMoves(active);
 
-    _isCheck = isPlayerInCheck(active);
     return true;
 }
 

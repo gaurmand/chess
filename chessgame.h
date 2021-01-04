@@ -32,7 +32,7 @@ protected:
     void initChessPiece(PieceID id, Player player, PieceType type, IBP pos);
     void clearMoves();
 
-    void generateAvailableMoves();
+    void generateAvailableMoves(Player player, bool checkCastles = false);
     void printAvailableMoves(Player player);
     static  std::string movesToString(ChessMoves* moves);
 
