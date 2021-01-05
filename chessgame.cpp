@@ -441,10 +441,35 @@ ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece)
 
 bool ChessGame::isMoveLegal(ChessMove move)
 {
+    //get new order of moves array
+    ChessMoves* tempMoves[NUM_CHESS_PIECES];
+    for(int i=0; i< NUM_CHESS_PIECES; i++){
+        tempMoves[i] = nullptr;
+    }
+
+    int movesIndex = 0;
+    for(int i=0; i<NUM_ROWS; i++) {
+        for(int j=0; j<NUM_COLS; j++) {
+            if(!board[i][j] || board[i][j]->getOwner() != active) {
+                continue;
+            }
+
+            PieceID id = board[i][j]->getId();
+            tempMoves[movesIndex++] = moves[id];
+        }
+    }
+
+    //reorder moves array (so that it will match new chess pieces order after restoring state)
+    for(int i=0; i< NUM_CHESS_PIECES; i++){
+        moves[i] = tempMoves[i];
+    }
+
+    //save game state
     FGS currState = toFENString();
+
     ChessBoard::performMove(move);
     bool res = !isPlayerInCheck(active);
-    setGameState(currState); //restore prev state
+    setGameState(currState); //restore prev game state
 
     return res;
 }
