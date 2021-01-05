@@ -11,8 +11,6 @@ class ChessBoard : public Board
 {
 public:
     ChessBoard() : Board() {}
-    bool isMoveValid(ChessMove move);
-    bool isMoveLegal(ChessMove move, bool checkIfValid = true);
     bool isMoveCapture(ChessMove move);
     virtual bool performMove(ChessMove move);
 

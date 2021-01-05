@@ -91,7 +91,9 @@ bool ChessGame::setGameState(IGS state)
             IBP pos = {i, j};
             ChessPiece* piece = state.board.getPiece(pos);
             setPiece(piece, pos);
-            piece->setCaptured(false);  //set pieces on board to not be captured
+            if(piece) {
+                piece->setCaptured(false);  //set pieces on board to not be captured
+            }
         }
     }
 
@@ -278,7 +280,8 @@ ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece, bool checkCastles)
     //filter out illegal moves (i.e. moves that put our king in check)
     for(ChessMoves::iterator it = validMoves->begin(); it != validMoves->end(); ++it) {
         ChessMove move = *it;
-        if(isMoveLegal(move, false)) {
+
+        if(isMoveLegal(move)) {
             legalMoves->push_back(move);
         }
     }
@@ -295,6 +298,16 @@ ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece, bool checkCastles)
         delete legalMoves;
         return nullptr;
     }
+}
+
+bool ChessGame::isMoveLegal(ChessMove move)
+{
+    IGS currState = getGameState();
+    ChessBoard::performMove(move);
+    bool res = !isPlayerInCheck(active);
+    setGameState(currState); //restore prev state
+
+    return res;
 }
 
 bool ChessGame::isPlayerInCheck(Player player)

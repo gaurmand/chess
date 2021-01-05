@@ -85,16 +85,6 @@ bool ChessBoard::performMove(ChessMove move)
     return true;
 }
 
-bool ChessBoard::isMoveLegal(ChessMove move, bool checkIfValid)
-{
-    return true;
-}
-
-bool ChessBoard::isMoveValid(ChessMove move)
-{
-    return true;
-}
-
 bool ChessBoard::isMoveCapture(ChessMove move)
 {
     IBP dst = BoardPosition::getMoveDstIBP(move);
