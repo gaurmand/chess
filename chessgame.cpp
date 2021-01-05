@@ -337,6 +337,8 @@ bool ChessGame::performMove(ChessMove move, bool enablePromotion)
     switchActivePlayer();
     _isCheck = isPlayerInCheck(active);
     computeAvailableMoves(); //enable castles if not in check
+    _isCheckmate = _isCheck && numAvailableMoves == 0;
+    _isStalemate = !_isCheck && numAvailableMoves == 0;
     printAvailableMoves();
 
     return true;
