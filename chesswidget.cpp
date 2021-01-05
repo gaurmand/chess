@@ -351,7 +351,7 @@ void ChessWidget::computeBoardGraphicalStates()
 
     //if active king in check, set king square check state
     if(game.isCheck()) {
-        IBP kingPos = game.getChessPiece(activePlayer, K)->getIBPos();
+        IBP kingPos = game.getKingPos(activePlayer);
         chessBoard->setCheck(kingPos);
     }
 

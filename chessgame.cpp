@@ -1,4 +1,5 @@
 #include <string>
+#include <sstream>
 #include <iostream>
 #include "constants.h"
 #include "chessgame.h"
@@ -64,17 +65,13 @@ ChessMoves* ChessGame::getChessMoves(PieceID id)
     return moves[id];
 }
 
-bool ChessGame::isValidGameState(IGS state)
+bool ChessGame::isValidGameState(FGS state)
 {
     return true;
 }
 
 bool ChessGame::setGameState(IGS state)
 {
-    if(!ChessGame::isValidGameState(state)) {
-        return false;
-    }
-
     numHalfMoves = state.numHalfMoves;
     numFullMoves = state.numFullMoves;
     active = state.active;
@@ -98,6 +95,132 @@ bool ChessGame::setGameState(IGS state)
     }
 
     return true;
+}
+
+bool ChessGame::setGameState(FGS state)
+{
+    if(!ChessGame::isValidGameState(state)) {
+        return false;
+    }
+
+    //split state string into component parts
+    std::vector<std::string> compArr;
+    std::string temp;
+    char delim = ' ';
+    std::istringstream ss(state);
+    while (std::getline(ss, temp, delim)) {
+        if (temp.length() > 0) {
+            compArr.push_back(temp);
+        }
+    }
+
+    //set state variables
+    std::string activePlayer = compArr[1];
+    active = (activePlayer == "w" ? WHITE : BLACK);
+    std::string enPassant = compArr[3];
+    canEnPassant = (enPassant != "-");
+    if(canEnPassant) {
+        enPassantPosition = BoardPosition::tranlateABPoIBP(enPassant);
+    } else {
+        enPassantPosition = {0, 0};
+    }
+    numHalfMoves = std::stoi(compArr[4]);
+    numFullMoves = std::stoi(compArr[5]);
+
+    //set castling state
+    std::string castling = compArr[2];
+    canShortCastle[WHITE] = (castling.find("K") != std::string::npos);
+    canShortCastle[BLACK] = (castling.find("k") != std::string::npos);
+    canLongCastle[WHITE] = (castling.find("Q") != std::string::npos);
+    canLongCastle[BLACK] = (castling.find("q") != std::string::npos);
+
+    //set board state
+    std::string boardState = compArr[0];
+    setBoardState(boardState);
+    return true;
+}
+
+void ChessGame::setBoardState(std::string FENString)
+{
+    int i=0, j=0;
+    int whitePieceIndex = 0, blackPieceIndex = 0;
+
+    clearBoard();
+    for(std::string::iterator it = FENString.begin(); it != FENString.end(); ++it) {
+        char curr = *it;
+        if (isupper(curr)) {
+            //white piece
+
+            ChessPiece* piece = pieces[WHITE][whitePieceIndex++];
+            switch(curr) {
+                case 'K':
+                    piece->setPiece(WHITE, KING, {i, j});
+                    break;
+                case 'Q':
+                    piece->setPiece(WHITE, QUEEN, {i, j});
+                    break;
+                case 'R':
+                    piece->setPiece(WHITE, ROOK, {i, j});
+                    break;
+                case 'B':
+                    piece->setPiece(WHITE, BISHOP, {i, j});
+                    break;
+                case 'N':
+                    piece->setPiece(WHITE, KNIGHT, {i, j});
+                    break;
+                case 'P':
+                    piece->setPiece(WHITE, PAWN, {i, j});
+                    break;
+            }
+            setPiece(piece, {i,j});
+            j++; //next col
+
+        } else if(islower(curr)) {
+            //black piece
+
+            ChessPiece* piece = pieces[BLACK][blackPieceIndex++];
+            switch(curr) {
+                case 'k':
+                    piece->setPiece(BLACK, KING, {i, j});
+                    break;
+                case 'q':
+                    piece->setPiece(BLACK, QUEEN, {i, j});
+                    break;
+                case 'r':
+                    piece->setPiece(BLACK, ROOK, {i, j});
+                    break;
+                case 'b':
+                    piece->setPiece(BLACK, BISHOP, {i, j});
+                    break;
+                case 'n':
+                    piece->setPiece(BLACK, KNIGHT, {i, j});
+                    break;
+                case 'p':
+                    piece->setPiece(BLACK, PAWN, {i, j});
+                    break;
+            }
+            setPiece(piece, {i,j});
+            j++;  //next col
+
+        } else if(isdigit(curr)) {
+            //num of blank pieces
+            int numBlanks = int(curr) - 48; //char to int conversion
+            j += numBlanks;
+        } else { //if (curr == '/')
+            //row delimiter
+            i++;
+            j=0;
+        }
+    }
+
+    //set remaining pieces as captured
+    for(int pid = whitePieceIndex; pid < NUM_CHESS_PIECES; pid++) {
+        pieces[WHITE][pid]->setCaptured(true);
+    }
+
+    for(int pid = blackPieceIndex; pid < NUM_CHESS_PIECES; pid++) {
+        pieces[BLACK][pid]->setCaptured(true);
+    }
 }
 
 IGS ChessGame::getGameState()
@@ -134,68 +257,21 @@ std::string ChessGame::toFENString()
     return boardState + " " + activePlayer + " " + castling + " " + enPassant + " " + movesState;
 }
 
-
-
 void ChessGame::setInitialGameState()
 {
-    //set game state variables to intial state
-    numHalfMoves = 0;
-    numFullMoves = 1;
-    active = WHITE;
-    numAvailableMoves = 0;
-    _isCheck = false;
-    _isCheckmate = false;
-    _isStalemate = false;
-
-    //set move state variables to initial state
-    for(int i=0; i<NUM_PLAYERS; i++) {
-        canShortCastle[i] = true;
-        canLongCastle[i] = true;
-    }
-    canEnPassant = false;
-    enPassantPosition = {0, 0};
-
     //clear moves array and free memory
     clearMoves();
 
     //clear chess board
     clearBoard();
 
-    //set white pieces to initial positions
-    initChessPiece(K, WHITE, KING,      {7, 4});
-    initChessPiece(Q, WHITE, QUEEN,     {7, 3});
-    initChessPiece(RA, WHITE, ROOK,     {7, 0});
-    initChessPiece(RH, WHITE, ROOK,     {7, 7});
-    initChessPiece(BC, WHITE, BISHOP,   {7, 2});
-    initChessPiece(BF, WHITE, BISHOP,   {7, 5});
-    initChessPiece(NB, WHITE, KNIGHT,   {7, 1});
-    initChessPiece(NG, WHITE, KNIGHT,   {7, 6});
-    initChessPiece(PA, WHITE, PAWN,     {6, 0});
-    initChessPiece(PB, WHITE, PAWN,     {6, 1});
-    initChessPiece(PC, WHITE, PAWN,     {6, 2});
-    initChessPiece(PD, WHITE, PAWN,     {6, 3});
-    initChessPiece(PE, WHITE, PAWN,     {6, 4});
-    initChessPiece(PF, WHITE, PAWN,     {6, 5});
-    initChessPiece(PG, WHITE, PAWN,     {6, 6});
-    initChessPiece(PH, WHITE, PAWN,     {6, 7});
+    //set board and game state
+    setGameState("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");
 
-    //set black pieces to initial positions
-    initChessPiece(K, BLACK, KING,      {0, 4});
-    initChessPiece(Q, BLACK, QUEEN,     {0, 3});
-    initChessPiece(RA, BLACK, ROOK,     {0, 0});
-    initChessPiece(RH, BLACK, ROOK,     {0, 7});
-    initChessPiece(BC, BLACK, BISHOP,   {0, 2});
-    initChessPiece(BF, BLACK, BISHOP,   {0, 5});
-    initChessPiece(NB, BLACK, KNIGHT,   {0, 1});
-    initChessPiece(NG, BLACK, KNIGHT,   {0, 6});
-    initChessPiece(PA, BLACK, PAWN,     {1, 0});
-    initChessPiece(PB, BLACK, PAWN,     {1, 1});
-    initChessPiece(PC, BLACK, PAWN,     {1, 2});
-    initChessPiece(PD, BLACK, PAWN,     {1, 3});
-    initChessPiece(PE, BLACK, PAWN,     {1, 4});
-    initChessPiece(PF, BLACK, PAWN,     {1, 5});
-    initChessPiece(PG, BLACK, PAWN,     {1, 6});
-    initChessPiece(PH, BLACK, PAWN,     {1, 7});
+    numAvailableMoves = 0;
+    _isCheck = false;
+    _isCheckmate = false;
+    _isStalemate = false;
 
     computeAvailableMoves();
     printAvailableMoves();
@@ -418,7 +494,7 @@ bool ChessGame::isPlayerInCheck(Player player)
 {
     Player curr = player;
     Player other = (player == WHITE) ? BLACK : WHITE;
-    IBP kingPos = getChessPiece(curr, K)->getIBPos();
+    IBP kingPos = getKingPos(curr);
 
     //for each move available to the other player, determine if any are checks (i.e. capture curr player's king)
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
@@ -469,4 +545,15 @@ bool ChessGame::isCheckmate()
 bool ChessGame::isStalemate()
 {
     return _isStalemate;
+}
+
+IBP ChessGame::getKingPos(Player player)
+{
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
+        if(pieces[player][pid]->getType() == KING) {
+            return pieces[player][pid]->getIBPos();
+        }
+    }
+
+    return {-1,-1}; //should throw exception
 }

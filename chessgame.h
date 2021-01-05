@@ -14,9 +14,10 @@ public:
     ChessGame();
     ~ChessGame();
     bool setGameState(IGS state);
+    bool setGameState(FGS state);
     IGS getGameState();
     void setInitialGameState();
-    static bool isValidGameState(IGS state);
+    static bool isValidGameState(FGS state);
     std::string toFENString() override;
 
     ChessPiece* getChessPiece(Player player, PieceID id);
@@ -33,9 +34,12 @@ public:
     bool isCheckmate();
     bool isStalemate();
 
+    IBP getKingPos(Player player);
+
 protected:
     void initChessPiece(PieceID id, Player player, PieceType type, IBP pos);
     void clearMoves();
+    void setBoardState(std::string FENString);
 
     void computeAvailableMoves();
     void printAvailableMoves();

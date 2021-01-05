@@ -1,6 +1,7 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
 
+#include <string>
 #include "constants.h"
 #include "chessboard.h"
 #include "boardposition.h"
