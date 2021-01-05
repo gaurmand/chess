@@ -21,7 +21,7 @@ public:
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(Player player, PieceID id);
 
-    bool performMove(ChessMove move) override;
+    bool performMove(ChessMove move);
     bool isMoveValid(ChessMove move);
     bool isMoveLegal(ChessMove move);
 

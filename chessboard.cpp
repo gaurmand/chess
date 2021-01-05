@@ -3,7 +3,7 @@
 #include "chessboard.h"
 #include "chesspiece.h"
 
-bool ChessBoard::performMove(ChessMove move)
+bool ChessBoard::performMove(ChessMove move, bool enablePromotion)
 {
     IBP src = BoardPosition::getMoveSrcIBP(move);
     IBP dst = BoardPosition::getMoveDstIBP(move);
@@ -65,7 +65,7 @@ bool ChessBoard::performMove(ChessMove move)
 
 
             //if promotion -> promote pawn (auto queen for now)
-            if (move.size() == 5) {
+            if (enablePromotion && move.size() == 5) {
                 srcPiece->setType(QUEEN);
             }
         }

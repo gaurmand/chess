@@ -303,7 +303,7 @@ ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece, bool checkCastles)
 bool ChessGame::isMoveLegal(ChessMove move)
 {
     IGS currState = getGameState();
-    ChessBoard::performMove(move);
+    ChessBoard::performMove(move, false);
     bool res = !isPlayerInCheck(active);
     setGameState(currState); //restore prev state
 

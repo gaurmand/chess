@@ -12,7 +12,7 @@ class ChessBoard : public Board
 public:
     ChessBoard() : Board() {}
     bool isMoveCapture(ChessMove move);
-    virtual bool performMove(ChessMove move);
+    virtual bool performMove(ChessMove move, bool enablePromotion = true);
 
 protected:
     ChessMoves* getValidMoves(ChessPiece* piece, bool checkCastles);
