@@ -85,12 +85,13 @@ bool ChessGame::setGameState(IGS state)
     canEnPassant = state.canEnPassant;
     enPassantPosition = state.enPassantPosition;
 
+    //set board array
     for(int i=0; i<NUM_ROWS; i++) {
         for(int j=0; j<NUM_COLS; j++) {
             IBP pos = {i, j};
             ChessPiece* piece = state.board.getPiece(pos);
             setPiece(piece, pos);
-            piece->setCaptured(false);
+            piece->setCaptured(false);  //set pieces on board to not be captured
         }
     }
 
