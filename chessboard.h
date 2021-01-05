@@ -2,26 +2,31 @@
 #define CHESSBOARD_H
 
 #include "constants.h"
-#include "board.h"
 #include "boardposition.h"
 
 class ChessPiece;
 
-class ChessBoard : public Board
+class ChessBoard
 {
 public:
-    ChessBoard() : Board() {}
+    ChessBoard();
+    ChessPiece* getPiece(IBP pos);
+    void printBoard();
     bool isMoveCapture(ChessMove move);
-    virtual bool performMove(ChessMove move, bool enablePromotion = true);
+    virtual bool performMove(ChessMove move, bool enablePromotion);
 
 protected:
-    ChessMoves* getValidMoves(ChessPiece* piece, bool checkCastles);
-    ChessMoves* getValidKingMoves(ChessPiece* piece, bool checkCastles);
+    void setPiece(ChessPiece* piece, IBP pos);
+    ChessPiece* movePiece(IBP src, IBP dst);
+    void clearBoard();
+
+    ChessMoves* getValidMoves(ChessPiece* piece, ChessMoveTypeOpt opts = {true, true, true, true, {0,0}});
+    ChessMoves* getValidKingMoves(ChessPiece* piece, ChessMoveTypeOpt opts);
     ChessMoves* getValidQueenMoves(ChessPiece* piece);
     ChessMoves* getValidRookMoves(ChessPiece* piece);
     ChessMoves* getValidBishopMoves(ChessPiece* piece);
     ChessMoves* getValidKnightMoves(ChessPiece* piece);
-    ChessMoves* getValidPawnMoves(ChessPiece* piece);
+    ChessMoves* getValidPawnMoves(ChessPiece* piece, ChessMoveTypeOpt opts);
 
     bool pushMove(ChessMoves* moves, ChessPiece* srcPiece, IBP dst);
     bool pushCapture(ChessMoves* moves, ChessPiece* srcPiece, IBP dst);
@@ -32,10 +37,7 @@ protected:
 
     ChessMove createMove(IBP src, IBP dst, bool isPromotion = false, PieceType promotionType = QUEEN);
 
-    bool canShortCastle[NUM_PLAYERS];
-    bool canLongCastle[NUM_PLAYERS];
-    bool canEnPassant;
-    IBP enPassantPosition;
+    ChessPiece* board[NUM_ROWS][NUM_COLS];
 };
 
 #endif // CHESSBOARD_H

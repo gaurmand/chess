@@ -3,84 +3,57 @@
 #include "chessboard.h"
 #include "chesspiece.h"
 
+ChessBoard::ChessBoard()
+{
+    clearBoard();
+}
+
+ChessPiece* ChessBoard::getPiece(IBP pos)
+{
+    return board[pos.row][pos.col];
+}
+
+void ChessBoard::setPiece(ChessPiece* piece, IBP pos)
+{
+    board[pos.row][pos.col] = piece;
+    if(piece) {
+        piece->setIBPos(pos);
+    }
+}
+
+ChessPiece* ChessBoard::movePiece(IBP src, IBP dst)
+{
+    ChessPiece* dstPiece = board[dst.row][dst.col];
+    ChessPiece* srcPiece = board[src.row][src.col];
+
+    if(srcPiece == nullptr) {
+        //do nothing if no piece at src position
+        return nullptr;
+    }
+
+    setPiece(srcPiece, dst);
+    setPiece(nullptr, src);
+    return dstPiece;
+}
+
+void ChessBoard::clearBoard()
+{
+    for(int i=0; i<NUM_ROWS; i++) {
+        for(int j=0; j<NUM_COLS; j++) {
+            board[i][j] = nullptr;
+        }
+    }
+}
+
 bool ChessBoard::performMove(ChessMove move, bool enablePromotion)
 {
     IBP src = BoardPosition::getMoveSrcIBP(move);
     IBP dst = BoardPosition::getMoveDstIBP(move);
 
-    ChessPiece* srcPiece = getPiece(src);
-    Player player = srcPiece->getOwner();
-
-    bool nextTurnEnPassant = false;
-
-    switch(srcPiece->getType()) {
-        case KING:
-            //if king move -> set castling flags
-            canShortCastle[player] = false;
-            canLongCastle[player] = false;
-
-            //if move is castle -> move rook
-            if(move == "e1g1") {            //white short castle
-                movePiece({7,7}, {7,5});
-            } else if(move == "e8g8") {     //black short castle
-                movePiece({0,7}, {0,5});
-            } else if(move == "e1c1") {     //white long castle
-                movePiece({7,0}, {7,3});
-            } else if(move == "e8c8") {     //white black castle
-                movePiece({0,0}, {0,3});
-            }
-            break;
-        case ROOK:
-            //if rook move -> set castling flags
-            if(srcPiece->getId() == RA) {
-                canLongCastle[player] = false;
-            } else {
-                canShortCastle[player] = false;
-            }
-            break;
-        case PAWN:
-        {
-            //if double advance -> set en passant flags
-            if(player == WHITE && src.row == 6 && dst.row == 4) {
-                nextTurnEnPassant = true;
-                enPassantPosition = {5, src.col};
-            } else if(player == BLACK && src.row == 1 && dst.row == 3) {
-                nextTurnEnPassant = true;
-                enPassantPosition = {2, src.col};
-            }
-
-            //if en passant -> capture pawn above enPassantPosition
-            if(canEnPassant && enPassantPosition.row == dst.row && enPassantPosition.col == dst.col) {
-                ChessPiece* capturedPawn;
-                if(player == WHITE) {
-                    //captured pawn is black
-                    capturedPawn = getPiece({3, dst.col});
-                } else {
-                    //capture pawn is white
-                    capturedPawn = getPiece({4, dst.col});
-                }
-                setPiece(nullptr, capturedPawn->getIBPos());
-                capturedPawn->setCaptured(true);
-            }
-
-
-            //if promotion -> promote pawn (auto queen for now)
-            if (enablePromotion && move.size() == 5) {
-                srcPiece->setType(QUEEN);
-            }
-        }
-        default:
-            break;
-    }
-
     ChessPiece* captured = movePiece(src, dst);
     if(captured != nullptr) {
         captured->setCaptured(true);
     }
-
-    //if pawn double advanced, signal that en passant possible
-    //otherwise set to false (can only en passant on immediate turn right after enemy double advance)
-    canEnPassant = nextTurnEnPassant;
 
     return true;
 }
@@ -91,15 +64,15 @@ bool ChessBoard::isMoveCapture(ChessMove move)
     return (getPiece(dst) != nullptr);
 }
 
-ChessMoves* ChessBoard::getValidMoves(ChessPiece* piece, bool checkCastles)
+ChessMoves* ChessBoard::getValidMoves(ChessPiece* piece, ChessMoveTypeOpt opts)
 {
     ChessMoves* validMoves;
     switch(piece->getType()) {
         case PAWN:
-            validMoves = getValidPawnMoves(piece);
+            validMoves = getValidPawnMoves(piece, opts);
             break;
         case KING:
-            validMoves = getValidKingMoves(piece, checkCastles);
+            validMoves = getValidKingMoves(piece, opts);
             break;
         case KNIGHT:
             validMoves = getValidKnightMoves(piece);
@@ -125,7 +98,7 @@ ChessMoves* ChessBoard::getValidMoves(ChessPiece* piece, bool checkCastles)
     }
 }
 
-ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
+ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece, ChessMoveTypeOpt opts)
 {
     ChessMoves* moves = new ChessMoves;
     Player player = piece->getOwner();
@@ -158,24 +131,26 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
     }
 
     //if in last row, make each move a promotion (automatic queen promotion for now)
-    if((player == WHITE && pos.row == 1) || (player == BLACK && pos.row == 6)) {
-        for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
-            ChessMove move = *it;
-            *it = move + 'q';
+    if (opts.allowPromotion) {
+        if((player == WHITE && pos.row == 1) || (player == BLACK && pos.row == 6)) {
+            for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
+                ChessMove move = *it;
+                *it = move + 'q';
+            }
         }
     }
 
     //check for en passant moves
-    if(canEnPassant) {
-        bool enPassantTopRight = (pos.row-1) == enPassantPosition.row && (pos.col+1) == enPassantPosition.col;
-        bool enPassantTopLeft = (pos.row-1) == enPassantPosition.row && (pos.col-1) == enPassantPosition.col;
-        bool enPassantBottomRight = (pos.row+1) == enPassantPosition.row && (pos.col+1) == enPassantPosition.col;
-        bool enPassantBottomLeft = (pos.row+1) == enPassantPosition.row && (pos.col-1) == enPassantPosition.col;
+    if(opts.allowEnPassant) {
+        bool enPassantTopRight = (pos.row-1) == opts.enPassantPos.row && (pos.col+1) == opts.enPassantPos.col;
+        bool enPassantTopLeft = (pos.row-1) == opts.enPassantPos.row && (pos.col-1) == opts.enPassantPos.col;
+        bool enPassantBottomRight = (pos.row+1) == opts.enPassantPos.row && (pos.col+1) == opts.enPassantPos.col;
+        bool enPassantBottomLeft = (pos.row+1) == opts.enPassantPos.row && (pos.col-1) == opts.enPassantPos.col;
 
         if(player == WHITE && (enPassantTopRight || enPassantTopLeft)) {
-            pushNormalMove(moves, piece, enPassantPosition);
+            pushNormalMove(moves, piece, opts.enPassantPos);
         } else if(player == BLACK && (enPassantBottomRight || enPassantBottomLeft)) {
-            pushNormalMove(moves, piece, enPassantPosition);
+            pushNormalMove(moves, piece, opts.enPassantPos);
         }
     }
 
@@ -187,11 +162,10 @@ ChessMoves* ChessBoard::getValidPawnMoves(ChessPiece* piece)
     }
 }
 
-ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece, bool checkCastles)
+ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece, ChessMoveTypeOpt opts)
 {
     ChessMoves* moves = new ChessMoves;
     IBP pos = piece->getIBPos();
-    Player player = piece->getOwner();
 
     pushMove(moves, piece, {pos.row, pos.col-1});   //push left move
     pushMove(moves, piece, {pos.row, pos.col+1});   //push right move
@@ -202,25 +176,24 @@ ChessMoves* ChessBoard::getValidKingMoves(ChessPiece* piece, bool checkCastles)
     pushMove(moves, piece, {pos.row+1, pos.col-1}); //push bottomLeft move
     pushMove(moves, piece, {pos.row+1, pos.col+1}); //push bottomRight move
 
-    if(checkCastles) {
-        //check short castle
-        if(canShortCastle[player]) {
-            ChessPiece* fPiece = getPiece({pos.row, 5});
-            ChessPiece* gPiece = getPiece({pos.row, 6});
-            if(!fPiece && !gPiece) {
-                pushNormalMove(moves, piece, {pos.row, 6});
-            }
+
+    //check short castle
+    if(opts.allowShortCastle) {
+        ChessPiece* fPiece = getPiece({pos.row, 5});
+        ChessPiece* gPiece = getPiece({pos.row, 6});
+        if(!fPiece && !gPiece) {
+            pushNormalMove(moves, piece, {pos.row, 6});
         }
+    }
 
-        //check long castle
-        if(canLongCastle[player]) {
-            ChessPiece* bPiece = getPiece({pos.row, 1});
-            ChessPiece* cPiece = getPiece({pos.row, 2});
-            ChessPiece* dPiece = getPiece({pos.row, 3});
+    //check long castle
+    if(opts.allowLongCastle) {
+        ChessPiece* bPiece = getPiece({pos.row, 1});
+        ChessPiece* cPiece = getPiece({pos.row, 2});
+        ChessPiece* dPiece = getPiece({pos.row, 3});
 
-            if(!bPiece && !cPiece && !dPiece) {
-                pushNormalMove(moves, piece, {pos.row, 2});
-            }
+        if(!bPiece && !cPiece && !dPiece) {
+            pushNormalMove(moves, piece, {pos.row, 2});
         }
     }
 

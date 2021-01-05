@@ -21,7 +21,7 @@ public:
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(Player player, PieceID id);
 
-    bool performMove(ChessMove move);
+    bool performMove(ChessMove move, bool enablePromotion = true) override;
     bool isMoveValid(ChessMove move);
     bool isMoveLegal(ChessMove move);
 
@@ -36,20 +36,25 @@ protected:
     void initChessPiece(PieceID id, Player player, PieceType type, IBP pos);
     void clearMoves();
 
-    void computeAvailableMoves(Player player, bool checkCastles = false);
-    void printAvailableMoves(Player player);
+    void computeAvailableMoves();
+    void printAvailableMoves();
     static  std::string movesToString(ChessMoves* moves);
 
     void switchActivePlayer();
     void setActivePlayer(Player player);
 
-    ChessMoves* getLegalMoves(ChessPiece* piece, bool checkCastles);
+    ChessMoves* getLegalMoves(ChessPiece* piece);
     bool isPlayerInCheck(Player player);
 
 private:
     int numHalfMoves;
     int numFullMoves;
     Player active;
+
+    bool canShortCastle[NUM_PLAYERS];
+    bool canLongCastle[NUM_PLAYERS];
+    bool canEnPassant;
+    IBP enPassantPosition;
 
     ChessPiece* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     ChessMoves* moves[NUM_PLAYERS][NUM_CHESS_PIECES];

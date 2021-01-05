@@ -43,4 +43,12 @@ namespace  BoardPosition{
     extern std::map<char, int> fileToCol;
 }
 
+struct ChessMoveTypeOpt {
+    bool allowShortCastle;
+    bool allowLongCastle;
+    bool allowPromotion;
+    bool allowEnPassant;
+    IBP enPassantPos;
+};
+
 #endif // BOARDPOSITION_H

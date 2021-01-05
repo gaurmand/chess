@@ -2,7 +2,7 @@
 #define GAMESTATE_H
 
 #include "constants.h"
-#include "board.h"
+#include "chessboard.h"
 #include "boardposition.h"
 
 class ChessPiece;
@@ -15,7 +15,7 @@ struct InternalGameState {
     bool canLongCastle[NUM_PLAYERS];
     bool canEnPassant;
     IBP enPassantPosition;
-    Board board;
+    ChessBoard board;
 };
 
 typedef InternalGameState IGS;

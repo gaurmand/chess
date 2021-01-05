@@ -176,42 +176,42 @@ void ChessGame::setInitialGameState()
     initChessPiece(PG, BLACK, PAWN,     {1, 6});
     initChessPiece(PH, BLACK, PAWN,     {1, 7});
 
-    computeAvailableMoves(WHITE, false);
-    printAvailableMoves(WHITE);
+    computeAvailableMoves();
+    printAvailableMoves();
 }
 
-void ChessGame::computeAvailableMoves(Player player, bool checkCastles) {
+void ChessGame::computeAvailableMoves() {
     numAvailableMoves = 0;
 
     for(int j=0; j<NUM_CHESS_PIECES; j++){
-        ChessPiece* piece = pieces[player][j];
+        ChessPiece* piece = pieces[active][j];
 
-        if(moves[player][j] != nullptr) {
-            delete moves[player][j];
+        if(moves[active][j] != nullptr) {
+            delete moves[active][j];
         }
 
         if(piece->isCaptured()) {
-            moves[player][j] = nullptr;
+            moves[active][j] = nullptr;
         } else {
-            moves[player][j] = getLegalMoves(piece, checkCastles);
+            moves[active][j] = getLegalMoves(piece);
         }
 
-        if(moves[player][j] != nullptr) {
-            numAvailableMoves += moves[player][j]->size();
+        if(moves[active][j] != nullptr) {
+            numAvailableMoves += moves[active][j]->size();
         }
     }
 }
 
-void ChessGame::printAvailableMoves(Player player)
+void ChessGame::printAvailableMoves()
 {
-    std::cout << "Print available moves (" << ((player == WHITE) ? "White)" : "Black)") << std::endl;
+    std::cout << "Print available moves" << std::endl;
     for(int j=0; j<NUM_CHESS_PIECES; j++){
-        ChessPiece* piece = pieces[player][j];
+        ChessPiece* piece = pieces[active][j];
 
         std::cout << piece->toString() << ": ";
 
-        if(!piece->isCaptured() && moves[player][j] != nullptr) {
-            std::cout << "(" << moves[player][j]->size() << ") " << movesToString(moves[player][j]);
+        if(!piece->isCaptured() && moves[active][j] != nullptr) {
+            std::cout << "(" << moves[active][j]->size() << ") " << movesToString(moves[active][j]);
         }
 
         std::cout << std::endl;
@@ -229,10 +229,82 @@ std::string ChessGame::movesToString(ChessMoves* moves)
     return res;
 }
 
-bool ChessGame::performMove(ChessMove move)
+bool ChessGame::performMove(ChessMove move, bool enablePromotion)
 {
+    IBP src = BoardPosition::getMoveSrcIBP(move);
+    IBP dst = BoardPosition::getMoveDstIBP(move);
+
+    ChessPiece* srcPiece = getPiece(src);
+    Player player = srcPiece->getOwner();
+
+    bool nextTurnEnPassant = false;
+
+    switch(srcPiece->getType()) {
+        case KING:
+            //if king move -> set castling flags
+            canShortCastle[player] = false;
+            canLongCastle[player] = false;
+
+            //if move is castle -> move rook
+            if(move == "e1g1") {            //white short castle
+                movePiece({7,7}, {7,5});
+            } else if(move == "e8g8") {     //black short castle
+                movePiece({0,7}, {0,5});
+            } else if(move == "e1c1") {     //white long castle
+                movePiece({7,0}, {7,3});
+            } else if(move == "e8c8") {     //white black castle
+                movePiece({0,0}, {0,3});
+            }
+            break;
+        case ROOK:
+            //if rook move -> set castling flags
+            if(srcPiece->getId() == RA) {
+                canLongCastle[player] = false;
+            } else {
+                canShortCastle[player] = false;
+            }
+            break;
+        case PAWN:
+        {
+            //if double advance -> set en passant flags
+            if(player == WHITE && src.row == 6 && dst.row == 4) {
+                nextTurnEnPassant = true;
+                enPassantPosition = {5, src.col};
+            } else if(player == BLACK && src.row == 1 && dst.row == 3) {
+                nextTurnEnPassant = true;
+                enPassantPosition = {2, src.col};
+            }
+
+            //if en passant -> capture pawn above enPassantPosition
+            if(canEnPassant && enPassantPosition.row == dst.row && enPassantPosition.col == dst.col) {
+                ChessPiece* capturedPawn;
+                if(player == WHITE) {
+                    //captured pawn is black
+                    capturedPawn = getPiece({3, dst.col});
+                } else {
+                    //capture pawn is white
+                    capturedPawn = getPiece({4, dst.col});
+                }
+                setPiece(nullptr, capturedPawn->getIBPos());
+                capturedPawn->setCaptured(true);
+            }
+
+
+            //if promotion -> promote pawn (auto queen for now)
+            if (enablePromotion && move.size() == 5) {
+                srcPiece->setType(QUEEN);
+            }
+        }
+        default:
+            break;
+    }
+
     //update board state
-    ChessBoard::performMove(move);
+    ChessBoard::performMove(move, enablePromotion);
+
+    //if pawn double advanced, signal that en passant possible
+    //otherwise set to false (can only en passant on immediate turn right after enemy double advance)
+    canEnPassant = nextTurnEnPassant;
 
     //update game state
     numHalfMoves++;
@@ -242,8 +314,8 @@ bool ChessGame::performMove(ChessMove move)
 
     switchActivePlayer();
     _isCheck = isPlayerInCheck(active);
-    computeAvailableMoves(active, !_isCheck); //enable castles if not in check
-    printAvailableMoves(active);
+    computeAvailableMoves(); //enable castles if not in check
+    printAvailableMoves();
 
     return true;
 }
@@ -267,9 +339,17 @@ void ChessGame::setActivePlayer(Player player)
     active = player;
 }
 
-ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece, bool checkCastles)
+ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece)
 {
-    ChessMoves* validMoves = getValidMoves(piece, checkCastles);
+    ChessMoveTypeOpt opts = {
+        !_isCheck && canShortCastle[active],
+        !_isCheck && canLongCastle[active],
+        true,
+        canEnPassant,
+        enPassantPosition
+    };
+
+    ChessMoves* validMoves = getValidMoves(piece, opts);
 
     if(!validMoves) {
         return nullptr;
@@ -319,7 +399,16 @@ bool ChessGame::isPlayerInCheck(Player player)
     //for each move available to the other player, determine if any are checks (i.e. capture curr player's king)
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
         ChessPiece* piece = getChessPiece(other, PieceID(pid));
-        ChessMoves* moves = getValidMoves(piece, false);
+
+        ChessMoveTypeOpt opts = {
+            false,
+            false,
+            true,   //only check promotions since they can cause checks
+            false,
+            {0,0}
+        };
+
+        ChessMoves* moves = getValidMoves(piece, opts);
 
         if(piece->isCaptured() || moves == nullptr)
             continue;
