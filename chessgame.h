@@ -4,6 +4,7 @@
 #include <string>
 
 #include "constants.h"
+#include "gamestate.h"
 #include "chesspiece.h"
 #include "chessboard.h"
 
@@ -12,9 +13,10 @@ class ChessGame : public ChessBoard
 public:
     ChessGame();
     ~ChessGame();
-    bool setGameState(GameState state);
+    bool setGameState(IGS state);
+    IGS getGameState();
     void setInitialGameState();
-    static bool isValidGameState(GameState state);
+    static bool isValidGameState(IGS state);
 
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(Player player, PieceID id);

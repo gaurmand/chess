@@ -64,15 +64,53 @@ ChessMoves* ChessGame::getChessMoves(Player player, PieceID id)
     return moves[player][id];
 }
 
-bool ChessGame::isValidGameState(GameState state)
+bool ChessGame::isValidGameState(IGS state)
 {
     return true;
 }
 
-bool ChessGame::setGameState(GameState state)
+bool ChessGame::setGameState(IGS state)
 {
+    if(!ChessGame::isValidGameState(state)) {
+        return false;
+    }
+
+    numHalfMoves = state.numHalfMoves;
+    numFullMoves = state.numFullMoves;
+    active = state.active;
+    canShortCastle[0] = state.canShortCastle[0];
+    canShortCastle[1] = state.canShortCastle[1];
+    canLongCastle[0] = state.canLongCastle[0];
+    canLongCastle[1] = state.canLongCastle[1];
+    canEnPassant = state.canEnPassant;
+    enPassantPosition = state.enPassantPosition;
+
+    for(int i=0; i<NUM_ROWS; i++) {
+        for(int j=0; j<NUM_COLS; j++) {
+            IBP pos = {i, j};
+            ChessPiece* piece = state.board.getPiece(pos);
+            setPiece(piece, pos);
+            piece->setCaptured(false);
+        }
+    }
+
     return true;
 }
+
+IGS ChessGame::getGameState()
+{
+    return {
+        numHalfMoves,
+        numFullMoves,
+        active,
+        {canShortCastle[0], canShortCastle[1]},
+        {canLongCastle[0], canLongCastle[1]},
+        canEnPassant,
+        enPassantPosition,
+        *this
+    };
+}
+
 
 void ChessGame::setInitialGameState()
 {
@@ -135,7 +173,7 @@ void ChessGame::setInitialGameState()
     initChessPiece(PG, BLACK, PAWN,     {1, 6});
     initChessPiece(PH, BLACK, PAWN,     {1, 7});
 
-    generateAvailableMoves(WHITE, false);
+    computeAvailableMoves(WHITE, false);
     printAvailableMoves(WHITE);
 }
 
@@ -190,7 +228,6 @@ std::string ChessGame::movesToString(ChessMoves* moves)
 
 bool ChessGame::performMove(ChessMove move)
 {
-
     //update board state
     ChessBoard::performMove(move);
 

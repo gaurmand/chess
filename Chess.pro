@@ -30,7 +30,8 @@ HEADERS += \
     chesspieceqgraphicsitem.h \
     chesswidget.h \
     chesswindow.h \
-    constants.h
+    constants.h \
+    gamestate.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
