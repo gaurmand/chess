@@ -308,7 +308,7 @@ bool ChessGame::isPlayerInCheck(Player player)
         ChessPiece* piece = getChessPiece(other, PieceID(pid));
         ChessMoves* moves = getValidMoves(piece, false);
 
-        if(moves == nullptr)
+        if(piece->isCaptured() || moves == nullptr)
             continue;
 
         for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
