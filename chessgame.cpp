@@ -139,7 +139,7 @@ void ChessGame::setInitialGameState()
     printAvailableMoves(WHITE);
 }
 
-void ChessGame::generateAvailableMoves(Player player, bool checkCastles) {
+void ChessGame::computeAvailableMoves(Player player, bool checkCastles) {
     numAvailableMoves = 0;
 
     for(int j=0; j<NUM_CHESS_PIECES; j++){
@@ -200,11 +200,9 @@ bool ChessGame::performMove(ChessMove move)
         numFullMoves++;
     }
 
-    generateAvailableMoves(active);
     switchActivePlayer();
     _isCheck = isPlayerInCheck(active);
-
-    generateAvailableMoves(active, !_isCheck); //enable castles if not in check
+    computeAvailableMoves(active, !_isCheck); //enable castles if not in check
     printAvailableMoves(active);
 
     return true;
@@ -229,6 +227,38 @@ void ChessGame::setActivePlayer(Player player)
     active = player;
 }
 
+ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece, bool checkCastles)
+{
+    ChessMoves* validMoves = getValidMoves(piece, checkCastles);
+
+    if(!validMoves) {
+        return nullptr;
+    }
+
+    ChessMoves* legalMoves = new ChessMoves;
+
+    //filter out illegal moves (i.e. moves that put our king in check)
+    for(ChessMoves::iterator it = validMoves->begin(); it != validMoves->end(); ++it) {
+        ChessMove move = *it;
+        if(isMoveLegal(move, false)) {
+            legalMoves->push_back(move);
+        }
+    }
+
+    //Using copy_if to filter
+    //std::copy_if (legalMoves->begin(), legalMoves->end(), std::back_inserter(validMoves), &ChessBoard::isValidMove);
+
+    delete validMoves;
+
+    //return legalMoves unlesss it's empty
+    if(!legalMoves->empty()) {
+        return legalMoves;
+    } else {
+        delete legalMoves;
+        return nullptr;
+    }
+}
+
 bool ChessGame::isPlayerInCheck(Player player)
 {
     Player curr = player;
@@ -237,7 +267,8 @@ bool ChessGame::isPlayerInCheck(Player player)
 
     //for each move available to the other player, determine if any are checks (i.e. capture curr player's king)
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
-        ChessMoves* moves = getChessMoves(other, PieceID(pid));
+        ChessPiece* piece = getChessPiece(other, PieceID(pid));
+        ChessMoves* moves = getValidMoves(piece, false);
 
         if(moves == nullptr)
             continue;
@@ -249,6 +280,8 @@ bool ChessGame::isPlayerInCheck(Player player)
                 return true;
             }
         }
+
+        delete moves;
     }
 
     return false;

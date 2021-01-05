@@ -32,13 +32,14 @@ protected:
     void initChessPiece(PieceID id, Player player, PieceType type, IBP pos);
     void clearMoves();
 
-    void generateAvailableMoves(Player player, bool checkCastles = false);
+    void computeAvailableMoves(Player player, bool checkCastles = false);
     void printAvailableMoves(Player player);
     static  std::string movesToString(ChessMoves* moves);
 
     void switchActivePlayer();
     void setActivePlayer(Player player);
 
+    ChessMoves* getLegalMoves(ChessPiece* piece, bool checkCastles);
     bool isPlayerInCheck(Player player);
 
 private:
