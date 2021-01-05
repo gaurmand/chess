@@ -7,10 +7,8 @@
 ChessGame::ChessGame() : ChessBoard()
 {
     //init moves array
-    for (int i=0; i<NUM_PLAYERS; i++){
-        for(int j=0; j<NUM_CHESS_PIECES; j++){
-            moves[i][j] = nullptr;
-        }
+    for(int j=0; j<NUM_CHESS_PIECES; j++){
+        moves[j] = nullptr;
     }
 
     //init pieces array
@@ -28,8 +26,12 @@ ChessGame::~ChessGame()
     for (int i=0; i<NUM_PLAYERS; i++){
         for(int j=0; j<NUM_CHESS_PIECES; j++){
             delete pieces[i][j];
-            if(moves[i][j])
-                delete moves[i][j];
+        }
+    }
+
+    for(int j=0; j<NUM_CHESS_PIECES; j++){
+        if(moves[j]) {
+            delete moves[j];
         }
     }
 }
@@ -43,12 +45,10 @@ void ChessGame::initChessPiece(PieceID id, Player player, PieceType type, IBP po
 
 void ChessGame::clearMoves()
 {
-    for (int i=0; i<NUM_PLAYERS; i++){
-        for(int j=0; j<NUM_CHESS_PIECES; j++){
-            if(moves[i][j] != nullptr) {
-                delete moves[i][j];
-                moves[i][j] = nullptr;
-            }
+    for(int j=0; j<NUM_CHESS_PIECES; j++){
+        if(moves[j] != nullptr) {
+            delete moves[j];
+            moves[j] = nullptr;
         }
     }
     numAvailableMoves = 0;
@@ -59,9 +59,9 @@ ChessPiece* ChessGame::getChessPiece(Player player, PieceID id)
     return pieces[player][id];
 }
 
-ChessMoves* ChessGame::getChessMoves(Player player, PieceID id)
+ChessMoves* ChessGame::getChessMoves(PieceID id)
 {
-    return moves[player][id];
+    return moves[id];
 }
 
 bool ChessGame::isValidGameState(IGS state)
@@ -186,18 +186,18 @@ void ChessGame::computeAvailableMoves() {
     for(int j=0; j<NUM_CHESS_PIECES; j++){
         ChessPiece* piece = pieces[active][j];
 
-        if(moves[active][j] != nullptr) {
-            delete moves[active][j];
+        if(moves[j] != nullptr) {
+            delete moves[j];
         }
 
         if(piece->isCaptured()) {
-            moves[active][j] = nullptr;
+            moves[j] = nullptr;
         } else {
-            moves[active][j] = getLegalMoves(piece);
+            moves[j] = getLegalMoves(piece);
         }
 
-        if(moves[active][j] != nullptr) {
-            numAvailableMoves += moves[active][j]->size();
+        if(moves[j] != nullptr) {
+            numAvailableMoves += moves[j]->size();
         }
     }
 }
@@ -210,8 +210,8 @@ void ChessGame::printAvailableMoves()
 
         std::cout << piece->toString() << ": ";
 
-        if(!piece->isCaptured() && moves[active][j] != nullptr) {
-            std::cout << "(" << moves[active][j]->size() << ") " << movesToString(moves[active][j]);
+        if(!piece->isCaptured() && moves[j] != nullptr) {
+            std::cout << "(" << moves[j]->size() << ") " << movesToString(moves[j]);
         }
 
         std::cout << std::endl;

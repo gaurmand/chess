@@ -19,7 +19,7 @@ public:
     static bool isValidGameState(IGS state);
 
     ChessPiece* getChessPiece(Player player, PieceID id);
-    ChessMoves* getChessMoves(Player player, PieceID id);
+    ChessMoves* getChessMoves(PieceID id);
 
     bool performMove(ChessMove move, bool enablePromotion = true) override;
     bool isMoveValid(ChessMove move);
@@ -57,7 +57,7 @@ private:
     IBP enPassantPosition;
 
     ChessPiece* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
-    ChessMoves* moves[NUM_PLAYERS][NUM_CHESS_PIECES];
+    ChessMoves* moves[NUM_CHESS_PIECES];
 
     int numAvailableMoves;
     bool _isCheck;
