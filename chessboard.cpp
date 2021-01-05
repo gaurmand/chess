@@ -75,7 +75,7 @@ std::string ChessBoard::toFENString()
     return res;
 }
 
-bool ChessBoard::performMove(ChessMove move, bool enablePromotion)
+bool ChessBoard::performMove(ChessMove move)
 {
     IBP src = BoardPosition::getMoveSrcIBP(move);
     IBP dst = BoardPosition::getMoveDstIBP(move);

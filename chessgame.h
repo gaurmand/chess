@@ -13,17 +13,15 @@ class ChessGame : public ChessBoard
 public:
     ChessGame();
     ~ChessGame();
-    bool setGameState(IGS state);
     bool setGameState(FGS state);
-    IGS getGameState();
     void setInitialGameState();
     static bool isValidGameState(FGS state);
-    std::string toFENString() override;
+    FGS toFENString() override;
 
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(PieceID id);
 
-    bool performMove(ChessMove move, bool enablePromotion = true) override;
+    bool performMove(ChessMove move) override;
     bool isMoveValid(ChessMove move);
     bool isMoveLegal(ChessMove move);
 

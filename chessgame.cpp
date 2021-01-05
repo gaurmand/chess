@@ -70,33 +70,6 @@ bool ChessGame::isValidGameState(FGS state)
     return true;
 }
 
-bool ChessGame::setGameState(IGS state)
-{
-    numHalfMoves = state.numHalfMoves;
-    numFullMoves = state.numFullMoves;
-    active = state.active;
-    canShortCastle[0] = state.canShortCastle[0];
-    canShortCastle[1] = state.canShortCastle[1];
-    canLongCastle[0] = state.canLongCastle[0];
-    canLongCastle[1] = state.canLongCastle[1];
-    canEnPassant = state.canEnPassant;
-    enPassantPosition = state.enPassantPosition;
-
-    //set board array
-    for(int i=0; i<NUM_ROWS; i++) {
-        for(int j=0; j<NUM_COLS; j++) {
-            IBP pos = {i, j};
-            ChessPiece* piece = state.board.getPiece(pos);
-            setPiece(piece, pos);
-            if(piece) {
-                piece->setCaptured(false);  //set pieces on board to not be captured
-            }
-        }
-    }
-
-    return true;
-}
-
 bool ChessGame::setGameState(FGS state)
 {
     if(!ChessGame::isValidGameState(state)) {
@@ -223,20 +196,6 @@ void ChessGame::setBoardState(std::string FENString)
     }
 }
 
-IGS ChessGame::getGameState()
-{
-    return {
-        numHalfMoves,
-        numFullMoves,
-        active,
-        {canShortCastle[0], canShortCastle[1]},
-        {canLongCastle[0], canLongCastle[1]},
-        canEnPassant,
-        enPassantPosition,
-        *this
-    };
-}
-
 std::string ChessGame::toFENString()
 {
     std::string boardState = ChessBoard::toFENString();
@@ -327,7 +286,7 @@ std::string ChessGame::movesToString(ChessMoves* moves)
     return res;
 }
 
-bool ChessGame::performMove(ChessMove move, bool enablePromotion)
+bool ChessGame::performMove(ChessMove move)
 {
     IBP src = BoardPosition::getMoveSrcIBP(move);
     IBP dst = BoardPosition::getMoveDstIBP(move);
@@ -389,7 +348,7 @@ bool ChessGame::performMove(ChessMove move, bool enablePromotion)
 
 
             //if promotion -> promote pawn (auto queen for now)
-            if (enablePromotion && move.size() == 5) {
+            if (move.size() == 5) {
                 srcPiece->setType(QUEEN);
             }
         }
@@ -398,7 +357,7 @@ bool ChessGame::performMove(ChessMove move, bool enablePromotion)
     }
 
     //update board state
-    ChessBoard::performMove(move, enablePromotion);
+    ChessBoard::performMove(move);
 
     //if pawn double advanced, signal that en passant possible
     //otherwise set to false (can only en passant on immediate turn right after enemy double advance)
@@ -482,8 +441,8 @@ ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece)
 
 bool ChessGame::isMoveLegal(ChessMove move)
 {
-    IGS currState = getGameState();
-    ChessBoard::performMove(move, false);
+    FGS currState = toFENString();
+    ChessBoard::performMove(move);
     bool res = !isPlayerInCheck(active);
     setGameState(currState); //restore prev state
 

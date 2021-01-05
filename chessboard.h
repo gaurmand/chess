@@ -13,7 +13,7 @@ public:
     ChessPiece* getPiece(IBP pos);
     void printBoard();
     bool isMoveCapture(ChessMove move);
-    virtual bool performMove(ChessMove move, bool enablePromotion);
+    virtual bool performMove(ChessMove move);
     virtual std::string toFENString();
 
 protected:
