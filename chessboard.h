@@ -18,6 +18,7 @@ public:
 
 protected:
     ChessMoves* getLegalMoves(ChessPiece* piece, bool checkCastles);
+    ChessMoves* getValidMoves(ChessPiece* piece, bool checkCastles);
     ChessMoves* getValidKingMoves(ChessPiece* piece, bool checkCastles);
     ChessMoves* getValidQueenMoves(ChessPiece* piece);
     ChessMoves* getValidRookMoves(ChessPiece* piece);

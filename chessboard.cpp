@@ -103,6 +103,38 @@ bool ChessBoard::isMoveCapture(ChessMove move)
 
 ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece, bool checkCastles)
 {
+    ChessMoves* validMoves = getValidMoves(piece, checkCastles);
+
+    if(!validMoves) {
+        return nullptr;
+    }
+
+    ChessMoves* legalMoves = new ChessMoves;
+
+    //filter out illegal moves (i.e. moves that put our king in check)
+    for(ChessMoves::iterator it = validMoves->begin(); it != validMoves->end(); ++it) {
+        ChessMove move = *it;
+        if(isMoveLegal(move, false)) {
+            legalMoves->push_back(move);
+        }
+    }
+
+    //Using copy_if to filter
+    //std::copy_if (legalMoves->begin(), legalMoves->end(), std::back_inserter(validMoves), &ChessBoard::isValidMove);
+
+    delete validMoves;
+
+    //return legalMoves unlesss it's empty
+    if(!legalMoves->empty()) {
+        return legalMoves;
+    } else {
+        delete legalMoves;
+        return nullptr;
+    }
+}
+
+ChessMoves* ChessBoard::getValidMoves(ChessPiece* piece, bool checkCastles)
+{
     ChessMoves* validMoves;
     switch(piece->getType()) {
         case PAWN:
@@ -125,32 +157,13 @@ ChessMoves* ChessBoard::getLegalMoves(ChessPiece* piece, bool checkCastles)
         break;
     }
 
-    if(validMoves == nullptr) {
-        //if no valid moves, return nullptr
+    if(!validMoves) {
         return nullptr;
-    }
-
-    ChessMoves* legalMoves = new ChessMoves;
-
-    //filter out illegal moves (i.e. moves that put our king in check)
-    for(ChessMoves::iterator it = validMoves->begin(); it != validMoves->end(); ++it) {
-        ChessMove move = *it;
-        if(isMoveLegal(move, false)) {
-            legalMoves->push_back(move);
-        }
-    }
-
-    //Using copy_if to filter
-//    std::copy_if (legalMoves->begin(), legalMoves->end(), std::back_inserter(validMoves), &ChessBoard::isValidMove);
-
-    delete validMoves;
-
-    //return legalMoves unlesss it's empty
-    if(!legalMoves->empty()) {
-        return legalMoves;
+    } else if(validMoves->empty()) {
+        delete validMoves;
+        return nullptr;
     } else {
-        delete legalMoves;
-        return nullptr;
+        return validMoves;
     }
 }
 
