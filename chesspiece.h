@@ -23,6 +23,7 @@ public:
     void setCaptured(bool cap);
 
     std::string toString();
+    std::string toChar();
 
 private:
     PieceID id;

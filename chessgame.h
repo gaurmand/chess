@@ -17,6 +17,7 @@ public:
     IGS getGameState();
     void setInitialGameState();
     static bool isValidGameState(IGS state);
+    std::string toFENString() override;
 
     ChessPiece* getChessPiece(Player player, PieceID id);
     ChessMoves* getChessMoves(PieceID id);

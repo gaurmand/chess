@@ -14,6 +14,7 @@ public:
     void printBoard();
     bool isMoveCapture(ChessMove move);
     virtual bool performMove(ChessMove move, bool enablePromotion);
+    virtual std::string toFENString();
 
 protected:
     void setPiece(ChessPiece* piece, IBP pos);

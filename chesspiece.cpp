@@ -52,18 +52,23 @@ void ChessPiece::setCaptured(bool cap)
 
 std::string ChessPiece::toString() {
     std::string res = BoardPosition::tranlateIBPoABP(pos);
+    return toChar() + res;
+}
+
+std::string ChessPiece::toChar()
+{
     switch(type) {
         case KING:
-            return ((owner == WHITE) ? "K" : "k") + res;
+            return ((owner == WHITE) ? "K" : "k");
         case QUEEN:
-            return ((owner == WHITE) ? "Q" : "q") + res;
+            return ((owner == WHITE) ? "Q" : "q");
         case ROOK:
-            return ((owner == WHITE) ? "R" : "r") + res;
+            return ((owner == WHITE) ? "R" : "r");
         case BISHOP:
-            return ((owner == WHITE) ? "B" : "b") + res;
+            return ((owner == WHITE) ? "B" : "b");
         case KNIGHT:
-            return ((owner == WHITE) ? "N" : "n") + res;
+            return ((owner == WHITE) ? "N" : "n");
         case PAWN:
-            return ((owner == WHITE) ? "P" : "p") + res;
+            return ((owner == WHITE) ? "P" : "p");
     }
 }

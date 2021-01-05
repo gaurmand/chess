@@ -45,6 +45,36 @@ void ChessBoard::clearBoard()
     }
 }
 
+std::string ChessBoard::toFENString()
+{
+    std::string res = "";
+    for(int i=0; i<NUM_ROWS; i++) {
+        int numEmptyCols = 0;
+
+        for(int j=0; j<NUM_COLS; j++) {
+            if(board[i][j]) {
+                if(numEmptyCols > 0) {
+                    res += std::to_string(numEmptyCols);
+                }
+                res += board[i][j]->toChar();
+                numEmptyCols = 0;
+            } else {
+                numEmptyCols++;
+            }
+        }
+
+        if(numEmptyCols > 0) {
+            res += std::to_string(numEmptyCols);
+        }
+
+        if(i<NUM_ROWS-1) {
+            res += "/";
+        }
+    }
+
+    return res;
+}
+
 bool ChessBoard::performMove(ChessMove move, bool enablePromotion)
 {
     IBP src = BoardPosition::getMoveSrcIBP(move);

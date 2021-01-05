@@ -114,12 +114,33 @@ IGS ChessGame::getGameState()
     };
 }
 
+std::string ChessGame::toFENString()
+{
+    std::string boardState = ChessBoard::toFENString();
+    std::string activePlayer = (active == WHITE ? "w" : "b");
+    std::string enPassant = (canEnPassant ? BoardPosition::tranlateIBPoABP(enPassantPosition) : "-");
+    std::string movesState = std::to_string(numHalfMoves) + " " + std::to_string(numFullMoves);
+
+    //get castling state string
+    std::string canWhiteShortCastle = (canShortCastle[WHITE] ? "K" : "");
+    std::string canWhiteLongCastle = (canLongCastle[WHITE] ? "Q" : "");
+    std::string canBlackShortCastle = (canShortCastle[BLACK] ? "k" : "");
+    std::string canBlackLongCastle = (canLongCastle[BLACK] ? "q" : "");
+
+    std::string castling = canWhiteShortCastle + canWhiteLongCastle + canBlackShortCastle + canBlackLongCastle;
+    castling = (castling.empty() ? "-" : castling);
+
+    //return final state string
+    return boardState + " " + activePlayer + " " + castling + " " + enPassant + " " + movesState;
+}
+
+
 
 void ChessGame::setInitialGameState()
 {
     //set game state variables to intial state
     numHalfMoves = 0;
-    numFullMoves = 0;
+    numFullMoves = 1;
     active = WHITE;
     numAvailableMoves = 0;
     _isCheck = false;
@@ -216,6 +237,7 @@ void ChessGame::printAvailableMoves()
 
         std::cout << std::endl;
     }
+    std::cout << "FEN: " << toFENString() << std::endl;
 }
 
 std::string ChessGame::movesToString(ChessMoves* moves)
@@ -371,7 +393,7 @@ ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece)
 
     delete validMoves;
 
-    //return legalMoves unlesss it's empty
+    //return legalMoves unless it's empty
     if(!legalMoves->empty()) {
         return legalMoves;
     } else {
