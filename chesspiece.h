@@ -13,6 +13,7 @@ public:
 
     PieceID getId();
     IBP getIBPos();
+    ABP getABPos();
     PieceType getType();
     Player getOwner();
     bool isCaptured();

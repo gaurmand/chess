@@ -8,6 +8,8 @@
 #include "chesspiece.h"
 #include "chessboard.h"
 
+typedef std::map<ABP, ChessMoves*> ABPToMovesMap;
+
 class ChessGame : public ChessBoard
 {
 public:
@@ -19,7 +21,7 @@ public:
     FGS toFENString() override;
 
     ChessPiece* getChessPiece(Player player, PieceID id);
-    ChessMoves* getChessMoves(PieceID id);
+    ChessMoves* getChessMoves(ABP pos);
 
     bool performMove(ChessMove move) override;
     bool isMoveValid(ChessMove move);
@@ -60,7 +62,7 @@ private:
     IBP enPassantPosition;
 
     ChessPiece* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
-    ChessMoves* moves[NUM_CHESS_PIECES];
+    ABPToMovesMap movesMap;
 
     int numAvailableMoves;
     bool _isCheck;

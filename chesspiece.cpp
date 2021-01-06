@@ -17,6 +17,11 @@ IBP ChessPiece::getIBPos()
     return pos;
 }
 
+ABP ChessPiece::getABPos()
+{
+    return BoardPosition::tranlateIBPoABP(pos);
+}
+
 PieceType ChessPiece::getType()
 {
     return type;

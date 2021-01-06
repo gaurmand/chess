@@ -7,11 +7,6 @@
 
 ChessGame::ChessGame() : ChessBoard()
 {
-    //init moves array
-    for(int j=0; j<NUM_CHESS_PIECES; j++){
-        moves[j] = nullptr;
-    }
-
     //init pieces array
     for (int i=0; i<NUM_PLAYERS; i++){
         for(int j=0; j<NUM_CHESS_PIECES; j++){
@@ -30,11 +25,13 @@ ChessGame::~ChessGame()
         }
     }
 
-    for(int j=0; j<NUM_CHESS_PIECES; j++){
-        if(moves[j]) {
-            delete moves[j];
+    for(ABPToMovesMap::iterator it = movesMap.begin(); it != movesMap.end(); ++it) {
+        ChessMoves* pieceMoves = it->second;
+        if(pieceMoves) {
+            delete pieceMoves;
         }
     }
+
 }
 
 
@@ -46,12 +43,14 @@ void ChessGame::initChessPiece(PieceID id, Player player, PieceType type, IBP po
 
 void ChessGame::clearMoves()
 {
-    for(int j=0; j<NUM_CHESS_PIECES; j++){
-        if(moves[j] != nullptr) {
-            delete moves[j];
-            moves[j] = nullptr;
+    for(ABPToMovesMap::iterator it = movesMap.begin(); it != movesMap.end(); ++it) {
+        ChessMoves* pieceMoves = it->second;
+        if(pieceMoves) {
+            delete pieceMoves;
         }
     }
+
+    movesMap.clear();
     numAvailableMoves = 0;
 }
 
@@ -60,9 +59,14 @@ ChessPiece* ChessGame::getChessPiece(Player player, PieceID id)
     return pieces[player][id];
 }
 
-ChessMoves* ChessGame::getChessMoves(PieceID id)
+ChessMoves* ChessGame::getChessMoves(ABP pos)
 {
-    return moves[id];
+    ABPToMovesMap::iterator res = movesMap.find(pos);
+    if(res != movesMap.end()) {
+        return res->second;
+    } else {
+        return nullptr;
+    }
 }
 
 bool ChessGame::isValidGameState(FGS state)
@@ -237,23 +241,18 @@ void ChessGame::setInitialGameState()
 }
 
 void ChessGame::computeAvailableMoves() {
-    numAvailableMoves = 0;
+    clearMoves();
 
     for(int j=0; j<NUM_CHESS_PIECES; j++){
         ChessPiece* piece = pieces[active][j];
+        std::string pos = piece->getABPos();
 
-        if(moves[j] != nullptr) {
-            delete moves[j];
-        }
-
-        if(piece->isCaptured()) {
-            moves[j] = nullptr;
-        } else {
-            moves[j] = getLegalMoves(piece);
-        }
-
-        if(moves[j] != nullptr) {
-            numAvailableMoves += moves[j]->size();
+        if(!piece->isCaptured()) {
+            ChessMoves* moves = getLegalMoves(piece);
+            if(moves) {
+                movesMap[pos] = moves;
+                numAvailableMoves += moves->size();
+            }
         }
     }
 }
@@ -261,15 +260,15 @@ void ChessGame::computeAvailableMoves() {
 void ChessGame::printAvailableMoves()
 {
     std::cout << "Print available moves" << std::endl;
-    for(int j=0; j<NUM_CHESS_PIECES; j++){
-        ChessPiece* piece = pieces[active][j];
 
-        std::cout << piece->toString() << ": ";
+    for(ABPToMovesMap::iterator it = movesMap.begin(); it != movesMap.end(); ++it) {
+        std::string pcestr = it->first;
+        ChessMoves* pcemoves = it->second;
+        std::cout << pcestr << ": ";
 
-        if(!piece->isCaptured() && moves[j] != nullptr) {
-            std::cout << "(" << moves[j]->size() << ") " << movesToString(moves[j]);
+        if(pcemoves) {
+            std::cout << "(" << pcemoves->size() << ") " << movesToString(pcemoves);
         }
-
         std::cout << std::endl;
     }
     std::cout << "FEN: " << toFENString() << std::endl;
@@ -441,36 +440,10 @@ ChessMoves* ChessGame::getLegalMoves(ChessPiece* piece)
 
 bool ChessGame::isMoveLegal(ChessMove move)
 {
-    //get new order of moves array
-    ChessMoves* tempMoves[NUM_CHESS_PIECES];
-    for(int i=0; i< NUM_CHESS_PIECES; i++){
-        tempMoves[i] = nullptr;
-    }
-
-    int movesIndex = 0;
-    for(int i=0; i<NUM_ROWS; i++) {
-        for(int j=0; j<NUM_COLS; j++) {
-            if(!board[i][j] || board[i][j]->getOwner() != active) {
-                continue;
-            }
-
-            PieceID id = board[i][j]->getId();
-            tempMoves[movesIndex++] = moves[id];
-        }
-    }
-
-    //reorder moves array (so that it will match new chess pieces order after restoring state)
-    for(int i=0; i< NUM_CHESS_PIECES; i++){
-        moves[i] = tempMoves[i];
-    }
-
-    //save game state
-    FGS currState = toFENString();
-
+    FGS prevState = toFENString(); //save game state
     ChessBoard::performMove(move);
     bool res = !isPlayerInCheck(active);
-    setGameState(currState); //restore prev game state
-
+    setGameState(prevState); //restore prev game state
     return res;
 }
 

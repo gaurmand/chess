@@ -151,7 +151,7 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
 ChessMove ChessWidget::getPlayerSelectedMove(ChessPiece* piece, IBP moveDst)
 {
     ABP moveDstABP = BoardPosition::tranlateIBPoABP(moveDst);
-    ChessMoves* moves = game.getChessMoves(piece->getId());
+    ChessMoves* moves = game.getChessMoves(piece->getABPos());
 
     for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
         ChessMove move = *it;
@@ -344,7 +344,7 @@ void ChessWidget::computeBoardGraphicalStates()
     //for each chess piece, compute board graphical state
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
         ChessPiece* piece = game.getChessPiece(activePlayer, PieceID(pid));
-        ChessMoves* moves = game.getChessMoves(PieceID(pid));
+        ChessMoves* moves = game.getChessMoves(piece->getABPos());
 
         //initialize board states for that piece to normal
         for(int i=0; i<NUM_ROWS; i++) {
@@ -358,8 +358,9 @@ void ChessWidget::computeBoardGraphicalStates()
         boardGraphicalState[pid][pos.row][pos.col] = SGS::SOURCE;
 
         //for each move, set dst square board state
-        if(moves == nullptr)
+        if(!moves) {
             continue;
+        }
 
         for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
             ChessMove move = *it;
