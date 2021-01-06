@@ -68,6 +68,12 @@ ChessWidget::ChessWidget(QWidget *parent)
 
     //start new game
     newGame();
+
+    //init msg box
+    gameEndBox.setText("Checkmate");
+    gameEndBox.setInformativeText("Do you want to start a new game?");
+    gameEndBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    gameEndBox.setDefaultButton(QMessageBox::Yes);
 }
 
 ChessWidget::~ChessWidget() {
@@ -209,6 +215,7 @@ void ChessWidget::newGame()
     deselectPiece();
     setAllPiecesUnmovable();
     game.setInitialGameState();
+    updatePieces();
     startTurn();
 }
 
@@ -296,7 +303,26 @@ void ChessWidget::completeTurn(ChessMove move)
     }
 
     updatePieces();
-    startTurn();
+
+    if(game.isCheckmate() || game.isStalemate()) {
+        //if game is over
+        if((game.isCheckmate())) {
+            std::string winner = (game.getActivePlayer() == WHITE ? "Black" : "White");
+            gameEndBox.setText(QString::fromStdString("Checkmate - " + winner + " wins"));
+        } else if(game.isStalemate()) {
+            gameEndBox.setText(QString::fromStdString("Stalemate - Nobody wins"));
+        }
+
+        int ret = gameEndBox.exec();
+        if(ret == QMessageBox::Yes) {
+            newGame();
+        } else {
+
+        }
+    } else {
+        //start next turn
+        startTurn();
+    }
 }
 
 void ChessWidget::playerTurn(ChessMove move)

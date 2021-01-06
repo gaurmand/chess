@@ -3,6 +3,7 @@
 
 #include <QGraphicsView>
 #include <QPixmap>
+#include <QMessageBox>
 #include <vector>
 #include "constants.h"
 #include "chessgame.h"
@@ -70,7 +71,7 @@ private:
     ChessPieceQGraphicsItem* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     QPixmap* piecePixmaps[NUM_PLAYERS][NUM_CHESS_PIECE_TYPES];
     QGraphicsScene* scene;
-
+    QMessageBox gameEndBox;
 };
 
 #endif // CHESSWIDGET_H
