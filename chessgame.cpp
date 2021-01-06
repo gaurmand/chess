@@ -243,15 +243,17 @@ void ChessGame::setInitialGameState()
 void ChessGame::computeAvailableMoves() {
     clearMoves();
 
-    for(int j=0; j<NUM_CHESS_PIECES; j++){
-        ChessPiece* piece = pieces[active][j];
-        std::string pos = piece->getABPos();
+    for(int i=0; i<NUM_ROWS; i++) {
+        for(int j=0; j<NUM_COLS; j++) {
+            ChessPiece* piece = board[i][j];
 
-        if(!piece->isCaptured()) {
-            ChessMoves* moves = getLegalMoves(piece);
-            if(moves) {
-                movesMap[pos] = moves;
-                numAvailableMoves += moves->size();
+            if(piece && piece->getOwner() == active && !piece->isCaptured()) {
+                std::string pos = piece->getABPos();
+                ChessMoves* moves = getLegalMoves(piece);
+                if(moves) {
+                    movesMap[pos] = moves;
+                    numAvailableMoves += moves->size();
+                }
             }
         }
     }
