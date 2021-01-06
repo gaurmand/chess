@@ -168,8 +168,8 @@ void ChessWidget::chessPieceItemMouseRelease(ChessPiece* piece, QPointF point)
 {
     IBP clickedPos = ChessWidget::getChessboardPosition(point);
     if(!ChessWidget::isSamePosition(clickedPos, piece->getIBPos())) {
-        //if piece dragged to different square -> deselect
-        deselectPiece();
+        //if piece dragged to different square -> treat like chessboard click
+        chessBoardItemMousePress(clickedPos);
     }else if(isRecentSelection) {
         //if mouse press event just selected piece -> ignore mouse release
         isRecentSelection = false;
