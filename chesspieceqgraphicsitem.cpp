@@ -3,10 +3,9 @@
 #include <iostream>
 #include "chesswidget.h"
 #include "chesspieceqgraphicsitem.h"
-#include "chesspiece.h"
 
-ChessPieceQGraphicsItem::ChessPieceQGraphicsItem(ChessWidget *cw,  ChessPiece* pc)
-    : chessWidget(cw), piece(pc)
+ChessPieceQGraphicsItem::ChessPieceQGraphicsItem(ChessWidget *cw, Chess::Piece pc)
+    : chessWidget_(cw), piece_(pc)
 {
     setZValue(0);
     setFlag(ItemIsMovable);
@@ -21,23 +20,24 @@ QRectF ChessPieceQGraphicsItem::boundingRect() const
 
 void ChessPieceQGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    painter->drawPixmap(QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH), *piecePixmap);
+    painter->drawPixmap(QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH), *piecePixmap_);
 }
 
 void ChessPieceQGraphicsItem::setBoardPosition()
 {
-    IBP pos = piece->getIBPos();
-    setPos(pos.col*SQUARE_WIDTH, pos.row*SQUARE_WIDTH);
+    Chess::BP pos = piece_.pos();
+    setPos(pos.col()*SQUARE_WIDTH, pos.row()*SQUARE_WIDTH);
 }
 
-void ChessPieceQGraphicsItem::setPixmap(){
-    piecePixmap = chessWidget->getPiecePixmap(piece->getType(), piece->getOwner());
+void ChessPieceQGraphicsItem::setPixmap()
+{
+    piecePixmap_ = chessWidget_->getPiecePixmap(piece_.type(), piece_.owner());
 }
 
 void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
     setZValue(1);
-    chessWidget->chessPieceItemMousePress(piece);
+    chessWidget_->chessPieceItemMousePress(&piece_);
 
     QGraphicsItem::mousePressEvent(event);
 }
@@ -45,7 +45,7 @@ void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 void ChessPieceQGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     setZValue(0);
-    chessWidget->chessPieceItemMouseRelease(piece, event->scenePos());
+    chessWidget_->chessPieceItemMouseRelease(&piece_, event->scenePos());
     setBoardPosition();
     update();
 

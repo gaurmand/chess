@@ -4,15 +4,14 @@
 #define CHESSPIECE_QGRAPHICSITEM_TYPE 65538
 
 #include <QGraphicsItem>
-#include  "constants.h"
+#include "chess/piece.h"
 
 class ChessWidget;
-class ChessPiece;
 
 class ChessPieceQGraphicsItem : public QGraphicsItem
 {
 public:
-    ChessPieceQGraphicsItem(ChessWidget *cw, ChessPiece* piece);
+    ChessPieceQGraphicsItem(ChessWidget *cw, Chess::Piece piece);
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -26,12 +25,12 @@ public:
 
     void setBoardPosition();
     void setPixmap();
-    ChessPiece* getPiece() {return piece;}
+    Chess::Piece getPiece() {return piece_;}
 
 private:
-    ChessWidget *chessWidget;
-    ChessPiece* piece;
-    QPixmap *piecePixmap;
+    ChessWidget* chessWidget_;
+    Chess::Piece piece_;
+    QPixmap* piecePixmap_;
 };
 
 #endif // CHESSPIECEQGRAPHICSITEM_H

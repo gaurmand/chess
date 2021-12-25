@@ -11,7 +11,7 @@ ChessWidget::ChessWidget(QWidget *parent)
     for(int i=0; i<NUM_PLAYERS; i++) {
         for(int j=0; j<NUM_CHESS_PIECE_TYPES; j++) {
             QString path = ":/images/%1%2.png";
-            if(Player(i) == WHITE) {
+            if(i == Chess::Player::White) {
                 piecePixmaps[i][j] = new QPixmap();
                 piecePixmaps[i][j]->load(path.arg("w").arg(j));
             } else {
@@ -34,11 +34,18 @@ ChessWidget::ChessWidget(QWidget *parent)
     chessBoard = new ChessBoardQGraphicsItem(this);
 
     //init chesspieces
-    for(int i=0; i<NUM_PLAYERS; i++) {
-        for(int j=0; j<NUM_CHESS_PIECES; j++) {
-            ChessPiece* piece = game.getChessPiece(Player(i), PieceID(j));
-            pieces[i][j] = new ChessPieceQGraphicsItem(this, piece);
-        }
+    std::vector<Chess::Piece> wpieces = game_.pieces(Chess::Player::White);
+    for (const auto& piece: wpieces)
+    {
+        const int id = static_cast<int>(piece.id());
+        pieces[Chess::Player::White][id] = new ChessPieceQGraphicsItem(this, piece);
+    }
+
+    std::vector<Chess::Piece> bpieces = game_.pieces(Chess::Player::Black);
+    for (const auto& piece: bpieces)
+    {
+        const int id = static_cast<int>(piece.id());
+        pieces[Chess::Player::Black][id] = new ChessPieceQGraphicsItem(this, piece);
     }
 
     //init scene
@@ -96,22 +103,22 @@ void ChessWidget::mousePressEvent(QMouseEvent* event)
 {
     QGraphicsItem* item = itemAt(event->pos());
     if(item && item->type() == CHESSBOARD_QGRAPHICSITEM_TYPE) {
-        IBP clickedPos = ChessWidget::getChessboardPosition(event->pos());
+        Chess::BP clickedPos = getChessboardPosition(event->pos());
         chessBoardItemMousePress(clickedPos);
     }
     QGraphicsView::mousePressEvent(event);
 }
 
-void ChessWidget::chessPieceItemMousePress(ChessPiece* piece)
+void ChessWidget::chessPieceItemMousePress(Chess::Piece* piece)
 {
     //no piece is selected and any owned piece is clicked
-    bool cond1 = !isPieceSelected() && game.getActivePlayer() == piece->getOwner();
+    bool cond1 = !isPieceSelected() && game_.activePlayer() == piece->owner();
 
     //a piece is currently selected and any other owned piece is clicked
-    bool cond2 = isPieceSelected() && game.getActivePlayer() == piece->getOwner() && getSelectedPiece() != piece;
+    bool cond2 = isPieceSelected() && game_.activePlayer() == piece->owner() && getSelectedPiece() != piece;
 
     //a piece is selected and an enemy piece is clicked -> treat as chessboard click
-    bool cond3 = isPieceSelected() && game.getActivePlayer() != piece->getOwner();
+    bool cond3 = isPieceSelected() && game_.activePlayer() != piece->owner();
 
     if(cond1 || cond2) {
         selectPiece(piece);
@@ -119,24 +126,22 @@ void ChessWidget::chessPieceItemMousePress(ChessPiece* piece)
         //set flag to prevent next mouse release event from deselecting
         isRecentSelection = true;
     } else if(cond3) {
-        chessBoardItemMousePress(piece->getIBPos());
+        chessBoardItemMousePress(piece->pos());
     }
 }
 
-void ChessWidget::chessBoardItemMousePress(IBP pos)
+void ChessWidget::chessBoardItemMousePress(Chess::BP pos)
 {
     if(isPieceSelected()) {
-        PieceID pid = selectedPiece->getId();
-        SGS sgs = boardGraphicalState[pid][pos.row][pos.col];
+        int pid = selectedPiece->id();
+        SGS sgs = boardGraphicalState[pid][pos.row()][pos.col()];
 
         switch(sgs) {
             case SGS::NORMAL_MOVE:
             case SGS::CAPTURE:
             {
-                ChessMove move = getPlayerSelectedMove(selectedPiece, pos);
-                if(!move.empty()) {
-                    completeTurn(move);
-                }
+                Chess::Move move = getPlayerSelectedMove(selectedPiece, pos);
+                completeTurn(move);
                 return;
             }
             case SGS::SOURCE:
@@ -148,26 +153,25 @@ void ChessWidget::chessBoardItemMousePress(IBP pos)
     }
 }
 
-ChessMove ChessWidget::getPlayerSelectedMove(ChessPiece* piece, IBP moveDst)
+Chess::Move ChessWidget::getPlayerSelectedMove(Chess::Piece* piece, Chess::BP dst)
 {
-    ABP moveDstABP = BoardPosition::tranlateIBPoABP(moveDst);
-    ChessMoves* moves = game.getChessMoves(piece->getABPos());
+    std::vector<Chess::Move> moves = game_.moves(piece->pos().toANBP());
 
-    for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
-        ChessMove move = *it;
-        ABP dst = BoardPosition::getMoveDstABP(move);
-        if(dst == moveDstABP) {
+    for (const auto& move: moves)
+    {
+        if (move.dst() == dst)
+        {
             return move;
         }
     }
-    return "";
+    return Chess::Move();
 }
 
 
-void ChessWidget::chessPieceItemMouseRelease(ChessPiece* piece, QPointF point)
+void ChessWidget::chessPieceItemMouseRelease(Chess::Piece* piece, QPointF point)
 {
-    IBP clickedPos = ChessWidget::getChessboardPosition(point);
-    if(!ChessWidget::isSamePosition(clickedPos, piece->getIBPos())) {
+    Chess::BP clickedPos = ChessWidget::getChessboardPosition(point);
+    if(!ChessWidget::isSamePosition(clickedPos, piece->pos())) {
         //if piece dragged to different square -> treat like chessboard click
         chessBoardItemMousePress(clickedPos);
     }else if(isRecentSelection) {
@@ -178,14 +182,14 @@ void ChessWidget::chessPieceItemMouseRelease(ChessPiece* piece, QPointF point)
     }
 }
 
-IBP ChessWidget::getChessboardPosition(QPointF point)
+Chess::BP ChessWidget::getChessboardPosition(QPointF point)
 {
     int x = point.x();
     int y = point.y();
 
     int i = (y / SQUARE_WIDTH);
     int j = (x / SQUARE_WIDTH);
-    return {i,j};
+    return Chess::BP(i, j);
 }
 
 bool ChessWidget::isClickInChessBoard(QPointF point)
@@ -195,9 +199,9 @@ bool ChessWidget::isClickInChessBoard(QPointF point)
     return (x >= 0 && x<=BOARD_WIDTH) && (y>=0 && y<=BOARD_HEIGHT);
 }
 
-bool ChessWidget::isSamePosition(IBP p1, IBP p2)
+bool ChessWidget::isSamePosition(Chess::BP p1, Chess::BP p2)
 {
-    return p1.col == p2.col && p1.row == p2.row;
+    return p1 == p2;
 }
 
 
@@ -205,8 +209,8 @@ void ChessWidget::setInitialBoardState() {
 
 }
 
-QPixmap* ChessWidget::getPiecePixmap(PieceType type, Player player) {
-    return piecePixmaps[player][type];
+QPixmap* ChessWidget::getPiecePixmap(Chess::PieceType type, Chess::Player player) {
+    return piecePixmaps[player][static_cast<int>(type)];
 }
 
 void ChessWidget::newGame()
@@ -214,7 +218,7 @@ void ChessWidget::newGame()
     setUnreadyToDisplayMoves();
     deselectPiece();
     setAllPiecesUnmovable();
-    game.setInitialGameState();
+    game_ = Chess::Game();
     updatePieces();
     startTurn();
 }
@@ -234,17 +238,23 @@ void ChessWidget::setUnreadyToDisplayMoves()
     readyToDisplayMoves = false;
 }
 
-void ChessWidget::selectPiece(ChessPiece* piece)
+void ChessWidget::selectPiece(Chess::Piece* piece)
 {
     pieceSelected = true;
     selectedPiece = piece;
     chessBoard->update();
-    std::cout << "Selected piece: " << piece->toString() << std::endl;
+    std::cout << "Selected piece: " << *piece << std::endl;
 }
 
 void ChessWidget::deselectPiece()
 {
-    std::cout << "Deselected piece: " << ((pieceSelected) ? selectedPiece->toString() : "") << std::endl;
+    std::cout << "Deselected piece: ";
+    if (pieceSelected)
+    {
+        std::cout << *selectedPiece;
+    }
+    std::cout << std::endl;
+
     pieceSelected = false;
     chessBoard->update();
 }
@@ -256,7 +266,7 @@ bool ChessWidget::isPieceSelected()
 }
 
 
-ChessPiece* ChessWidget::getSelectedPiece()
+Chess::Piece* ChessWidget::getSelectedPiece()
 {
     return selectedPiece;
 }
@@ -264,7 +274,7 @@ ChessPiece* ChessWidget::getSelectedPiece()
 SGS ChessWidget::getBGState(int i, int j)
 {
     if(pieceSelected) {
-        return boardGraphicalState[selectedPiece->getId()][i][j];
+        return boardGraphicalState[selectedPiece->id()][i][j];
     } else {
         return SGS::NORMAL_MOVE;
     }
@@ -272,9 +282,9 @@ SGS ChessWidget::getBGState(int i, int j)
 
 void ChessWidget::startTurn()
 {
-    Player active = game.getActivePlayer();
+    Chess::Player active = game_.activePlayer();
     PlayerType ptype = playerType[active];
-    std::cout << "Start turn: " << (active == WHITE ? "White " : "Black ") << (ptype == PlayerType::HUMAN ? "(Human)" : "(AI)") << std::endl;
+    std::cout << "Start turn: " << active << (ptype == PlayerType::HUMAN ? "(Human)" : "(AI)") << std::endl;
 
     if(ptype == PlayerType::HUMAN) {
         //HUMAN player -> wait for them to select move
@@ -286,108 +296,113 @@ void ChessWidget::startTurn()
     }
 }
 
-void ChessWidget::completeTurn(ChessMove move)
+void ChessWidget::completeTurn(Chess::Move move)
 {
     std::cout << "Selected move: " << move << std::endl;
 
-    if(playerType[game.getActivePlayer()] == PlayerType::HUMAN) {
+    if(playerType[game_.activePlayer()] == PlayerType::HUMAN)
+    {
         playerTurn(move);
-    } else {
+    } else
+    {
         AITurn(move);
     }
 
-    if(game.performMove(move)) {
+    try {
+        game_.performMove(move);
         std::cout << "Performed move: " << move << std::endl;
-    } else {
+
+    }  catch (...)
+    {
         std::cout << "Move failed: " << move << std::endl;
     }
 
     updatePieces();
 
-    if(game.isCheckmate() || game.isStalemate()) {
-        //if game is over
-        if((game.isCheckmate())) {
-            std::string winner = (game.getActivePlayer() == WHITE ? "Black" : "White");
-            gameEndBox.setText(QString::fromStdString("Checkmate - " + winner + " wins"));
-        } else if(game.isStalemate()) {
-            gameEndBox.setText(QString::fromStdString("Stalemate - Nobody wins"));
+    if (game_.isComplete())
+    {
+        switch(game_.result())
+        {
+            case Chess::ResultType::Checkmate:
+            {
+                std::string winner = (game_.activePlayer() == Chess::Player::White ? "Black" : "White");
+                gameEndBox.setText(QString::fromStdString("Checkmate - " + winner + " wins"));
+                break;
+            }
+            case Chess::ResultType::Draw:
+            case Chess::ResultType::Stalemate:
+            default:
+                gameEndBox.setText(QString::fromStdString("Stalemate - Nobody wins"));
         }
 
-        int ret = gameEndBox.exec();
-        if(ret == QMessageBox::Yes) {
+        if(gameEndBox.exec() == QMessageBox::Yes) {
             newGame();
-        } else {
-
         }
-    } else {
-        //start next turn
+    }
+    else
+    {
         startTurn();
     }
 }
 
-void ChessWidget::playerTurn(ChessMove move)
+void ChessWidget::playerTurn(Chess::Move move)
 {
     deselectPiece();
     setAllPiecesUnmovable();
     return;
 }
 
-void ChessWidget::AITurn(ChessMove move)
+void ChessWidget::AITurn(Chess::Move move)
 {
     return;
 }
 
 void ChessWidget::computeBoardGraphicalStates()
 {
-    Player activePlayer = game.getActivePlayer();
-
-    //for each chess piece, compute board graphical state
-    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
-        ChessPiece* piece = game.getChessPiece(activePlayer, PieceID(pid));
-        ChessMoves* moves = game.getChessMoves(piece->getABPos());
-
+    std::vector<Chess::Piece> pieces = game_.pieces(game_.activePlayer());
+    for (auto& piece: pieces)
+    {
         //initialize board states for that piece to normal
         for(int i=0; i<NUM_ROWS; i++) {
             for(int j=0; j<NUM_COLS; j++) {
-                boardGraphicalState[pid][i][j] = SGS::NONE;
+                boardGraphicalState[piece.id()][i][j] = SGS::NONE;
             }
         }
 
         //set piece square as source
-        IBP pos = piece->getIBPos();
-        boardGraphicalState[pid][pos.row][pos.col] = SGS::SOURCE;
+        Chess::BP pos = piece.pos();
+        boardGraphicalState[piece.id()][pos.row()][pos.col()] = SGS::SOURCE;
 
         //for each move, set dst square board state
-        if(!moves) {
-            continue;
-        }
-
-        for(ChessMoves::iterator it = moves->begin(); it != moves->end(); ++it) {
-            ChessMove move = *it;
-            IBP dst = BoardPosition::getMoveDstIBP(move);
-            if(game.isMoveCapture(move)) {
-                boardGraphicalState[pid][dst.row][dst.col] = SGS::CAPTURE;
-            } else {
-                boardGraphicalState[pid][dst.row][dst.col] = SGS::NORMAL_MOVE;
+        std::vector<Chess::Move> moves = game_.moves(piece.pos());
+        for(auto& move: moves)
+        {
+            Chess::BP dst = move.dst();
+            if(move.type() == Chess::MoveType::Capture)
+            {
+                boardGraphicalState[piece.id()][dst.row()][dst.col()] = SGS::CAPTURE;
+            } else
+            {
+                boardGraphicalState[piece.id()][dst.row()][dst.col()] = SGS::NORMAL_MOVE;
             }
         }
+
     }
 
     //clear any previous check
     chessBoard->clearCheck();
 
     //if active king in check, set king square check state
-    if(game.isCheck()) {
-        IBP kingPos = game.getKingPos(activePlayer);
+    if(game_.isInCheck()) {
+        Chess::BP kingPos = game_.kingPosition(game_.activePlayer());
         chessBoard->setCheck(kingPos);
     }
-
 }
 
-void ChessWidget::setPiecesMovable(Player player)
+void ChessWidget::setPiecesMovable(Chess::Player player)
 {
-    Player active = player;
-    Player inactive = (player == WHITE ? BLACK : WHITE);
+    Chess::Player active = player;
+    Chess::Player inactive = (player == Chess::Player::White ? Chess::Player::Black : Chess::Player::White);
 
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
         pieces[active][pid]->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -398,25 +413,33 @@ void ChessWidget::setPiecesMovable(Player player)
 void ChessWidget::setAllPiecesUnmovable()
 {
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
-        pieces[WHITE][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
-        pieces[BLACK][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
+        pieces[Chess::Player::White][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
+        pieces[Chess::Player::Black][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
     }
 }
 
 void ChessWidget::updatePieces()
 {
-    for(int i=0; i<NUM_PLAYERS; i++) {
-        for(int j=0; j<NUM_CHESS_PIECES; j++) {
-            pieces[i][j]->setBoardPosition();
-            pieces[i][j]->setPixmap();
+    const auto update = [&] (Chess::Player player) {
+        std::vector<Chess::Piece> chesspieces = game_.pieces(player);
 
-            ChessPiece* piece = game.getChessPiece(Player(i), PieceID(j));
-            if(piece->isCaptured()) {
-                pieces[i][j]->hide();
-            } else {
-                pieces[i][j]->show();
+        for (const auto& piece: chesspieces)
+        {
+            const int type = static_cast<int>(piece.type());
+            pieces[player][type]->setBoardPosition();
+            pieces[player][type]->setPixmap();
+
+            if(piece.isCaptured())
+            {
+                pieces[player][type]->hide();
+            } else
+            {
+                pieces[player][type]->show();
             }
-            pieces[i][j]->update();
+            pieces[player][type]->update();
         }
-    }
+    };
+
+    update(Chess::Player::White);
+    update(Chess::Player::Black);
 }

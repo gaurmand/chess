@@ -5,12 +5,18 @@
 #include <QPixmap>
 #include <QMessageBox>
 #include <vector>
-#include "constants.h"
-#include "chessgame.h"
+#include "chess/game.h"
 #include "chessboardqgraphicsitem.h"
 #include "chesspieceqgraphicsitem.h"
 
 enum class PlayerType{HUMAN, AI};
+
+enum class SquareGraphicalState{NONE, SOURCE, NORMAL_MOVE, CAPTURE};
+typedef SquareGraphicalState SGS;
+
+#define SQUARE_WIDTH 90
+#define BOARD_WIDTH SQUARE_WIDTH*NUM_ROWS
+#define BOARD_HEIGHT SQUARE_WIDTH*NUM_COLS
 
 class ChessWidget : public QGraphicsView
 {
@@ -21,50 +27,50 @@ public:
     void resizeEvent(QResizeEvent *event) override;
     void mousePressEvent(QMouseEvent* event) override;
 //    void mouseReleaseEvent(QMouseEvent* event) override;
-    void chessPieceItemMousePress(ChessPiece* piece);
-    void chessPieceItemMouseRelease(ChessPiece* piece, QPointF point);
-    void chessBoardItemMousePress(IBP pos);
-    void selectPiece(ChessPiece* piece);
+    void chessPieceItemMousePress(Chess::Piece* piece);
+    void chessPieceItemMouseRelease(Chess::Piece* piece, QPointF point);
+    void chessBoardItemMousePress(Chess::BP pos);
+    void selectPiece(Chess::Piece* piece);
     void deselectPiece();
-    static IBP getChessboardPosition(QPointF point);
+    static Chess::BP getChessboardPosition(QPointF point);
     static bool isClickInChessBoard(QPointF point);
-    static bool isSamePosition(IBP p1, IBP p2);
+    static bool isSamePosition(Chess::BP p1, Chess::BP p2);
 
     void setInitialBoardState();
-    QPixmap* getPiecePixmap(PieceType type, Player player);
+    QPixmap* getPiecePixmap(Chess::PieceType type, Chess::Player player);
 
     void newGame();
     void startTurn();
-    void completeTurn(ChessMove move);
-    void playerTurn(ChessMove move);
-    void AITurn(ChessMove move);
+    void completeTurn(Chess::Move move);
+    void playerTurn(Chess::Move move);
+    void AITurn(Chess::Move move);
 
     bool isReadyToDisplayMoves();
     void setReadyToDisplayMoves();
     void setUnreadyToDisplayMoves();
 
     bool isPieceSelected();
-    ChessPiece* getSelectedPiece();
-    void setSelectedPiece(PieceID pid);
+    Chess::Piece* getSelectedPiece();
+//    void setSelectedPiece(PieceID pid);
     void clearSelectedPiece();
 
     SGS getBGState(int i, int j);
 
 protected:
     void computeBoardGraphicalStates();
-    ChessMove getPlayerSelectedMove(ChessPiece* piece, IBP moveDst);
-    void setPiecesMovable(Player player);
+    Chess::Move getPlayerSelectedMove(Chess::Piece* piece, Chess::BP dst);
+    void setPiecesMovable(Chess::Player player);
     void setAllPiecesUnmovable();
     void updatePieces();
 
 private:
-    ChessGame game;
+    Chess::Game game_;
     PlayerType playerType[NUM_PLAYERS] = {PlayerType::HUMAN, PlayerType::HUMAN};
 
     bool isRecentSelection = false;
     bool readyToDisplayMoves = false;
     bool pieceSelected = false;
-    ChessPiece* selectedPiece;
+    Chess::Piece* selectedPiece;
 
     ChessBoardQGraphicsItem* chessBoard;
     SGS boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];

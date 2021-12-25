@@ -1,12 +1,15 @@
 #include <QPainter>
-#include "constants.h"
 #include "chesswidget.h"
 #include "chessboardqgraphicsitem.h"
 
-ChessBoardQGraphicsItem::ChessBoardQGraphicsItem(ChessWidget *cw)
-    : chessWidget(cw), white("#f0d9b5"), black("#9b7555"), squareRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH)
-{
+static const QColor kWhite = QColor("#f0d9b5");
+static const QColor kBlack = QColor("#9b7555");
+static const QColor kRed = QColor(227, 29, 29, 200);
+static const QRect kSquare = QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
 
+ChessBoardQGraphicsItem::ChessBoardQGraphicsItem(ChessWidget *cw)
+    : chessWidget_(cw)
+{
 }
 
 QRectF ChessBoardQGraphicsItem::boundingRect() const
@@ -40,16 +43,16 @@ void ChessBoardQGraphicsItem::drawSquareState(int i, int j, QPainter *painter)
     painter->save();
     painter->translate(j*SQUARE_WIDTH, i*SQUARE_WIDTH);
 
-    SGS sgs = chessWidget->getBGState(i,j);
+    SGS sgs = chessWidget_->getBGState(i,j);
     switch(sgs) {
         case SGS::SOURCE:
-            painter->fillRect(squareRect, QColor(211, 219, 51, 200));
+            painter->fillRect(kSquare, QColor(211, 219, 51, 200));
             break;
         case SGS::NORMAL_MOVE:
             drawCircle(20, QColor(164, 164, 164, 128), painter);
             break;
         case SGS::CAPTURE:
-            painter->fillRect(squareRect, QColor(164, 164, 164, 128));
+            painter->fillRect(kSquare, QColor(164, 164, 164, 128));
             break;
         default:
             break;
@@ -63,15 +66,15 @@ void ChessBoardQGraphicsItem::drawNormalSquare(int i, int j, QPainter *painter)
 {
     painter->save();
     painter->translate(j*SQUARE_WIDTH, i*SQUARE_WIDTH);
-    if(isCheck && i == checkPos.row && j == checkPos.col) {
+    if(isInCheck_ && i == checkPos_.row() && j == checkPos_.col()) {
         //paint red square
-        painter->fillRect(squareRect, QColor(227, 29, 29, 200));
+        painter->fillRect(kSquare, kRed);
     } else if((i+j) % 2 == 0) {
         //paint white square
-        painter->fillRect(squareRect, white);
+        painter->fillRect(kSquare, kWhite);
     } else {
         //paint black square
-        painter->fillRect(squareRect, black);
+        painter->fillRect(kSquare, kBlack);
     }
     painter->restore();
 }
@@ -90,26 +93,27 @@ void ChessBoardQGraphicsItem::drawCircle(int radius, QColor color, QPainter *pai
 void ChessBoardQGraphicsItem::drawBoard(QPainter *painter)
 {
     painter->setRenderHint(QPainter::Antialiasing, true);
-    bool displayMoves = chessWidget->isReadyToDisplayMoves() && chessWidget->isPieceSelected();
+    const bool displayMoves = chessWidget_->isReadyToDisplayMoves() && chessWidget_->isPieceSelected();
 
     for(int i=0; i<NUM_ROWS; i++) {
         for(int j=0; j<NUM_COLS; j++) {
             drawNormalSquare(i, j, painter);
-            if(displayMoves) {
+            if(displayMoves)
+            {
                 drawSquareState(i, j, painter);
             }
         }
     }
 }
 
-void ChessBoardQGraphicsItem::setCheck(IBP pos){
-    isCheck = true;
-    checkPos = pos;
+void ChessBoardQGraphicsItem::setCheck(Chess::BP pos){
+    isInCheck_ = true;
+    checkPos_ = pos;
 }
 
 void ChessBoardQGraphicsItem::clearCheck()
 {
-    isCheck = false;
+    isInCheck_ = false;
 }
 
 

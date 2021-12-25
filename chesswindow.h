@@ -10,10 +10,10 @@ class ChessWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    ChessWindow(QWidget *parent = nullptr);
+    ChessWindow(QWidget* parent = nullptr);
     ~ChessWindow();
 
 private:
-    ChessWidget *chessWidget;
+    ChessWidget* chessWidget_;
 };
 #endif // CHESSWINDOW_H
