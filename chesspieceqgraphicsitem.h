@@ -11,7 +11,7 @@ class ChessWidget;
 class ChessPieceQGraphicsItem : public QGraphicsItem
 {
 public:
-    ChessPieceQGraphicsItem(ChessWidget *cw, Chess::Piece piece);
+    ChessPieceQGraphicsItem(ChessWidget *cw, const Chess::Piece& piece);
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -29,7 +29,7 @@ public:
 
 private:
     ChessWidget* chessWidget_;
-    Chess::Piece piece_;
+    const Chess::Piece& piece_;
     QPixmap* piecePixmap_;
 };
 

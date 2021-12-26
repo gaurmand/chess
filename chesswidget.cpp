@@ -34,15 +34,15 @@ ChessWidget::ChessWidget(QWidget *parent)
     chessBoard = new ChessBoardQGraphicsItem(this);
 
     //init chesspieces
-    std::vector<Chess::Piece> wpieces = game_.pieces(Chess::Player::White);
-    for (const auto& piece: wpieces)
+    const auto wpieces = game_.pieceRefs(Chess::Player::White);
+    for (const Chess::Piece& piece: wpieces)
     {
         const int id = static_cast<int>(piece.id());
         pieces[Chess::Player::White][id] = new ChessPieceQGraphicsItem(this, piece);
     }
 
-    std::vector<Chess::Piece> bpieces = game_.pieces(Chess::Player::Black);
-    for (const auto& piece: bpieces)
+    const auto bpieces = game_.pieceRefs(Chess::Player::Black);
+    for (const Chess::Piece& piece: bpieces)
     {
         const int id = static_cast<int>(piece.id());
         pieces[Chess::Player::Black][id] = new ChessPieceQGraphicsItem(this, piece);
@@ -109,7 +109,7 @@ void ChessWidget::mousePressEvent(QMouseEvent* event)
     QGraphicsView::mousePressEvent(event);
 }
 
-void ChessWidget::chessPieceItemMousePress(Chess::Piece* piece)
+void ChessWidget::chessPieceItemMousePress(const Chess::Piece* piece)
 {
     //no piece is selected and any owned piece is clicked
     bool cond1 = !isPieceSelected() && game_.activePlayer() == piece->owner();
@@ -133,14 +133,14 @@ void ChessWidget::chessPieceItemMousePress(Chess::Piece* piece)
 void ChessWidget::chessBoardItemMousePress(Chess::BP pos)
 {
     if(isPieceSelected()) {
-        int pid = selectedPiece->id();
+        int pid = selectedPiece_->id();
         SGS sgs = boardGraphicalState[pid][pos.row()][pos.col()];
 
         switch(sgs) {
             case SGS::NORMAL_MOVE:
             case SGS::CAPTURE:
             {
-                Chess::Move move = getPlayerSelectedMove(selectedPiece, pos);
+                Chess::Move move = getPlayerSelectedMove(selectedPiece_, pos);
                 completeTurn(move);
                 return;
             }
@@ -153,7 +153,7 @@ void ChessWidget::chessBoardItemMousePress(Chess::BP pos)
     }
 }
 
-Chess::Move ChessWidget::getPlayerSelectedMove(Chess::Piece* piece, Chess::BP dst)
+Chess::Move ChessWidget::getPlayerSelectedMove(const Chess::Piece* piece, Chess::BP dst)
 {
     std::vector<Chess::Move> moves = game_.moves(piece->pos().toANBP());
 
@@ -168,7 +168,7 @@ Chess::Move ChessWidget::getPlayerSelectedMove(Chess::Piece* piece, Chess::BP ds
 }
 
 
-void ChessWidget::chessPieceItemMouseRelease(Chess::Piece* piece, QPointF point)
+void ChessWidget::chessPieceItemMouseRelease(const Chess::Piece* piece, QPointF point)
 {
     Chess::BP clickedPos = ChessWidget::getChessboardPosition(point);
     if(!ChessWidget::isSamePosition(clickedPos, piece->pos())) {
@@ -238,12 +238,12 @@ void ChessWidget::setUnreadyToDisplayMoves()
     readyToDisplayMoves = false;
 }
 
-void ChessWidget::selectPiece(Chess::Piece* piece)
+void ChessWidget::selectPiece(const Chess::Piece* piece)
 {
     pieceSelected = true;
-    selectedPiece = piece;
+    selectedPiece_ = piece;
     chessBoard->update();
-    std::cout << "Selected piece: " << *piece << std::endl;
+    std::cout << "Selected piece: " << *selectedPiece_ << std::endl;
 }
 
 void ChessWidget::deselectPiece()
@@ -251,7 +251,7 @@ void ChessWidget::deselectPiece()
     std::cout << "Deselected piece: ";
     if (pieceSelected)
     {
-        std::cout << *selectedPiece;
+        std::cout << *selectedPiece_;
     }
     std::cout << std::endl;
 
@@ -266,15 +266,15 @@ bool ChessWidget::isPieceSelected()
 }
 
 
-Chess::Piece* ChessWidget::getSelectedPiece()
+const Chess::Piece* ChessWidget::getSelectedPiece()
 {
-    return selectedPiece;
+    return selectedPiece_;
 }
 
 SGS ChessWidget::getBGState(int i, int j)
 {
     if(pieceSelected) {
-        return boardGraphicalState[selectedPiece->id()][i][j];
+        return boardGraphicalState[selectedPiece_->id()][i][j];
     } else {
         return SGS::NORMAL_MOVE;
     }
@@ -425,18 +425,19 @@ void ChessWidget::updatePieces()
 
         for (const auto& piece: chesspieces)
         {
-            const int type = static_cast<int>(piece.type());
-            pieces[player][type]->setBoardPosition();
-            pieces[player][type]->setPixmap();
+            const int id = static_cast<int>(piece.id());
+            pieces[player][id]->setBoardPosition();
+            pieces[player][id]->setPixmap();
 
             if(piece.isCaptured())
             {
-                pieces[player][type]->hide();
-            } else
-            {
-                pieces[player][type]->show();
+                pieces[player][id]->hide();
             }
-            pieces[player][type]->update();
+            else
+            {
+                pieces[player][id]->show();
+            }
+            pieces[player][id]->update();
         }
     };
 

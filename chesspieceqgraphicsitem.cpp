@@ -4,7 +4,7 @@
 #include "chesswidget.h"
 #include "chesspieceqgraphicsitem.h"
 
-ChessPieceQGraphicsItem::ChessPieceQGraphicsItem(ChessWidget *cw, Chess::Piece pc)
+ChessPieceQGraphicsItem::ChessPieceQGraphicsItem(ChessWidget *cw, const Chess::Piece& pc)
     : chessWidget_(cw), piece_(pc)
 {
     setZValue(0);
@@ -47,6 +47,11 @@ void ChessPieceQGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     setZValue(0);
     chessWidget_->chessPieceItemMouseRelease(&piece_, event->scenePos());
     setBoardPosition();
+
+    if (piece_.isCaptured())
+    {
+        setVisible(false);
+    }
     update();
 
     QGraphicsItem::mouseReleaseEvent(event);

@@ -117,6 +117,17 @@ Piece Board::piece(const BP& pos) const
     return Piece();
 }
 
+PieceRef Board::pieceRef(const BP& pos)
+{
+    Piece* piece = pieceAt(pos);
+    if (piece == nullptr)
+    {
+        throw 1;
+    }
+
+    return *piece;
+}
+
 std::vector<Piece> Board::pieces(Player player, PieceType type) const
 {
     std::vector<Piece> res;
@@ -132,6 +143,18 @@ std::vector<Piece> Board::pieces(Player player, PieceType type) const
 std::vector<Piece> Board::pieces(Player player) const
 {
     std::vector<Piece> res;
+    res.reserve(NUM_CHESS_PIECES);
+    const auto& playerPieces = pieces_[player];
+    std::copy_if(playerPieces.begin(),
+                playerPieces.end(),
+                std::back_inserter(res),
+                [=](const Piece& piece) {return !piece.isCaptured(); });
+    return res;
+}
+
+std::vector<PieceRef> Board::pieceRefs(Player player)
+{
+    std::vector<PieceRef> res;
     res.reserve(NUM_CHESS_PIECES);
     const auto& playerPieces = pieces_[player];
     std::copy_if(playerPieces.begin(),

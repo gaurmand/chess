@@ -27,10 +27,10 @@ public:
     void resizeEvent(QResizeEvent *event) override;
     void mousePressEvent(QMouseEvent* event) override;
 //    void mouseReleaseEvent(QMouseEvent* event) override;
-    void chessPieceItemMousePress(Chess::Piece* piece);
-    void chessPieceItemMouseRelease(Chess::Piece* piece, QPointF point);
+    void chessPieceItemMousePress(const Chess::Piece* piece);
+    void chessPieceItemMouseRelease(const Chess::Piece* piece, QPointF point);
     void chessBoardItemMousePress(Chess::BP pos);
-    void selectPiece(Chess::Piece* piece);
+    void selectPiece(const Chess::Piece* piece);
     void deselectPiece();
     static Chess::BP getChessboardPosition(QPointF point);
     static bool isClickInChessBoard(QPointF point);
@@ -50,7 +50,7 @@ public:
     void setUnreadyToDisplayMoves();
 
     bool isPieceSelected();
-    Chess::Piece* getSelectedPiece();
+    const Chess::Piece* getSelectedPiece();
 //    void setSelectedPiece(PieceID pid);
     void clearSelectedPiece();
 
@@ -58,7 +58,7 @@ public:
 
 protected:
     void computeBoardGraphicalStates();
-    Chess::Move getPlayerSelectedMove(Chess::Piece* piece, Chess::BP dst);
+    Chess::Move getPlayerSelectedMove(const Chess::Piece* piece, Chess::BP dst);
     void setPiecesMovable(Chess::Player player);
     void setAllPiecesUnmovable();
     void updatePieces();
@@ -70,7 +70,7 @@ private:
     bool isRecentSelection = false;
     bool readyToDisplayMoves = false;
     bool pieceSelected = false;
-    Chess::Piece* selectedPiece;
+    const Chess::Piece* selectedPiece_;
 
     ChessBoardQGraphicsItem* chessBoard;
     SGS boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];
