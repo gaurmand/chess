@@ -46,7 +46,7 @@ ChessPieceQGraphicsItem::ChessPieceQGraphicsItem(ChessWidget *cw, const Chess::P
 {
     setZValue(0);
     setFlag(ItemIsMovable);
-    setBoardPosition();
+    updateItem();
 }
 
 QRectF ChessPieceQGraphicsItem::boundingRect() const
@@ -59,10 +59,17 @@ void ChessPieceQGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphic
     painter->drawPixmap(QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH), getPixmap(piece_.owner(), piece_.type()));
 }
 
-void ChessPieceQGraphicsItem::setBoardPosition()
+void ChessPieceQGraphicsItem::updateItem()
 {
-    Chess::BP pos = piece_.pos();
-    setPos(pos.col()*SQUARE_WIDTH, pos.row()*SQUARE_WIDTH);
+    const int x = piece_.pos().col()*SQUARE_WIDTH;
+    const int y = piece_.pos().row()*SQUARE_WIDTH;
+    setPos(x, y);
+
+    if (piece_.isCaptured())
+    {
+        setVisible(false);
+    }
+    update();
 }
 
 void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
@@ -77,13 +84,7 @@ void ChessPieceQGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     setZValue(0);
     chessWidget_->chessPieceItemMouseRelease(&piece_, event->scenePos());
-    setBoardPosition();
-
-    if (piece_.isCaptured())
-    {
-        setVisible(false);
-    }
-    update();
+    updateItem();
 
     QGraphicsItem::mouseReleaseEvent(event);
 }

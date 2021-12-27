@@ -402,26 +402,11 @@ void ChessWidget::setAllPiecesUnmovable()
 
 void ChessWidget::updatePieces()
 {
-    const auto update = [&] (Chess::Player player) {
-        std::vector<Chess::Piece> chesspieces = game_.pieces(player);
-
-        for (const auto& piece: chesspieces)
+    for(int i=0; i<NUM_PLAYERS; i++)
+    {
+        for(int j=0; j<NUM_CHESS_PIECES; j++)
         {
-            const int id = static_cast<int>(piece.id());
-            pieces[player][id]->setBoardPosition();
-
-            if(piece.isCaptured())
-            {
-                pieces[player][id]->hide();
-            }
-            else
-            {
-                pieces[player][id]->show();
-            }
-            pieces[player][id]->update();
+            pieces[i][j]->updateItem();
         }
-    };
-
-    update(Chess::Player::White);
-    update(Chess::Player::Black);
+    }
 }

@@ -23,8 +23,7 @@ public:
     enum { Type = CHESSPIECE_QGRAPHICSITEM_TYPE };
     int type() const override{ return Type; }
 
-    void setBoardPosition();
-    Chess::Piece getPiece() {return piece_;}
+    void updateItem();
 
 private:
     ChessWidget* chessWidget_;
