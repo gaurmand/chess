@@ -24,13 +24,11 @@ public:
     int type() const override{ return Type; }
 
     void setBoardPosition();
-    void setPixmap();
     Chess::Piece getPiece() {return piece_;}
 
 private:
     ChessWidget* chessWidget_;
     const Chess::Piece& piece_;
-    QPixmap* piecePixmap_;
 };
 
 #endif // CHESSPIECEQGRAPHICSITEM_H

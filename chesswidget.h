@@ -37,7 +37,6 @@ public:
     static bool isSamePosition(Chess::BP p1, Chess::BP p2);
 
     void setInitialBoardState();
-    QPixmap* getPiecePixmap(Chess::PieceType type, Chess::Player player);
 
     void newGame();
     void startTurn();
@@ -75,7 +74,6 @@ private:
     ChessBoardQGraphicsItem* chessBoard;
     SGS boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];
     ChessPieceQGraphicsItem* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
-    QPixmap* piecePixmaps[NUM_PLAYERS][NUM_CHESS_PIECE_TYPES];
     QGraphicsScene* scene;
     QMessageBox gameEndBox;
 };

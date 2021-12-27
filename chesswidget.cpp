@@ -7,20 +7,6 @@
 ChessWidget::ChessWidget(QWidget *parent)
     : QGraphicsView(parent)
 {
-    //init pixmaps
-    for(int i=0; i<NUM_PLAYERS; i++) {
-        for(int j=0; j<NUM_CHESS_PIECE_TYPES; j++) {
-            QString path = ":/images/%1%2.png";
-            if(i == Chess::Player::White) {
-                piecePixmaps[i][j] = new QPixmap();
-                piecePixmaps[i][j]->load(path.arg("w").arg(j));
-            } else {
-                piecePixmaps[i][j] = new QPixmap;
-                piecePixmaps[i][j]->load(path.arg("b").arg(j));
-            }
-        }
-    }
-
     //init board graphical state
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
         for(int i=0; i<NUM_ROWS; i++) {
@@ -207,10 +193,6 @@ bool ChessWidget::isSamePosition(Chess::BP p1, Chess::BP p2)
 
 void ChessWidget::setInitialBoardState() {
 
-}
-
-QPixmap* ChessWidget::getPiecePixmap(Chess::PieceType type, Chess::Player player) {
-    return piecePixmaps[player][static_cast<int>(type)];
 }
 
 void ChessWidget::newGame()
@@ -427,7 +409,6 @@ void ChessWidget::updatePieces()
         {
             const int id = static_cast<int>(piece.id());
             pieces[player][id]->setBoardPosition();
-            pieces[player][id]->setPixmap();
 
             if(piece.isCaptured())
             {
