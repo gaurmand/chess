@@ -1,18 +1,16 @@
 #ifndef CHESSWIDGET_H
 #define CHESSWIDGET_H
 
-#include <QGraphicsView>
-#include <QPixmap>
-#include <QMessageBox>
-#include <vector>
 #include "chess/game.h"
 #include "chessboardqgraphicsitem.h"
 #include "chesspieceqgraphicsitem.h"
 
-enum class PlayerType{HUMAN, AI};
+#include <QGraphicsView>
+#include <QPixmap>
+#include <QMessageBox>
+#include <vector>
 
-enum class SquareGraphicalState{NONE, SOURCE, NORMAL_MOVE, CAPTURE};
-typedef SquareGraphicalState SGS;
+enum class PlayerType{HUMAN, AI};
 
 #define SQUARE_WIDTH 90
 #define BOARD_WIDTH SQUARE_WIDTH*NUM_ROWS
@@ -44,19 +42,12 @@ public:
     void playerTurn(Chess::Move move);
     void AITurn(Chess::Move move);
 
-    bool isReadyToDisplayMoves();
-    void setReadyToDisplayMoves();
-    void setUnreadyToDisplayMoves();
-
     bool isPieceSelected();
     const Chess::Piece* getSelectedPiece();
 //    void setSelectedPiece(PieceID pid);
     void clearSelectedPiece();
 
-    SGS getBGState(int i, int j);
-
 protected:
-    void computeBoardGraphicalStates();
     Chess::Move getPlayerSelectedMove(const Chess::Piece* piece, Chess::BP dst);
     void setPiecesMovable(Chess::Player player);
     void setAllPiecesUnmovable();
@@ -67,12 +58,10 @@ private:
     PlayerType playerType[NUM_PLAYERS] = {PlayerType::HUMAN, PlayerType::HUMAN};
 
     bool isRecentSelection = false;
-    bool readyToDisplayMoves = false;
     bool pieceSelected = false;
     const Chess::Piece* selectedPiece_;
 
     ChessBoardQGraphicsItem* chessBoard;
-    SGS boardGraphicalState[NUM_CHESS_PIECES][NUM_ROWS][NUM_COLS];
     ChessPieceQGraphicsItem* pieces[NUM_PLAYERS][NUM_CHESS_PIECES];
     QGraphicsScene* scene;
     QMessageBox gameEndBox;

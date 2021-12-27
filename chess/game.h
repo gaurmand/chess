@@ -27,7 +27,7 @@ public:
     std::vector<Move> moves() const;
     std::vector<Move> moves(const BP& pos) const;
 
-    bool isInCheck() { return isInCheck_; }
+    bool isInCheck() const { return isInCheck_; }
     bool isComplete() const { return result_ != ResultType::Incomplete; }
     ResultType result() const { return result_; }
 

@@ -4,7 +4,9 @@
 #define CHESSBOARD_QGRAPHICSITEM_TYPE 65537
 
 #include <QGraphicsItem>
-#include "chess/boardpos.h"
+#include "chess/game.h"
+
+enum class SquareState{NONE, SOURCE, NORMAL_MOVE, CAPTURE, CHECK};
 
 class ChessWidget;
 
@@ -19,17 +21,17 @@ public:
     enum { Type = CHESSBOARD_QGRAPHICSITEM_TYPE };
     int type() const override{ return Type; }
 
-    void drawNormalSquare(int i, int j, QPainter *painter);
-    void drawSquareState(int i, int j, QPainter *painter);
-    void drawCircle(int radius, QColor color, QPainter *painter);
+    void drawSquare(int i, int j, QPainter *painter);
     void drawBoard(QPainter *painter);
-    void setCheck(Chess::BP pos);
-    void clearCheck();
+
+public slots:
+    void select(const Chess::BP& src, const Chess::Game& game);
+    void deselect();
 
 private:
     ChessWidget* chessWidget_;
-    bool isInCheck_;
-    Chess::BP checkPos_;
+
+    std::array<std::array<SquareState, NUM_COLS>, NUM_ROWS> states_;
 };
 
 #endif // CHESSBOARDQGRAPHICSITEM_H

@@ -7,15 +7,6 @@
 ChessWidget::ChessWidget(QWidget *parent)
     : QGraphicsView(parent)
 {
-    //init board graphical state
-    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
-        for(int i=0; i<NUM_ROWS; i++) {
-            for(int j=0; j<NUM_COLS; j++) {
-                boardGraphicalState[pid][i][j] = SGS::NONE;
-            }
-        }
-    }
-
     //init chessboard
     chessBoard = new ChessBoardQGraphicsItem(this);
 
@@ -118,25 +109,18 @@ void ChessWidget::chessPieceItemMousePress(const Chess::Piece* piece)
 
 void ChessWidget::chessBoardItemMousePress(Chess::BP pos)
 {
-    if(isPieceSelected()) {
-        int pid = selectedPiece_->id();
-        SGS sgs = boardGraphicalState[pid][pos.row()][pos.col()];
-
-        switch(sgs) {
-            case SGS::NORMAL_MOVE:
-            case SGS::CAPTURE:
-            {
-                Chess::Move move = getPlayerSelectedMove(selectedPiece_, pos);
-                completeTurn(move);
-                return;
-            }
-            case SGS::SOURCE:
-            case SGS::NONE:
-            default:
-                deselectPiece();
-                return;
-        }
-    }
+     if(isPieceSelected())
+     {
+         Chess::Move move = game_.move(selectedPiece_->pos(), pos);
+         if (move.isValid())
+         {
+             completeTurn(move);
+         }
+         else
+         {
+             deselectPiece();
+         }
+     }
 }
 
 Chess::Move ChessWidget::getPlayerSelectedMove(const Chess::Piece* piece, Chess::BP dst)
@@ -197,7 +181,6 @@ void ChessWidget::setInitialBoardState() {
 
 void ChessWidget::newGame()
 {
-    setUnreadyToDisplayMoves();
     deselectPiece();
     setAllPiecesUnmovable();
     game_ = Chess::Game();
@@ -205,26 +188,11 @@ void ChessWidget::newGame()
     startTurn();
 }
 
-bool ChessWidget::isReadyToDisplayMoves()
-{
-    return readyToDisplayMoves;
-}
-
-void ChessWidget::setReadyToDisplayMoves()
-{
-    readyToDisplayMoves = true;
-}
-
-void ChessWidget::setUnreadyToDisplayMoves()
-{
-    readyToDisplayMoves = false;
-}
-
 void ChessWidget::selectPiece(const Chess::Piece* piece)
 {
     pieceSelected = true;
     selectedPiece_ = piece;
-    chessBoard->update();
+    chessBoard->select(piece->pos(), game_);
     std::cout << "Selected piece: " << *selectedPiece_ << std::endl;
 }
 
@@ -238,7 +206,7 @@ void ChessWidget::deselectPiece()
     std::cout << std::endl;
 
     pieceSelected = false;
-    chessBoard->update();
+    chessBoard->deselect();
 }
 
 
@@ -253,15 +221,6 @@ const Chess::Piece* ChessWidget::getSelectedPiece()
     return selectedPiece_;
 }
 
-SGS ChessWidget::getBGState(int i, int j)
-{
-    if(pieceSelected) {
-        return boardGraphicalState[selectedPiece_->id()][i][j];
-    } else {
-        return SGS::NORMAL_MOVE;
-    }
-}
-
 void ChessWidget::startTurn()
 {
     Chess::Player active = game_.activePlayer();
@@ -270,8 +229,6 @@ void ChessWidget::startTurn()
 
     if(ptype == PlayerType::HUMAN) {
         //HUMAN player -> wait for them to select move
-        computeBoardGraphicalStates();
-        setReadyToDisplayMoves();
         setPiecesMovable(active);
     } else {
         //AI player -> wait for move from chess engine
@@ -337,48 +294,6 @@ void ChessWidget::playerTurn(Chess::Move move)
 void ChessWidget::AITurn(Chess::Move move)
 {
     return;
-}
-
-void ChessWidget::computeBoardGraphicalStates()
-{
-    std::vector<Chess::Piece> pieces = game_.pieces(game_.activePlayer());
-    for (auto& piece: pieces)
-    {
-        //initialize board states for that piece to normal
-        for(int i=0; i<NUM_ROWS; i++) {
-            for(int j=0; j<NUM_COLS; j++) {
-                boardGraphicalState[piece.id()][i][j] = SGS::NONE;
-            }
-        }
-
-        //set piece square as source
-        Chess::BP pos = piece.pos();
-        boardGraphicalState[piece.id()][pos.row()][pos.col()] = SGS::SOURCE;
-
-        //for each move, set dst square board state
-        std::vector<Chess::Move> moves = game_.moves(piece.pos());
-        for(auto& move: moves)
-        {
-            Chess::BP dst = move.dst();
-            if(move.type() == Chess::MoveType::Capture)
-            {
-                boardGraphicalState[piece.id()][dst.row()][dst.col()] = SGS::CAPTURE;
-            } else
-            {
-                boardGraphicalState[piece.id()][dst.row()][dst.col()] = SGS::NORMAL_MOVE;
-            }
-        }
-
-    }
-
-    //clear any previous check
-    chessBoard->clearCheck();
-
-    //if active king in check, set king square check state
-    if(game_.isInCheck()) {
-        Chess::BP kingPos = game_.kingPosition(game_.activePlayer());
-        chessBoard->setCheck(kingPos);
-    }
 }
 
 void ChessWidget::setPiecesMovable(Chess::Player player)
