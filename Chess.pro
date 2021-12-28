@@ -15,12 +15,6 @@ SOURCES += \
     chess/piece.cpp \
     chess/position.cpp \
     chess/state.cpp \
-    chessboarditem.cpp \
-    chessboardscene.cpp \
-    chesspieceitem.cpp \
-    chesswidget.cpp \
-    main.cpp \
-    chesswindow.cpp \
     tests/board_test.cpp \
     tests/boardpos_test.cpp \
     tests/game_compute_move_test.cpp \
@@ -29,7 +23,13 @@ SOURCES += \
     tests/move_test.cpp \
     tests/piece_test.cpp \
     tests/position_test.cpp \
-    tests/state_test.cpp
+    tests/state_test.cpp \
+    ui/chessboarditem.cpp \
+    ui/chessboardscene.cpp \
+    ui/chesspieceitem.cpp \
+    ui/chesswidget.cpp \
+    ui/chesswindow.cpp \
+    ui/main.cpp
 
 HEADERS += \
     chess/board.h \
@@ -40,12 +40,12 @@ HEADERS += \
     chess/piece.h \
     chess/position.h \
     chess/state.h \
-    chessboarditem.h \
-    chessboardscene.h \
-    chesspieceitem.h \
-    chesswidget.h \
-    chesswindow.h \
-    tests/test.h
+    tests/test.h \
+    ui/chessboarditem.h \
+    ui/chessboardscene.h \
+    ui/chesspieceitem.h \
+    ui/chesswidget.h \
+    ui/chesswindow.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
