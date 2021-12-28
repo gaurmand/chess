@@ -12,6 +12,8 @@ namespace ui
         QColor kBoardCheck(227, 29, 29, 200);
         QColor kBoardSource(211, 219, 51, 200);
         QColor kBoardCapture(164, 164, 164, 128);
+
+        QColor kSceneBackground(40, 40, 40);
     }
 
     const QPixmap& piecePixmap(Chess::Player player, Chess::PieceType type)

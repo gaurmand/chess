@@ -24,6 +24,8 @@ namespace ui
         extern QColor kBoardCheck;
         extern QColor kBoardSource;
         extern QColor kBoardCapture;
+
+        extern QColor kSceneBackground;
     }
 
     const QPixmap& piecePixmap(Chess::Player player, Chess::PieceType type);

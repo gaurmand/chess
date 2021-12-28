@@ -6,11 +6,10 @@
 
 #include <iostream>
 
-
 ChessWidget::ChessWidget(Chess::Game& game, QWidget *parent)
     : QGraphicsView(parent), game_(game)
 {
-    setBackgroundBrush(Qt::darkGray);
+    setBackgroundBrush(ui::colour::kSceneBackground);
     setRenderHint(QPainter::Antialiasing);
 
     //get rid of margin related to fitInView
