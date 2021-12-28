@@ -1,6 +1,5 @@
 #include "chessboardscene.h"
-#include "chesswidget.h"
-#include "chesspieceitem.h"
+#include "ui.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsItem>
@@ -51,16 +50,6 @@ void ChessBoardScene::onPerformMove()
     updatePiecePositions();
 }
 
-Chess::BP ChessBoardScene::toChessBoardPosition(QPointF point)
-{
-    int x = point.x();
-    int y = point.y();
-
-    int i = (y / SQUARE_WIDTH);
-    int j = (x / SQUARE_WIDTH);
-    return Chess::BP(i, j);
-}
-
 void ChessBoardScene::onClick(QGraphicsSceneMouseEvent* event)
 {
     QGraphicsItem* item = itemAt(event->scenePos(), QTransform());
@@ -79,7 +68,7 @@ void ChessBoardScene::onChessBoardClick(QGraphicsSceneMouseEvent* event)
 {
     if (isSelected_)
     {
-        const auto clickedPos = toChessBoardPosition(event->scenePos());
+        const auto clickedPos = ui::sceneToBP(event->scenePos());
         const auto selectedPiecePos = selectedPiece_->pos();
 
         if (!attemptMove(selectedPiecePos, clickedPos))
@@ -120,7 +109,7 @@ void ChessBoardScene::onChessPieceClick(const ChessPieceItem* pieceItem)
 
 void ChessBoardScene::onChessPieceRelease(QGraphicsSceneMouseEvent* event)
 {
-    const auto releasePos = toChessBoardPosition(event->scenePos());
+    const auto releasePos = ui::sceneToBP(event->scenePos());
 
     if (isSelected_)
     {

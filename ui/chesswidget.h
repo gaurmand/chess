@@ -2,17 +2,10 @@
 #define CHESSWIDGET_H
 
 #include "chess/game.h"
-#include "chessboarditem.h"
-#include "chesspieceitem.h"
+#include "ui.h"
 
 #include <QGraphicsView>
-#include <QPixmap>
 #include <QMessageBox>
-#include <vector>
-
-#define SQUARE_WIDTH 90
-#define BOARD_WIDTH SQUARE_WIDTH*NUM_ROWS
-#define BOARD_HEIGHT SQUARE_WIDTH*NUM_COLS
 
 enum class PlayerType{HUMAN, AI};
 

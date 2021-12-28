@@ -1,10 +1,11 @@
 #ifndef CHESSBOARDSCENE_H
 #define CHESSBOARDSCENE_H
 
-#include <QGraphicsScene>
-
 #include "chessboarditem.h"
+#include "chesspieceitem.h"
 #include "chess/game.h"
+
+#include <QGraphicsScene>
 
 class ChessBoardScene: public QGraphicsScene
 {
@@ -24,8 +25,6 @@ signals:
     void moveSelected(Chess::Move move);
 
 private:
-    static Chess::BP toChessBoardPosition(QPointF point);
-
     void onClick(QGraphicsSceneMouseEvent* event);
 
     bool attemptMove(Chess::BP src, Chess::BP dst);

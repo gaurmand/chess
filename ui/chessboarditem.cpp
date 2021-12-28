@@ -1,18 +1,9 @@
-#include <QPainter>
-#include <QGraphicsSceneMouseEvent>
-
-#include "chesswidget.h"
 #include "chessboarditem.h"
-#include "chessboardscene.h"
-
+#include "ui.h"
 #include "chess/move.h"
 
-static const QColor kWhite = QColor("#f0d9b5");
-static const QColor kBlack = QColor("#9b7555");
-static const QColor kRed = QColor(227, 29, 29, 200);
-static const QColor kGreen = QColor(211, 219, 51, 200);
-static const QColor kGray = QColor(164, 164, 164, 128);
-static const QRect kSquare = QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
+#include <QPainter>
+#include <QGraphicsSceneMouseEvent>
 
 ChessBoardItem::ChessBoardItem(const Chess::Game& game)
 {
@@ -51,11 +42,11 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
     const auto drawNormalSquare = [&] () {
         if((i+j) % 2 == 0)
         {
-            painter->fillRect(kSquare, kWhite);
+            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardWhite);
         }
         else
         {
-            painter->fillRect(kSquare, kBlack);
+            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardBlack);
         }
     };
 
@@ -66,13 +57,13 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
     switch(state)
     {
         case SquareState::CHECK:
-            painter->fillRect(kSquare, kRed);
+            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCheck);
             break;
         case SquareState::SOURCE:
-            painter->fillRect(kSquare, kGreen);
+            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardSource);
             break;
         case SquareState::CAPTURE:
-            painter->fillRect(kSquare, kGray);
+            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCapture);
             break;
         case SquareState::NORMAL_MOVE:
         {
@@ -81,7 +72,7 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
 
             drawNormalSquare();
             painter->setPen(Qt::NoPen);
-            painter->setBrush(kGray);
+            painter->setBrush(ui::colour::kBoardCapture);
             painter->drawEllipse(center, radius,  radius);
             break;
         }

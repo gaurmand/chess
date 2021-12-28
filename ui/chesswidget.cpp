@@ -1,8 +1,11 @@
+#include "chesswidget.h"
+
 #include <QFrame>
 #include <QMouseEvent>
 #include <QGraphicsItem>
+
 #include <iostream>
-#include "chesswidget.h"
+
 
 ChessWidget::ChessWidget(Chess::Game& game, QWidget *parent)
     : QGraphicsView(parent), game_(game)
@@ -27,7 +30,7 @@ ChessWidget::ChessWidget(Chess::Game& game, QWidget *parent)
 void ChessWidget::resizeEvent(QResizeEvent *event) {
     Q_UNUSED(event);
 
-    fitInView(QRect(0,0,BOARD_WIDTH, BOARD_HEIGHT), Qt::AspectRatioMode::KeepAspectRatio);
+    fitInView(ui::kBoardRect, Qt::AspectRatioMode::KeepAspectRatio);
 }
 
 void ChessWidget::newGame()

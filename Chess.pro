@@ -29,7 +29,8 @@ SOURCES += \
     ui/chesspieceitem.cpp \
     ui/chesswidget.cpp \
     ui/chesswindow.cpp \
-    ui/main.cpp
+    ui/main.cpp \
+    ui/ui.cpp
 
 HEADERS += \
     chess/board.h \
@@ -45,7 +46,8 @@ HEADERS += \
     ui/chessboardscene.h \
     ui/chesspieceitem.h \
     ui/chesswidget.h \
-    ui/chesswindow.h
+    ui/chesswindow.h \
+    ui/ui.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

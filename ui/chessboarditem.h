@@ -2,7 +2,6 @@
 #define CHESSBOARDITEM_H
 
 #include "chess/game.h"
-#include "chesspieceitem.h"
 
 #include <QGraphicsObject>
 
