@@ -13,8 +13,8 @@ public:
     ChessBoardScene(const Chess::Game& game, QObject* parent = nullptr);
 
 public slots:
-    void enableInteraction();
-    void disableInteraction();
+    void onReadyForNextMove();
+    void onPerformMove();
 
 signals:
     void moveSelected(Chess::Move move);

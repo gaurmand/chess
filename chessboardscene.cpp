@@ -13,15 +13,16 @@ ChessBoardScene::ChessBoardScene(const Chess::Game& game, QObject* parent):
     addItem(board_);
 }
 
-void ChessBoardScene::enableInteraction()
+void ChessBoardScene::onReadyForNextMove()
 {
     board_->setPiecesMovable(game_.activePlayer());
 }
 
-void ChessBoardScene::disableInteraction()
+void ChessBoardScene::onPerformMove()
 {
     board_->setPiecesMovable(false);
-    deselectPiece();
+    board_->clearState();
+    board_->setCheckState(game_);
     board_->updatePieces();
 }
 
@@ -111,14 +112,14 @@ void ChessBoardScene::selectPiece(const Chess::Piece* piece)
 {
     isSelected_ = true;
     selectedPiece_ = piece;
-    board_->select(selectedPiece_->pos(), game_);
+    board_->setSelectedState(selectedPiece_->pos(), game_);
 }
 
 void ChessBoardScene::deselectPiece()
 {
     isSelected_ = false;
     selectedPiece_ = nullptr;
-    board_->deselect();
+    board_->setDeselectedState();
 }
 
 bool ChessBoardScene::attemptMove(Chess::BP src, Chess::BP dst)

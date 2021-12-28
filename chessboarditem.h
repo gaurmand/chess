@@ -23,13 +23,19 @@ public:
     int type() const override{ return Type; }
 
 public slots:
-    void select(const Chess::BP& src, const Chess::Game& game);
-    void deselect();
+    void setSelectedState(const Chess::BP& src, const Chess::Game& game);
+    void setDeselectedState();
+    void setCheckState(const Chess::Game& game);
+    void clearState();
+
     void updatePieces();
     void setPiecesMovable(Chess::Player player);
     void setPiecesMovable(bool movable);
 
 private:
+    bool isInCheck_ = false;
+    Chess::BP checkPos_;
+
     std::array<std::array<SquareState, NUM_COLS>, NUM_ROWS> states_;
     std::array<std::array<ChessPieceItem, NUM_CHESS_PIECES>, NUM_PLAYERS> pieces_;
 };

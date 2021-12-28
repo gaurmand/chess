@@ -140,7 +140,7 @@ void ChessBoardItem::drawBoard(QPainter *painter)
     }
 }
 
-void ChessBoardItem::select(const Chess::BP& src, const Chess::Game& game)
+void ChessBoardItem::setSelectedState(const Chess::BP& src, const Chess::Game& game)
 {
     // initialize all states to normal
     std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
@@ -149,10 +149,9 @@ void ChessBoardItem::select(const Chess::BP& src, const Chess::Game& game)
     states_[src.row()][src.col()] = SquareState::SOURCE;
 
     // king square if in check
-    if (game.isInCheck())
+    if (isInCheck_)
     {
-        const Chess::BP check = game.kingPosition(game.activePlayer());
-        states_[check.row()][check.col()] = SquareState::CHECK;
+        states_[checkPos_.row()][checkPos_.col()] = SquareState::CHECK;
     }
 
     // move squares (normal and captures)
@@ -173,8 +172,28 @@ void ChessBoardItem::select(const Chess::BP& src, const Chess::Game& game)
     update();
 }
 
-void ChessBoardItem::deselect()
+void ChessBoardItem::setDeselectedState()
+{
+    std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
+    if (isInCheck_)
+    {
+        states_[checkPos_.row()][checkPos_.col()] = SquareState::CHECK;
+    }
+    update();
+}
+
+void ChessBoardItem::clearState()
 {
     std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
     update();
+}
+
+void ChessBoardItem::setCheckState(const Chess::Game& game)
+{
+    isInCheck_ = game.isInCheck();
+    if (isInCheck_)
+    {
+        checkPos_ = game.kingPosition(game.activePlayer());
+    }
+    setDeselectedState();
 }

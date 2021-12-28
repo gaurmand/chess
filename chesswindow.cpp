@@ -13,8 +13,8 @@ ChessWindow::ChessWindow(QWidget *parent)
     setCentralWidget(view);
     setWindowTitle(tr("Cheese"));
 
-    connect(view, &ChessWidget::movePerformed, scene, &ChessBoardScene::disableInteraction);
-    connect(view, &ChessWidget::readyToReceiveUserMove, scene, &ChessBoardScene::enableInteraction);
+    connect(view, &ChessWidget::movePerformed, scene, &ChessBoardScene::onPerformMove);
+    connect(view, &ChessWidget::readyToReceiveUserMove, scene, &ChessBoardScene::onReadyForNextMove);
     connect(scene, &ChessBoardScene::moveSelected, view, &ChessWidget::completeTurn);
 
     view->newGame();
