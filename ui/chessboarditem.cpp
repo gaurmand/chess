@@ -39,19 +39,17 @@ void drawBounds(QPainter *painter) {
 
 void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
 {
-    const auto drawNormalSquare = [&] () {
-        if((i+j) % 2 == 0)
-        {
-            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardWhite);
-        }
-        else
-        {
-            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardBlack);
-        }
-    };
-
     painter->save();
     painter->translate(j*SQUARE_WIDTH, i*SQUARE_WIDTH);
+
+    if((i+j) % 2 == 0)
+    {
+        painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardWhite);
+    }
+    else
+    {
+        painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardBlack);
+    }
 
     const SquareState state = states_[i][j];
     switch(state)
@@ -68,16 +66,14 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
         case SquareState::NORMAL_MOVE:
         {
             static const QPointF center(SQUARE_WIDTH/2, SQUARE_WIDTH/2);
-            static const int radius = 20;
+            static const int radius = 15;
 
-            drawNormalSquare();
             painter->setPen(Qt::NoPen);
             painter->setBrush(ui::colour::kBoardCapture);
             painter->drawEllipse(center, radius,  radius);
             break;
         }
         case SquareState::NONE:
-            drawNormalSquare();
             break;
     }
 
