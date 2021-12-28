@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "chess/game.h"
+
 class ChessWidget;
 
 class ChessWindow : public QMainWindow
@@ -14,6 +16,6 @@ public:
     ~ChessWindow();
 
 private:
-    ChessWidget* chessWidget_;
+    Chess::Game* game_;
 };
 #endif // CHESSWINDOW_H

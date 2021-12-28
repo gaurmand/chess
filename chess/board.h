@@ -28,6 +28,7 @@ public:
 
     Piece piece(const BP& pos) const;
     PieceRef pieceRef(const BP& pos);
+    const Piece* piecePtr(int player, int id) const { return &pieces_[player][id]; }
     bool hasPiece(const BP& pos) const { return pieceAt(pos) != nullptr; }
     std::vector<Piece> pieces(Player player) const;
     std::vector<Piece> pieces(Player player, PieceType type) const;

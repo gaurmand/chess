@@ -1,9 +1,8 @@
 #include <QPainter>
 #include "chesswidget.h"
-#include "chessboardqgraphicsitem.h"
+#include "chessboarditem.h"
 
 #include "chess/move.h"
-
 
 static const QColor kWhite = QColor("#f0d9b5");
 static const QColor kBlack = QColor("#9b7555");
@@ -12,18 +11,58 @@ static const QColor kGreen = QColor(211, 219, 51, 200);
 static const QColor kGray = QColor(164, 164, 164, 128);
 static const QRect kSquare = QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
 
-ChessBoardQGraphicsItem::ChessBoardQGraphicsItem(ChessWidget *cw)
-    : chessWidget_(cw)
+ChessBoardItem::ChessBoardItem(const Chess::Game& game)
 {
     std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
+
+    for(int player = 0; player < NUM_PLAYERS; player++)
+    {
+        for(int id = 0; id < NUM_CHESS_PIECES; id++)
+        {
+            const Chess::Piece* ptr = game.piecePtr(player, id);
+            pieces_[player][id].setChessPiece(ptr);
+            pieces_[player][id].setParentItem(this);
+        }
+    }
+    updatePieces();
 }
 
-QRectF ChessBoardQGraphicsItem::boundingRect() const
+void ChessBoardItem::updatePieces()
+{
+    for(int player = 0; player < NUM_PLAYERS; player++)
+    {
+        for(int id = 0; id < NUM_CHESS_PIECES; id++)
+        {
+            pieces_[player][id].updateItem();
+        }
+    }
+}
+
+void ChessBoardItem::setPiecesMovable(Chess::Player player)
+{
+    Chess::Player active = player;
+    Chess::Player inactive = (player == Chess::Player::White ? Chess::Player::Black : Chess::Player::White);
+
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
+        pieces_[active][pid].setFlag(QGraphicsItem::ItemIsMovable, true);
+        pieces_[inactive][pid].setFlag(QGraphicsItem::ItemIsMovable, false);
+    }
+}
+
+void ChessBoardItem::setPiecesMovable(bool movable)
+{
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
+        pieces_[Chess::Player::White][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
+        pieces_[Chess::Player::Black][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
+    }
+}
+
+QRectF ChessBoardItem::boundingRect() const
 {
     return QRectF(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 }
 
-void ChessBoardQGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
+void ChessBoardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
     drawBoard(painter);
 }
@@ -44,7 +83,7 @@ void drawBounds(QPainter *painter) {
     painter->drawLine(QLineF(0,BOARD_HEIGHT,0,0));
 }
 
-void ChessBoardQGraphicsItem::drawSquare(int i, int j, QPainter *painter)
+void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
 {
     const auto drawNormalSquare = [&] () {
         if((i+j) % 2 == 0)
@@ -91,7 +130,7 @@ void ChessBoardQGraphicsItem::drawSquare(int i, int j, QPainter *painter)
     painter->restore();
 }
 
-void ChessBoardQGraphicsItem::drawBoard(QPainter *painter)
+void ChessBoardItem::drawBoard(QPainter *painter)
 {
     painter->setRenderHint(QPainter::Antialiasing, true);
     for(int i=0; i<NUM_ROWS; i++) {
@@ -101,7 +140,7 @@ void ChessBoardQGraphicsItem::drawBoard(QPainter *painter)
     }
 }
 
-void ChessBoardQGraphicsItem::select(const Chess::BP& src, const Chess::Game& game)
+void ChessBoardItem::select(const Chess::BP& src, const Chess::Game& game)
 {
     // initialize all states to normal
     std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
@@ -134,7 +173,7 @@ void ChessBoardQGraphicsItem::select(const Chess::BP& src, const Chess::Game& ga
     update();
 }
 
-void ChessBoardQGraphicsItem::deselect()
+void ChessBoardItem::deselect()
 {
     std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
     update();

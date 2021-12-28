@@ -15,8 +15,9 @@ SOURCES += \
     chess/piece.cpp \
     chess/position.cpp \
     chess/state.cpp \
-    chessboardqgraphicsitem.cpp \
-    chesspieceqgraphicsitem.cpp \
+    chessboarditem.cpp \
+    chessboardscene.cpp \
+    chesspieceitem.cpp \
     chesswidget.cpp \
     main.cpp \
     chesswindow.cpp \
@@ -39,8 +40,9 @@ HEADERS += \
     chess/piece.h \
     chess/position.h \
     chess/state.h \
-    chessboardqgraphicsitem.h \
-    chesspieceqgraphicsitem.h \
+    chessboarditem.h \
+    chessboardscene.h \
+    chesspieceitem.h \
     chesswidget.h \
     chesswindow.h \
     tests/test.h

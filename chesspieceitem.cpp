@@ -1,8 +1,11 @@
 #include <QPainter>
 #include <QGraphicsSceneEvent>
 #include <iostream>
+
 #include "chesswidget.h"
-#include "chesspieceqgraphicsitem.h"
+#include "chesspieceitem.h"
+
+static const QRect kSquare = QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
 
 const QPixmap& getPixmap(Chess::Player player, Chess::PieceType type)
 
@@ -41,64 +44,43 @@ const QPixmap& getPixmap(Chess::Player player, Chess::PieceType type)
 }
 
 
-ChessPieceQGraphicsItem::ChessPieceQGraphicsItem(ChessWidget *cw, const Chess::Piece& pc)
-    : chessWidget_(cw), piece_(pc)
+ChessPieceItem::ChessPieceItem()
 {
     setZValue(0);
-    setFlag(ItemIsMovable);
-    updateItem();
 }
 
-QRectF ChessPieceQGraphicsItem::boundingRect() const
+QRectF ChessPieceItem::boundingRect() const
 {
-    return QRectF(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
+    return kSquare;
 }
 
-void ChessPieceQGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
+void ChessPieceItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    painter->drawPixmap(QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH), getPixmap(piece_.owner(), piece_.type()));
+    painter->drawPixmap(kSquare, getPixmap(piece_->owner(), piece_->type()));
 }
 
-void ChessPieceQGraphicsItem::updateItem()
+void ChessPieceItem::updateItem()
 {
-    const int x = piece_.pos().col()*SQUARE_WIDTH;
-    const int y = piece_.pos().row()*SQUARE_WIDTH;
-    setPos(x, y);
 
-    if (piece_.isCaptured())
+    const int x = piece_->pos().col()*SQUARE_WIDTH;
+    const int y = piece_->pos().row()*SQUARE_WIDTH;
+    const QPointF scenePos(x, y);
+    const QPointF boardPos = parentItem()->mapFromScene(scenePos);
+    setPos(boardPos);
+
+    if (piece_->isCaptured())
     {
         setVisible(false);
     }
     update();
 }
 
-void ChessPieceQGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
+void ChessPieceItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    setZValue(1);
-    chessWidget_->chessPieceItemMousePress(&piece_);
-
-    QGraphicsItem::mousePressEvent(event);
+    setZValue(1);    
 }
 
-void ChessPieceQGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+void ChessPieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     setZValue(0);
-    chessWidget_->chessPieceItemMouseRelease(&piece_, event->scenePos());
-    updateItem();
-
-    QGraphicsItem::mouseReleaseEvent(event);
 }
-
-//void ChessPieceQGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
-//{
-//    std::cout << piece->toString() << " mouse move" << std::endl;
-//    QGraphicsItem::mouseMoveEvent(event);
-//}
-
-//void ChessPieceQGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
-//{
-//    std::cout << piece->toString() << " mouse dbl click" << std::endl;
-//    QGraphicsItem::mouseDoubleClickEvent(event);
-//}
-
-
