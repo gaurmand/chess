@@ -24,7 +24,10 @@ QRectF ChessPieceItem::boundingRect() const
 
 void ChessPieceItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
+    painter->save();
+    painter->setRenderHint(QPainter::SmoothPixmapTransform);
     painter->drawPixmap(ui::kBoardSquareRect, ui::piecePixmap(piece_->owner(), piece_->type()));
+    painter->restore();
 }
 
 void ChessPieceItem::updatePos()
