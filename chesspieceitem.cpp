@@ -1,9 +1,15 @@
-#include <QPainter>
-#include <QGraphicsSceneEvent>
-#include <iostream>
-
 #include "chesswidget.h"
 #include "chesspieceitem.h"
+#include "chessboardscene.h"
+
+#include <QPainter>
+#include <QGraphicsSceneEvent>
+#include <QApplication>
+#include <QDrag>
+#include <QMimeData>
+#include <QString>
+
+#include <iostream>
 
 static const QRect kSquare = QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
 
@@ -47,6 +53,8 @@ const QPixmap& getPixmap(Chess::Player player, Chess::PieceType type)
 ChessPieceItem::ChessPieceItem()
 {
     setZValue(0);
+    setAcceptedMouseButtons(Qt::LeftButton);
+    setCursor(Qt::OpenHandCursor);
 }
 
 QRectF ChessPieceItem::boundingRect() const
@@ -59,14 +67,12 @@ void ChessPieceItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     painter->drawPixmap(kSquare, getPixmap(piece_->owner(), piece_->type()));
 }
 
-void ChessPieceItem::updateItem()
+void ChessPieceItem::updatePos()
 {
 
     const int x = piece_->pos().col()*SQUARE_WIDTH;
     const int y = piece_->pos().row()*SQUARE_WIDTH;
-    const QPointF scenePos(x, y);
-    const QPointF boardPos = parentItem()->mapFromScene(scenePos);
-    setPos(boardPos);
+    setPos(QPointF(x,y));
 
     if (piece_->isCaptured())
     {
@@ -77,10 +83,17 @@ void ChessPieceItem::updateItem()
 
 void ChessPieceItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    setZValue(1);    
+    setZValue(1);
+    QGraphicsItem::mousePressEvent(event);
+    setCursor(Qt::ClosedHandCursor);
+    emit mousePress(this);
 }
 
 void ChessPieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     setZValue(0);
+    QGraphicsItem::mouseReleaseEvent(event);
+    setCursor(Qt::OpenHandCursor);
+    emit mouseRelease(event);
+    updatePos();
 }

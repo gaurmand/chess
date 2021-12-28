@@ -4,26 +4,51 @@
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsItem>
+#include <QMimeData>
 
 ChessBoardScene::ChessBoardScene(const Chess::Game& game, QObject* parent):
     QGraphicsScene(parent), game_(game), board_(new ChessBoardItem(game))
 {
     setItemIndexMethod(QGraphicsScene::NoIndex);
     setSceneRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+    connect(board_, &ChessBoardItem::mousePress, this, &ChessBoardScene::onChessBoardClick);
     addItem(board_);
+
+    for(int player = 0; player < NUM_PLAYERS; player++)
+    {
+        for(int id = 0; id < NUM_CHESS_PIECES; id++)
+        {
+            const Chess::Piece* ptr = game.piecePtr(player, id);
+            pieces_[player][id].setChessPiece(ptr);
+            connect(&pieces_[player][id], &ChessPieceItem::mousePress, this, &ChessBoardScene::onChessPieceClick);
+            connect(&pieces_[player][id], &ChessPieceItem::mouseRelease, this, &ChessBoardScene::onChessPieceRelease);
+            addItem(&pieces_[player][id]);
+        }
+    }
+    updatePiecePositions();
+}
+
+void ChessBoardScene::updatePiecePositions()
+{
+    for(int player = 0; player < NUM_PLAYERS; player++)
+    {
+        for(int id = 0; id < NUM_CHESS_PIECES; id++)
+        {
+            pieces_[player][id].updatePos();
+        }
+    }
 }
 
 void ChessBoardScene::onReadyForNextMove()
 {
-    board_->setPiecesMovable(game_.activePlayer());
+    setPiecesMovable(game_.activePlayer());
 }
 
 void ChessBoardScene::onPerformMove()
 {
-    board_->setPiecesMovable(false);
-    board_->clearState();
+    setPiecesMovable(false);
     board_->setCheckState(game_);
-    board_->updatePieces();
+    updatePiecePositions();
 }
 
 Chess::BP ChessBoardScene::toChessBoardPosition(QPointF point)
@@ -36,22 +61,17 @@ Chess::BP ChessBoardScene::toChessBoardPosition(QPointF point)
     return Chess::BP(i, j);
 }
 
-void ChessBoardScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
-{
-    onClick(event);
-    event->accept();
-}
-
 void ChessBoardScene::onClick(QGraphicsSceneMouseEvent* event)
 {
-    const QGraphicsItem* item = itemAt(event->scenePos(), QTransform());
+    QGraphicsItem* item = itemAt(event->scenePos(), QTransform());
     if (item == board_)
     {
         onChessBoardClick(event);
     }
-    else if(auto pieceItem = qgraphicsitem_cast<const ChessPieceItem*>(item))
+    else if(auto pieceItem = qgraphicsitem_cast<ChessPieceItem*>(item))
     {
         onChessPieceClick(pieceItem);
+        pieceItem->mousePressEvent(event);
     }
 }
 
@@ -79,7 +99,7 @@ void ChessBoardScene::onChessPieceClick(const ChessPieceItem* pieceItem)
     {
         if (clickedPiece == selectedPiece_)
         {
-            deselectPiece();
+            return;
         }
         else if (activePlayer == clickedPlayer)
         {
@@ -89,11 +109,7 @@ void ChessBoardScene::onChessPieceClick(const ChessPieceItem* pieceItem)
         {
             const auto clickedPos = clickedPiece->pos();
             const auto selectedPiecePos = selectedPiece_->pos();
-
-            if (!attemptMove(selectedPiecePos, clickedPos))
-            {
-                deselectPiece();
-            }
+            attemptMove(selectedPiecePos, clickedPos);
         }
     }
     else if(activePlayer == clickedPlayer)
@@ -102,15 +118,29 @@ void ChessBoardScene::onChessPieceClick(const ChessPieceItem* pieceItem)
     }
 }
 
-void ChessBoardScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+void ChessBoardScene::onChessPieceRelease(QGraphicsSceneMouseEvent* event)
 {
-    onClick(event);
-    event->accept();
+    const auto releasePos = toChessBoardPosition(event->scenePos());
+
+    if (isSelected_)
+    {
+        const auto selectedPiecePos = selectedPiece_->pos();
+        if (selectedPiecePos != releasePos)
+        {
+            attemptMove(selectedPiecePos, releasePos);
+        }
+        else if (!isRecentSelection_)
+        {
+            deselectPiece();
+        }
+    }
+    isRecentSelection_ = false;
 }
 
 void ChessBoardScene::selectPiece(const Chess::Piece* piece)
 {
     isSelected_ = true;
+    isRecentSelection_ = true;
     selectedPiece_ = piece;
     board_->setSelectedState(selectedPiece_->pos(), game_);
 }
@@ -131,4 +161,25 @@ bool ChessBoardScene::attemptMove(Chess::BP src, Chess::BP dst)
         return true;
     }
     return false;
+}
+
+void ChessBoardScene::setPiecesMovable(Chess::Player player)
+{
+    Chess::Player active = player;
+    Chess::Player inactive = (player == Chess::Player::White ? Chess::Player::Black : Chess::Player::White);
+
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++)
+    {
+        pieces_[active][pid].setFlag(QGraphicsItem::ItemIsMovable, true);
+        pieces_[inactive][pid].setFlag(QGraphicsItem::ItemIsMovable, false);
+    }
+}
+
+void ChessBoardScene::setPiecesMovable(bool movable)
+{
+    for(int pid=0; pid<NUM_CHESS_PIECES; pid++)
+    {
+        pieces_[Chess::Player::White][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
+        pieces_[Chess::Player::Black][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
+    }
 }

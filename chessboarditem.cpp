@@ -1,6 +1,9 @@
 #include <QPainter>
+#include <QGraphicsSceneMouseEvent>
+
 #include "chesswidget.h"
 #include "chessboarditem.h"
+#include "chessboardscene.h"
 
 #include "chess/move.h"
 
@@ -13,48 +16,8 @@ static const QRect kSquare = QRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
 
 ChessBoardItem::ChessBoardItem(const Chess::Game& game)
 {
+    setAcceptDrops(true);
     std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
-
-    for(int player = 0; player < NUM_PLAYERS; player++)
-    {
-        for(int id = 0; id < NUM_CHESS_PIECES; id++)
-        {
-            const Chess::Piece* ptr = game.piecePtr(player, id);
-            pieces_[player][id].setChessPiece(ptr);
-            pieces_[player][id].setParentItem(this);
-        }
-    }
-    updatePieces();
-}
-
-void ChessBoardItem::updatePieces()
-{
-    for(int player = 0; player < NUM_PLAYERS; player++)
-    {
-        for(int id = 0; id < NUM_CHESS_PIECES; id++)
-        {
-            pieces_[player][id].updateItem();
-        }
-    }
-}
-
-void ChessBoardItem::setPiecesMovable(Chess::Player player)
-{
-    Chess::Player active = player;
-    Chess::Player inactive = (player == Chess::Player::White ? Chess::Player::Black : Chess::Player::White);
-
-    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
-        pieces_[active][pid].setFlag(QGraphicsItem::ItemIsMovable, true);
-        pieces_[inactive][pid].setFlag(QGraphicsItem::ItemIsMovable, false);
-    }
-}
-
-void ChessBoardItem::setPiecesMovable(bool movable)
-{
-    for(int pid=0; pid<NUM_CHESS_PIECES; pid++) {
-        pieces_[Chess::Player::White][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
-        pieces_[Chess::Player::Black][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
-    }
 }
 
 QRectF ChessBoardItem::boundingRect() const
@@ -182,12 +145,6 @@ void ChessBoardItem::setDeselectedState()
     update();
 }
 
-void ChessBoardItem::clearState()
-{
-    std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
-    update();
-}
-
 void ChessBoardItem::setCheckState(const Chess::Game& game)
 {
     isInCheck_ = game.isInCheck();
@@ -196,4 +153,10 @@ void ChessBoardItem::setCheckState(const Chess::Game& game)
         checkPos_ = game.kingPosition(game.activePlayer());
     }
     setDeselectedState();
+}
+
+void ChessBoardItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    QGraphicsItem::mousePressEvent(event);
+    emit mousePress(event);
 }

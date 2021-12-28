@@ -3,11 +3,11 @@
 
 #include "chess/game.h"
 
-#include <QGraphicsItem>
-#include <QObject>
+#include <QGraphicsObject>
 
-class ChessPieceItem : public QGraphicsItem
+class ChessPieceItem : public QGraphicsObject
 {
+    Q_OBJECT
 public:
     ChessPieceItem();
     QRectF boundingRect() const override;
@@ -23,7 +23,11 @@ public:
     int type() const override{ return Type; }
 
 public slots:
-    void updateItem();
+    void updatePos();
+
+signals:
+    void mouseRelease(QGraphicsSceneMouseEvent* event);
+    void mousePress(const ChessPieceItem* pieceItem);
 
 private:
     const Chess::Piece* piece_ = nullptr;
