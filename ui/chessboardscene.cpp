@@ -155,11 +155,13 @@ bool ChessBoardScene::attemptClickMove(const Chess::BP& src, const Chess::BP& ds
         // animate successful move
         ChessPieceItem* pieceItem = &pieces_[selectedPiece_->owner()][selectedPiece_->id()];
         QPropertyAnimation* animation = moveAnimation(pieceItem, move.dst());
-        connect(animation, &QPropertyAnimation::finished, this, [&, move, animation]() {
+        connect(animation, &QPropertyAnimation::finished, this, [=]() {
             emit moveSelected(move);
+            pieceItem->setZValue(0);
             animation->deleteLater();
         });
         setPiecesMovable(false);
+        pieceItem->setZValue(1);
         animation->start();
 
         return true;
@@ -179,11 +181,13 @@ bool ChessBoardScene::attemptDragMove(const Chess::BP& src, const Chess::BP& dst
     // animate returning piece
     ChessPieceItem* pieceItem = &pieces_[selectedPiece_->owner()][selectedPiece_->id()];
     QPropertyAnimation* animation = moveAnimation(pieceItem, src);
-    connect(animation, &QPropertyAnimation::finished, this, [&, animation]() {
+    connect(animation, &QPropertyAnimation::finished, this, [=]() {
         setPiecesMovable(game_.activePlayer());
+        pieceItem->setZValue(0);
         animation->deleteLater();
     });
     setPiecesMovable(false);
+    pieceItem->setZValue(1);
     animation->start();
 
     return false;
