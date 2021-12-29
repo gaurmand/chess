@@ -23,7 +23,7 @@ public:
 
 signals:
     void readyToReceiveUserMove();
-    void movePerformed();
+    void movePerformed(const Chess::Move& move);
 
 private:
     Chess::Game& game_;

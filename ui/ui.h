@@ -24,6 +24,8 @@ namespace ui
         extern QColor kBoardCheck;
         extern QColor kBoardSource;
         extern QColor kBoardCapture;
+        extern QColor kBoardPrevSrc;
+        extern QColor kBoardPrevDst;
         extern QColor kBoardMoveMouseOver;
 
         extern QColor kSceneBackground;

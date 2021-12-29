@@ -5,7 +5,7 @@
 
 #include <QGraphicsObject>
 
-enum class SquareState{NONE, SOURCE, NORMAL_MOVE, CAPTURE, CHECK};
+enum class SquareState{NONE, SOURCE, NORMAL_MOVE, CAPTURE, CHECK, PREV_SRC, PREV_DST};
 
 class ChessBoardItem : public QGraphicsObject
 {
@@ -22,7 +22,7 @@ public:
 public slots:
     void setSelectedState(const Chess::BP& src, const Chess::Game& game);
     void setDeselectedState();
-    void setCheckState(const Chess::Game& game);
+    void updateState(const Chess::Game& game, const Chess::Move& prevMove);
     void updateHoverPos(const Chess::BP& pos);
 
 signals:
@@ -42,6 +42,7 @@ private:
     Chess::BP checkPos_;
     std::array<std::array<SquareState, NUM_COLS>, NUM_ROWS> states_;
     Chess::BP hoverPos_;
+    Chess::Move previousMove_;
 };
 
 #endif // CHESSBOARDITEM_H

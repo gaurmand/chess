@@ -69,7 +69,7 @@ void ChessWidget::completeTurn(Chess::Move move)
         std::cout << "Move failed: " << move << std::endl;
         return;
     }
-    emit movePerformed();
+    emit movePerformed(move);
 
     if (game_.isComplete())
     {

@@ -19,7 +19,7 @@ public:
 
 public slots:
     void onReadyForNextMove();
-    void onPerformMove();
+    void onPerformMove(const Chess::Move& move);
 
 signals:
     void moveSelected(Chess::Move move);

@@ -78,6 +78,12 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
         case SquareState::SOURCE:
             painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardSource);
             break;
+        case SquareState::PREV_SRC:
+            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardPrevSrc);
+            break;
+        case SquareState::PREV_DST:
+            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardPrevDst);
+            break;
         case SquareState::CAPTURE:
             painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCapture);
             if (isMouseOver)
@@ -133,6 +139,16 @@ void ChessBoardItem::setSelectedState(const Chess::BP& src, const Chess::Game& g
         states_[checkPos_.row()][checkPos_.col()] = SquareState::CHECK;
     }
 
+    // previous move
+    if (previousMove_.isValid())
+    {
+        const Chess::BP src = previousMove_.src();
+        states_[src.row()][src.col()] = SquareState::PREV_SRC;
+
+        const Chess::BP dst = previousMove_.dst();
+        states_[dst.row()][dst.col()] = SquareState::PREV_DST;
+    }
+
     // move squares (normal and captures)
     const auto moves = game.moves(src);
     for (const auto& move: moves)
@@ -154,20 +170,33 @@ void ChessBoardItem::setSelectedState(const Chess::BP& src, const Chess::Game& g
 void ChessBoardItem::setDeselectedState()
 {
     std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
+
+    // king square if in check
     if (isInCheck_)
     {
         states_[checkPos_.row()][checkPos_.col()] = SquareState::CHECK;
     }
+
+    // previous move
+    if (previousMove_.isValid())
+    {
+        const Chess::BP src = previousMove_.src();
+        states_[src.row()][src.col()] = SquareState::PREV_SRC;
+
+        const Chess::BP dst = previousMove_.dst();
+        states_[dst.row()][dst.col()] = SquareState::PREV_DST;
+    }
     update();
 }
 
-void ChessBoardItem::setCheckState(const Chess::Game& game)
+void ChessBoardItem::updateState(const Chess::Game& game, const Chess::Move& prevMove)
 {
     isInCheck_ = game.isInCheck();
     if (isInCheck_)
     {
         checkPos_ = game.kingPosition(game.activePlayer());
     }
+    previousMove_ = prevMove;
     setDeselectedState();
 }
 

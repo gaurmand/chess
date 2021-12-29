@@ -45,10 +45,10 @@ void ChessBoardScene::onReadyForNextMove()
     setPiecesMovable(game_.activePlayer());
 }
 
-void ChessBoardScene::onPerformMove()
+void ChessBoardScene::onPerformMove(const Chess::Move& move)
 {
     setPiecesMovable(false);
-    board_->setCheckState(game_);
+    board_->updateState(game_, move);
     updatePiecePositions();
 }
 
