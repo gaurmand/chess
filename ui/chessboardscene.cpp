@@ -145,6 +145,11 @@ void ChessBoardScene::deselectPiece()
 
 bool ChessBoardScene::attemptMove(Chess::BP src, Chess::BP dst)
 {
+    if (!src.isValid() || !dst.isValid())
+    {
+        return false;;
+    }
+
     const Chess::Move move = game_.move(src, dst);
     if (move.isValid())
     {
