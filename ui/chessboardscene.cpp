@@ -73,7 +73,7 @@ void ChessBoardScene::onChessBoardClick(QGraphicsSceneMouseEvent* event)
         const auto clickedPos = ui::sceneToBP(event->scenePos());
         const auto selectedPiecePos = selectedPiece_->pos();
 
-        if (!attemptMove(selectedPiecePos, clickedPos))
+        if (!attemptClickMove(selectedPiecePos, clickedPos))
         {
             deselectPiece();
         }
@@ -100,7 +100,7 @@ void ChessBoardScene::onChessPieceClick(const ChessPieceItem* pieceItem)
         {
             const auto clickedPos = clickedPiece->pos();
             const auto selectedPiecePos = selectedPiece_->pos();
-            attemptMove(selectedPiecePos, clickedPos);
+            attemptClickMove(selectedPiecePos, clickedPos);
         }
     }
     else if(activePlayer == clickedPlayer)
@@ -118,7 +118,7 @@ void ChessBoardScene::onChessPieceRelease(QGraphicsSceneMouseEvent* event)
         const auto selectedPiecePos = selectedPiece_->pos();
         if (selectedPiecePos != releasePos)
         {
-            attemptMove(selectedPiecePos, releasePos);
+            attemptDragMove(selectedPiecePos, releasePos);
         }
         else if (!isRecentSelection_)
         {
@@ -143,7 +143,32 @@ void ChessBoardScene::deselectPiece()
     board_->setDeselectedState();
 }
 
-bool ChessBoardScene::attemptMove(Chess::BP src, Chess::BP dst)
+bool ChessBoardScene::attemptClickMove(const Chess::BP& src, const Chess::BP& dst)
+{
+    if (!src.isValid() || !dst.isValid())
+    {
+        return false;;
+    }
+
+    const Chess::Move move = game_.move(src, dst);
+    if (move.isValid())
+    {
+        // animate move
+        ChessPieceItem* pieceItem = &pieces_[selectedPiece_->owner()][selectedPiece_->id()];
+        QPropertyAnimation* animation = moveAnimation(pieceItem, move.dst());
+        connect(animation, &QPropertyAnimation::finished, this, [&, move, animation]() {
+            emit moveSelected(move);
+            animation->deleteLater();
+        });
+        setPiecesMovable(false);
+        animation->start();
+
+        return true;
+    }
+    return false;
+}
+
+bool ChessBoardScene::attemptDragMove(const Chess::BP& src, const Chess::BP& dst)
 {
     if (!src.isValid() || !dst.isValid())
     {
@@ -156,7 +181,27 @@ bool ChessBoardScene::attemptMove(Chess::BP src, Chess::BP dst)
         emit moveSelected(move);
         return true;
     }
+
+    // animate returning piece
+    ChessPieceItem* pieceItem = &pieces_[selectedPiece_->owner()][selectedPiece_->id()];
+    QPropertyAnimation* animation = moveAnimation(pieceItem, src);
+    connect(animation, &QPropertyAnimation::finished, this, [&, animation]() {
+        setPiecesMovable(game_.activePlayer());
+        animation->deleteLater();
+    });
+    setPiecesMovable(false);
+    animation->start();
+
     return false;
+}
+
+QPropertyAnimation* ChessBoardScene::moveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst)
+{
+    auto res = new QPropertyAnimation(pieceItem, "pos");
+    res->setEndValue(ui::BPToScene(dst));
+    res->setEasingCurve(QEasingCurve::OutQuad);
+    res->setDuration(250);
+    return res;
 }
 
 void ChessBoardScene::setPiecesMovable(Chess::Player player)

@@ -56,11 +56,15 @@ namespace ui
 
     Chess::BP sceneToBP(QPointF point)
     {
-        int x = point.x();
-        int y = point.y();
+        const int row = point.y() / SQUARE_WIDTH;
+        const int col = point.x() / SQUARE_WIDTH;
+        return Chess::BP(row, col);
+    }
 
-        int i = (y / SQUARE_WIDTH);
-        int j = (x / SQUARE_WIDTH);
-        return Chess::BP(i, j);
+    QPointF BPToScene(Chess::BP pos)
+    {
+        const int x = pos.col() * SQUARE_WIDTH;
+        const int y = pos.row() * SQUARE_WIDTH;
+        return QPointF(x, y);
     }
 }

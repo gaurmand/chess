@@ -6,6 +6,7 @@
 #include "chess/game.h"
 
 #include <QGraphicsScene>
+#include <QPropertyAnimation>
 
 class ChessBoardScene: public QGraphicsScene
 {
@@ -27,13 +28,17 @@ signals:
 private:
     void onClick(QGraphicsSceneMouseEvent* event);
 
-    bool attemptMove(Chess::BP src, Chess::BP dst);
+    bool attemptClickMove(const Chess::BP& src, const Chess::BP& dst);
+    bool attemptDragMove(const Chess::BP& src, const Chess::BP& dst);
+
     void selectPiece(const Chess::Piece* piece);
     void deselectPiece();
 
     void updatePiecePositions();
     void setPiecesMovable(Chess::Player player);
     void setPiecesMovable(bool movable);
+
+    static QPropertyAnimation* moveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst);
 
     bool isSelected_ = false;
     const Chess::Piece* selectedPiece_ = nullptr;

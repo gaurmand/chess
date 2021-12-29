@@ -63,7 +63,6 @@ void ChessPieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     }
     QGraphicsItem::mouseReleaseEvent(event);
     emit mouseRelease(event);
-    updatePos();
 }
 
 void ChessPieceItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)

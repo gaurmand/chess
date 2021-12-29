@@ -34,6 +34,7 @@ namespace ui
     const QPixmap& piecePixmap(Chess::Player player, Chess::PieceType type);
 
     Chess::BP sceneToBP(QPointF point);
+    QPointF BPToScene(Chess::BP pos);
 }
 
 #endif // UI_H
