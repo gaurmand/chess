@@ -45,9 +45,9 @@ void ChessPieceItem::updatePos()
 
 void ChessPieceItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    setZValue(1);
     if (flags() & QGraphicsItem::ItemIsMovable)
     {
+        setZValue(1);
         setCursor(Qt::ClosedHandCursor);
     }
     QGraphicsItem::mousePressEvent(event);
@@ -56,9 +56,9 @@ void ChessPieceItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void ChessPieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-    setZValue(0);
     if (flags() & QGraphicsItem::ItemIsMovable)
     {
+        setZValue(0);
         setCursor(Qt::OpenHandCursor);
     }
     QGraphicsItem::mouseReleaseEvent(event);
