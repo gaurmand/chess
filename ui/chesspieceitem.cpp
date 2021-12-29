@@ -14,7 +14,6 @@ ChessPieceItem::ChessPieceItem()
 {
     setZValue(0);
     setAcceptedMouseButtons(Qt::LeftButton);
-    setCursor(Qt::OpenHandCursor);
 }
 
 QRectF ChessPieceItem::boundingRect() const
@@ -47,16 +46,22 @@ void ChessPieceItem::updatePos()
 void ChessPieceItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
     setZValue(1);
+    if (flags() & QGraphicsItem::ItemIsMovable)
+    {
+        setCursor(Qt::ClosedHandCursor);
+    }
     QGraphicsItem::mousePressEvent(event);
-    setCursor(Qt::ClosedHandCursor);
     emit mousePress(this);
 }
 
 void ChessPieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
     setZValue(0);
+    if (flags() & QGraphicsItem::ItemIsMovable)
+    {
+        setCursor(Qt::OpenHandCursor);
+    }
     QGraphicsItem::mouseReleaseEvent(event);
-    setCursor(Qt::OpenHandCursor);
     emit mouseRelease(event);
     updatePos();
 }

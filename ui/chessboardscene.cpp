@@ -4,6 +4,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsItem>
 #include <QMimeData>
+#include <QCursor>
 
 ChessBoardScene::ChessBoardScene(const Chess::Game& game, QObject* parent):
     QGraphicsScene(parent), game_(game), board_(new ChessBoardItem(game))
@@ -161,7 +162,11 @@ void ChessBoardScene::setPiecesMovable(Chess::Player player)
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++)
     {
         pieces_[active][pid].setFlag(QGraphicsItem::ItemIsMovable, true);
+        pieces_[active][pid].setCursor(Qt::OpenHandCursor);
+
         pieces_[inactive][pid].setFlag(QGraphicsItem::ItemIsMovable, false);
+        pieces_[inactive][pid].setCursor(Qt::ArrowCursor);
+
     }
 }
 
@@ -171,5 +176,7 @@ void ChessBoardScene::setPiecesMovable(bool movable)
     {
         pieces_[Chess::Player::White][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
         pieces_[Chess::Player::Black][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
+        pieces_[Chess::Player::White][pid].setCursor(movable ? Qt::OpenHandCursor : Qt::ArrowCursor);
+        pieces_[Chess::Player::Black][pid].setCursor(movable ? Qt::OpenHandCursor : Qt::ArrowCursor);
     }
 }
