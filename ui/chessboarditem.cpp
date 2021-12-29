@@ -77,10 +77,6 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
             break;
         case SquareState::SOURCE:
             painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardSource);
-            if (isMouseOver)
-            {
-                drawMouseOverMove();
-            }
             break;
         case SquareState::CAPTURE:
             painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCapture);
