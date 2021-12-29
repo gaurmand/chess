@@ -26,10 +26,10 @@ ChessWidget::ChessWidget(Chess::Game& game, QWidget *parent)
     gameEndBox.setDefaultButton(QMessageBox::Yes);
 }
 
-void ChessWidget::resizeEvent(QResizeEvent *event) {
-    Q_UNUSED(event);
-
+void ChessWidget::resizeEvent(QResizeEvent *event)
+{
     fitInView(ui::kBoardRect, Qt::AspectRatioMode::KeepAspectRatio);
+    QWidget::resizeEvent(event);
 }
 
 void ChessWidget::newGame()
