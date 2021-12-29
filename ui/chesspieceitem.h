@@ -14,6 +14,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
     void setChessPiece(const Chess::Piece* piece) { piece_ = piece; }
     const Chess::Piece* chessPiece() const {return piece_; }
@@ -28,6 +29,7 @@ public slots:
 signals:
     void mouseRelease(QGraphicsSceneMouseEvent* event);
     void mousePress(const ChessPieceItem* pieceItem);
+    void mouseMove(const Chess::BP& pos);
 
 private:
     const Chess::Piece* piece_ = nullptr;

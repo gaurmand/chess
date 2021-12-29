@@ -21,6 +21,7 @@ ChessBoardScene::ChessBoardScene(const Chess::Game& game, QObject* parent):
             pieces_[player][id].setChessPiece(ptr);
             connect(&pieces_[player][id], &ChessPieceItem::mousePress, this, &ChessBoardScene::onChessPieceClick);
             connect(&pieces_[player][id], &ChessPieceItem::mouseRelease, this, &ChessBoardScene::onChessPieceRelease);
+            connect(&pieces_[player][id], &ChessPieceItem::mouseMove, board_, &ChessBoardItem::updateHoverPos);
             addItem(&pieces_[player][id]);
         }
     }

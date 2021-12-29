@@ -60,3 +60,11 @@ void ChessPieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     emit mouseRelease(event);
     updatePos();
 }
+
+void ChessPieceItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+    QGraphicsItem::mouseMoveEvent(event);
+
+    emit mouseMove(ui::sceneToBP(event->lastScenePos()));
+}
+

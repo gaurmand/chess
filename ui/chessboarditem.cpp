@@ -4,10 +4,14 @@
 
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
+#include <QStyleOptionGraphicsItem>
+#include <QGraphicsView>
+#include <QWidget>
 
 ChessBoardItem::ChessBoardItem(const Chess::Game& game)
 {
     setAcceptDrops(true);
+    setAcceptHoverEvents(true);
     std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
 }
 
@@ -16,7 +20,7 @@ QRectF ChessBoardItem::boundingRect() const
     return QRectF(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 }
 
-void ChessBoardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
+void ChessBoardItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     drawBoard(painter);
 }
@@ -39,6 +43,20 @@ void drawBounds(QPainter *painter) {
 
 void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
 {
+    const bool isMouseOver = Chess::BP(i,j) == hoverPos_;
+    const auto drawMouseOverMove = [&]()
+    {
+        static const int width = 5;
+        static const QRect outline = ui::kBoardSquareRect.marginsRemoved(QMargins(2, 2, 2, 2));
+        QPen pen(ui::colour::kBoardMoveMouseOver);
+        pen.setWidth(width);
+
+        painter->save();
+        painter->setPen(pen);
+        painter->drawRect(outline);
+        painter->restore();
+    };
+
     painter->save();
     painter->translate(j*SQUARE_WIDTH, i*SQUARE_WIDTH);
 
@@ -59,18 +77,33 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
             break;
         case SquareState::SOURCE:
             painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardSource);
+            if (isMouseOver)
+            {
+                drawMouseOverMove();
+            }
             break;
         case SquareState::CAPTURE:
             painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCapture);
+            if (isMouseOver)
+            {
+                drawMouseOverMove();
+            }
             break;
         case SquareState::NORMAL_MOVE:
         {
             static const QPointF center(SQUARE_WIDTH/2, SQUARE_WIDTH/2);
             static const int radius = 15;
 
+            painter->save();
             painter->setPen(Qt::NoPen);
             painter->setBrush(ui::colour::kBoardCapture);
             painter->drawEllipse(center, radius,  radius);
+            painter->restore();
+
+            if (isMouseOver)
+            {
+                drawMouseOverMove();
+            }
             break;
         }
         case SquareState::NONE:
@@ -80,7 +113,7 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
     painter->restore();
 }
 
-void ChessBoardItem::drawBoard(QPainter *painter)
+void ChessBoardItem::drawBoard(QPainter* painter)
 {
     painter->setRenderHint(QPainter::Antialiasing, true);
     for(int i=0; i<NUM_ROWS; i++) {
@@ -147,3 +180,25 @@ void ChessBoardItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
     QGraphicsItem::mousePressEvent(event);
     emit mousePress(event);
 }
+
+void ChessBoardItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
+{
+    updateHoverPos(ui::sceneToBP(event->lastScenePos()));
+}
+
+void ChessBoardItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
+{
+    updateHoverPos(Chess::BP());
+}
+
+void ChessBoardItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
+{
+    updateHoverPos(ui::sceneToBP(event->lastScenePos()));
+}
+
+void ChessBoardItem::updateHoverPos(const Chess::BP& pos)
+{
+    hoverPos_ = pos;
+    update();
+}
+

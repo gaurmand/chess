@@ -13,7 +13,7 @@ class ChessBoardItem : public QGraphicsObject
 public:
     ChessBoardItem(const Chess::Game& game);
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
     // Enable the use of qgraphicsitem_cast
     enum { Type = UserType + 1 };
@@ -23,20 +23,25 @@ public slots:
     void setSelectedState(const Chess::BP& src, const Chess::Game& game);
     void setDeselectedState();
     void setCheckState(const Chess::Game& game);
+    void updateHoverPos(const Chess::BP& pos);
 
 signals:
     void mousePress(QGraphicsSceneMouseEvent* event);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
 
 private:
-    void drawSquare(int i, int j, QPainter *painter);
+    void drawSquare(int i, int j, QPainter* painter);
     void drawBoard(QPainter *painter);
 
     bool isInCheck_ = false;
     Chess::BP checkPos_;
     std::array<std::array<SquareState, NUM_COLS>, NUM_ROWS> states_;
+    Chess::BP hoverPos_;
 };
 
 #endif // CHESSBOARDITEM_H
