@@ -120,9 +120,13 @@ void ChessBoardScene::onChessPieceRelease(QGraphicsSceneMouseEvent* event)
         {
             attemptDragMove(selectedPiecePos, releasePos);
         }
-        else if (!isRecentSelection_)
+        else
         {
-            deselectPiece();
+            if (!isRecentSelection_)
+            {
+                deselectPiece();
+            }
+            updatePiecePositions();
         }
     }
     isRecentSelection_ = false;
@@ -145,15 +149,10 @@ void ChessBoardScene::deselectPiece()
 
 bool ChessBoardScene::attemptClickMove(const Chess::BP& src, const Chess::BP& dst)
 {
-    if (!src.isValid() || !dst.isValid())
-    {
-        return false;;
-    }
-
     const Chess::Move move = game_.move(src, dst);
     if (move.isValid())
     {
-        // animate move
+        // animate successful move
         ChessPieceItem* pieceItem = &pieces_[selectedPiece_->owner()][selectedPiece_->id()];
         QPropertyAnimation* animation = moveAnimation(pieceItem, move.dst());
         connect(animation, &QPropertyAnimation::finished, this, [&, move, animation]() {
@@ -170,11 +169,6 @@ bool ChessBoardScene::attemptClickMove(const Chess::BP& src, const Chess::BP& ds
 
 bool ChessBoardScene::attemptDragMove(const Chess::BP& src, const Chess::BP& dst)
 {
-    if (!src.isValid() || !dst.isValid())
-    {
-        return false;;
-    }
-
     const Chess::Move move = game_.move(src, dst);
     if (move.isValid())
     {

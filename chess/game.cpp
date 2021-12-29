@@ -279,6 +279,11 @@ void Game::executeShortCastle()
 
 Move Game::move(const BP& src, const BP& dst) const
 {
+    if (!src.isValid() || !dst.isValid())
+    {
+        return Move();
+    }
+
     const Move* move = findMove(src.toANBP(), dst.toANBP());
     if (move)
     {
