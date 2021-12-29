@@ -12,7 +12,7 @@ namespace ui
         QColor kBoardCheck(227, 29, 29, 200);
         QColor kBoardSource(211, 219, 51, 200);
         QColor kBoardCapture(164, 164, 164, 100);
-        QColor kBoardMoveMouseOver(255, 255, 255, 210);
+        QColor kBoardMoveMouseOver(239, 239, 239, 225);
 
         QColor kSceneBackground(40, 40, 40);
     }
