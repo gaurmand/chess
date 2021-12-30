@@ -8,7 +8,7 @@
 #include <QGraphicsView>
 #include <QWidget>
 
-ChessBoardItem::ChessBoardItem(const Chess::Game& game)
+ChessBoardItem::ChessBoardItem()
 {
     setAcceptDrops(true);
     setAcceptHoverEvents(true);

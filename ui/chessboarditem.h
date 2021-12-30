@@ -1,7 +1,6 @@
 #ifndef CHESSBOARDITEM_H
 #define CHESSBOARDITEM_H
 
-#include "chess/game.h"
 #include "ui.h"
 
 #include <QGraphicsObject>
@@ -10,7 +9,7 @@ class ChessBoardItem : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    ChessBoardItem(const Chess::Game& game);
+    ChessBoardItem();
     QRectF boundingRect() const override;
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
@@ -37,7 +36,6 @@ private:
 
     ui::BPStates states_;
     Chess::BP hoverPos_;
-    Chess::Move previousMove_;
 };
 
 #endif // CHESSBOARDITEM_H

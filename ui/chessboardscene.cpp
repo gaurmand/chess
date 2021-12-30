@@ -7,7 +7,7 @@
 #include <QCursor>
 
 ChessBoardScene::ChessBoardScene(const Chess::Game& game, QObject* parent):
-    QGraphicsScene(parent), board_(new ChessBoardItem(game))
+    QGraphicsScene(parent), board_(new ChessBoardItem())
 {
     setItemIndexMethod(QGraphicsScene::NoIndex);
     setSceneRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
