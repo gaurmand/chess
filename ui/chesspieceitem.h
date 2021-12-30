@@ -9,19 +9,18 @@ class ChessPieceItem : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    ChessPieceItem();
+    ChessPieceItem(const Chess::Piece* piece);
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
-    void setChessPiece(const Chess::Piece* piece) { piece_ = piece; }
-    const Chess::Piece* chessPiece() const {return piece_; }
-
     // Enable the use of qgraphicsitem_cast with this item.
     enum { Type = UserType + 2 };
     int type() const override{ return Type; }
+
+    const Chess::Piece* chessPiece() const { return piece_; }
 
 public slots:
     void updatePos();
@@ -32,7 +31,7 @@ signals:
     void mouseMove(const Chess::BP& pos);
 
 private:
-    const Chess::Piece* piece_ = nullptr;
+    const Chess::Piece* piece_;
 };
 
 #endif // CHESSPIECEITEM_H

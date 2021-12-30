@@ -1,4 +1,5 @@
 #include "playablechessgame.h"
+#include "chesspieceitem.h"
 
 void PlayableChessGame::performMove(const Chess::BP& src, const Chess::BP& dst)
 {
@@ -84,4 +85,17 @@ void PlayableChessGame::emitSelectedBPStates(const Chess::BP& src)
 void PlayableChessGame::emitDefaultBPStates()
 {
     emit updatedBoardStates(defautStates_);
+}
+
+void PlayableChessGame::initializeChessPieceItems(std::vector<std::vector<ChessPieceItem*>>& pieces)
+{
+    for(int player = 0; player < NUM_PLAYERS; player++)
+    {
+        pieces.emplace_back();
+        for(int id = 0; id < NUM_CHESS_PIECES; id++)
+        {
+            const Chess::Piece* ptr = game_.piecePtr(player, id);
+            pieces[player].push_back(new ChessPieceItem(ptr));
+        }
+    }
 }

@@ -13,8 +13,6 @@
 namespace Chess
 {
 
-typedef std::reference_wrapper<const Piece> PieceRef;
-
 class Board
 {
 public:
@@ -27,12 +25,11 @@ public:
     Board(const Board& board) { *this = board; }
 
     Piece piece(const BP& pos) const;
-    PieceRef pieceRef(const BP& pos);
     const Piece* piecePtr(int player, int id) const { return &pieces_[player][id]; }
     bool hasPiece(const BP& pos) const { return pieceAt(pos) != nullptr; }
     std::vector<Piece> pieces(Player player) const;
     std::vector<Piece> pieces(Player player, PieceType type) const;
-    std::vector<PieceRef> pieceRefs(Player player);
+
     BP kingPosition(Player owner) const { return kingPosition_[owner]; }
 
     void performMove(const BP& src, const BP& dst, bool checkLegal = false);

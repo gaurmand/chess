@@ -8,6 +8,8 @@
 
 #include <array>
 
+class ChessPieceItem;
+
 class PlayableChessGame: public QObject
 {
     Q_OBJECT
@@ -15,7 +17,7 @@ public:
     PlayableChessGame(const Chess::PlayerType wtype, const Chess::PlayerType btype)
         : playerTypes_{wtype, btype} {}
 
-    const Chess::Game& game() { return game_; }
+    void initializeChessPieceItems(std::vector<std::vector<ChessPieceItem*>>& pieces);
 
 public slots:
     void performMove(const Chess::BP& src, const Chess::BP& dst);

@@ -20,6 +20,6 @@ public:
 private:
     PlayableChessGame game_;
     ChessWidget view_;
-    ChessBoardScene scene_;
+    ChessBoardScene* scene_ = nullptr;
 };
 #endif // CHESSWINDOW_H

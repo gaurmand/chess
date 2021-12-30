@@ -6,8 +6,10 @@
 #include <QMimeData>
 #include <QCursor>
 
-ChessBoardScene::ChessBoardScene(const Chess::Game& game, QObject* parent):
-    QGraphicsScene(parent), board_(new ChessBoardItem())
+ChessBoardScene::ChessBoardScene(std::vector<std::vector<ChessPieceItem*>>& pieces, QObject* parent):
+    QGraphicsScene(parent),
+    board_(new ChessBoardItem()),
+    pieces_(std::move(pieces))
 {
     setItemIndexMethod(QGraphicsScene::NoIndex);
     setSceneRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
@@ -18,12 +20,10 @@ ChessBoardScene::ChessBoardScene(const Chess::Game& game, QObject* parent):
     {
         for(int id = 0; id < NUM_CHESS_PIECES; id++)
         {
-            const Chess::Piece* ptr = game.piecePtr(player, id);
-            pieces_[player][id].setChessPiece(ptr);
-            connect(&pieces_[player][id], &ChessPieceItem::mousePress, this, &ChessBoardScene::onChessPieceClick);
-            connect(&pieces_[player][id], &ChessPieceItem::mouseRelease, this, &ChessBoardScene::onChessPieceRelease);
-            connect(&pieces_[player][id], &ChessPieceItem::mouseMove, board_, &ChessBoardItem::updateHoverPos);
-            addItem(&pieces_[player][id]);
+            connect(pieces_[player][id], &ChessPieceItem::mousePress, this, &ChessBoardScene::onChessPieceClick);
+            connect(pieces_[player][id], &ChessPieceItem::mouseRelease, this, &ChessBoardScene::onChessPieceRelease);
+            connect(pieces_[player][id], &ChessPieceItem::mouseMove, board_, &ChessBoardItem::updateHoverPos);
+            addItem(pieces_[player][id]);
         }
     }
 
@@ -32,13 +32,25 @@ ChessBoardScene::ChessBoardScene(const Chess::Game& game, QObject* parent):
     activeAnimation_.setDuration(200);
 }
 
+ChessBoardScene::~ChessBoardScene()
+{
+    for(int player = 0; player < NUM_PLAYERS; player++)
+    {
+        for(int id = 0; id < NUM_CHESS_PIECES; id++)
+        {
+            pieces_[player][id]->deleteLater();
+        }
+    }
+    board_->deleteLater();
+}
+
 void ChessBoardScene::updatePieces()
 {
     for(int player = 0; player < NUM_PLAYERS; player++)
     {
         for(int id = 0; id < NUM_CHESS_PIECES; id++)
         {
-            pieces_[player][id].updatePos();
+            pieces_[player][id]->updatePos();
         }
     }
 }
@@ -57,7 +69,7 @@ void ChessBoardScene::onMovePerformed(const Chess::Move& move)
     if (attemptedMoveType == MoveType::PieceClick || attemptedMoveType == MoveType::BoardClick)
     {
         // animate successful move
-        ChessPieceItem* pieceItem = &pieces_[selectedPiece_->owner()][selectedPiece_->id()];
+        ChessPieceItem* pieceItem = pieces_[selectedPiece_->owner()][selectedPiece_->id()];
         setActiveAnimation(pieceItem, move.dst());
         connect(&activeAnimation_, &QPropertyAnimation::finished, this, [=]() {
             pieceItem->setZValue(0);
@@ -73,7 +85,7 @@ void ChessBoardScene::onMoveFailed(const Chess::Move& move)
     if (attemptedMoveType == MoveType::PieceDrag)
     {
         // animate returning piece
-        ChessPieceItem* pieceItem = &pieces_[selectedPiece_->owner()][selectedPiece_->id()];
+        ChessPieceItem* pieceItem = pieces_[selectedPiece_->owner()][selectedPiece_->id()];
         setActiveAnimation(pieceItem, move.src());
         connect(&activeAnimation_, &QPropertyAnimation::finished, this, [=]() {
             pieceItem->setZValue(0);
@@ -226,11 +238,11 @@ void ChessBoardScene::setPiecesMovable(Chess::Player player)
 
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++)
     {
-        pieces_[active][pid].setFlag(QGraphicsItem::ItemIsMovable, true);
-        pieces_[active][pid].setCursor(Qt::OpenHandCursor);
+        pieces_[active][pid]->setFlag(QGraphicsItem::ItemIsMovable, true);
+        pieces_[active][pid]->setCursor(Qt::OpenHandCursor);
 
-        pieces_[inactive][pid].setFlag(QGraphicsItem::ItemIsMovable, false);
-        pieces_[inactive][pid].setCursor(Qt::ArrowCursor);
+        pieces_[inactive][pid]->setFlag(QGraphicsItem::ItemIsMovable, false);
+        pieces_[inactive][pid]->setCursor(Qt::ArrowCursor);
     }
 }
 
@@ -238,9 +250,9 @@ void ChessBoardScene::setPiecesMovable(bool movable)
 {
     for(int pid=0; pid<NUM_CHESS_PIECES; pid++)
     {
-        pieces_[Chess::Player::White][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
-        pieces_[Chess::Player::Black][pid].setFlag(QGraphicsItem::ItemIsMovable, movable);
-        pieces_[Chess::Player::White][pid].setCursor(movable ? Qt::OpenHandCursor : Qt::ArrowCursor);
-        pieces_[Chess::Player::Black][pid].setCursor(movable ? Qt::OpenHandCursor : Qt::ArrowCursor);
+        pieces_[Chess::Player::White][pid]->setFlag(QGraphicsItem::ItemIsMovable, movable);
+        pieces_[Chess::Player::Black][pid]->setFlag(QGraphicsItem::ItemIsMovable, movable);
+        pieces_[Chess::Player::White][pid]->setCursor(movable ? Qt::OpenHandCursor : Qt::ArrowCursor);
+        pieces_[Chess::Player::Black][pid]->setCursor(movable ? Qt::OpenHandCursor : Qt::ArrowCursor);
     }
 }

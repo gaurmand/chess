@@ -3,7 +3,6 @@
 
 #include "chessboarditem.h"
 #include "chesspieceitem.h"
-#include "chess/game.h"
 #include "ui.h"
 
 #include <QGraphicsScene>
@@ -13,7 +12,8 @@ class ChessBoardScene: public QGraphicsScene
 {
     Q_OBJECT
 public:
-    ChessBoardScene(const Chess::Game& game, QObject* parent = nullptr);
+    ChessBoardScene(std::vector<std::vector<ChessPieceItem*>>& pieces, QObject* parent = nullptr);
+    ~ChessBoardScene();
 
     enum class MoveType {Invalid, BoardClick, PieceClick, PieceDrag};
 
@@ -56,7 +56,7 @@ private:
 
     Chess::Player active_;
     ChessBoardItem* board_;
-    std::array<std::array<ChessPieceItem, NUM_CHESS_PIECES>, NUM_PLAYERS> pieces_;
+    std::vector<std::vector<ChessPieceItem*>> pieces_;
 };
 
 #endif // CHESSBOARDSCENE_H

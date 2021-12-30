@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-ChessPieceItem::ChessPieceItem()
+ChessPieceItem::ChessPieceItem(const Chess::Piece* piece): piece_(piece)
 {
     setZValue(0);
     setAcceptedMouseButtons(Qt::LeftButton);
