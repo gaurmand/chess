@@ -3,25 +3,34 @@
 #include "chessboardscene.h"
 
 ChessWindow::ChessWindow(QWidget *parent)
-    : QMainWindow(parent)
-{
-    auto game_ = new Chess::Game();
-    auto view = new ChessWidget(*game_, this);
-    auto scene = new ChessBoardScene(*game_, this);
+    : QMainWindow(parent),
+      game_(Chess::PlayerType::Human, Chess::PlayerType::Human),
+      view_(this),
+      scene_(game_.game(), this)
 
-    view->setScene(scene);
-    setCentralWidget(view);
+{
+    view_.setScene(&scene_);
+    setCentralWidget(&view_);
     setWindowTitle(tr("Cheese"));
 
-    connect(view, &ChessWidget::movePerformed, scene, &ChessBoardScene::onPerformMove);
-    connect(view, &ChessWidget::readyToReceiveUserMove, scene, &ChessBoardScene::onReadyForNextMove);
-    connect(scene, &ChessBoardScene::moveSelected, view, &ChessWidget::completeTurn);
+    connect(&game_, &PlayableChessGame::movePerformed, &scene_, &ChessBoardScene::onMovePerformed);
+    connect(&game_, &PlayableChessGame::moveFailed, &scene_, &ChessBoardScene::onMoveFailed);
+    connect(&game_, &PlayableChessGame::waitingForMove, &scene_, &ChessBoardScene::enablePlayerMoveSelection);
+    connect(&game_, &PlayableChessGame::gameStarted, &scene_, &ChessBoardScene::reset);
+    connect(&game_, &PlayableChessGame::gameCompleted, &scene_, &ChessBoardScene::disablePlayerMoveSelection);
+    connect(&game_, &PlayableChessGame::updatedBoardStates, &scene_, &ChessBoardScene::updateBoard);
 
-    view->newGame();
+    connect(&scene_, &ChessBoardScene::moveSelected, &game_, &PlayableChessGame::performMove);
+    connect(&scene_, &ChessBoardScene::pieceSelected, &game_, &PlayableChessGame::emitSelectedBPStates);
+    connect(&scene_, &ChessBoardScene::deselected, &game_, &PlayableChessGame::emitDefaultBPStates);
+
+    connect(&game_, &PlayableChessGame::gameCompleted, &view_, &ChessWidget::showGameCompleteDialog);
+    connect(&view_, &ChessWidget::requestNewGame, &game_, &PlayableChessGame::newGame);
+
+    game_.newGame();
 }
 
 ChessWindow::~ChessWindow()
 {
-//    delete game_;
 }
 

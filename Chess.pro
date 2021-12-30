@@ -30,6 +30,7 @@ SOURCES += \
     ui/chesswidget.cpp \
     ui/chesswindow.cpp \
     ui/main.cpp \
+    ui/playablechessgame.cpp \
     ui/ui.cpp
 
 HEADERS += \
@@ -47,6 +48,7 @@ HEADERS += \
     ui/chesspieceitem.h \
     ui/chesswidget.h \
     ui/chesswindow.h \
+    ui/playablechessgame.h \
     ui/ui.h
 
 # Default rules for deployment.

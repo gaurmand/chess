@@ -26,14 +26,13 @@
 namespace Chess
 {
 
-enum class PieceType{King, Queen, Rook, Bishop, Knight, Pawn};
-//enum PieceId{K, Q, RA, RH, BC, BF, NB, NG, PA, PB, PC, PD, PE, PF, PG, PH};
 enum Player{White, Black};
+enum class PieceType{King, Queen, Rook, Bishop, Knight, Pawn};
+enum class ResultType{Incomplete, Checkmate, Stalemate, Draw};
+enum class PlayerType{Human, AI};
 
 typedef std::string ForsythEdwardsNotationState;
 typedef ForsythEdwardsNotationState FENState;
-
-enum class ResultType{Incomplete, Checkmate, Stalemate, Draw};
 };
 
 #endif // CONSTANTS_H

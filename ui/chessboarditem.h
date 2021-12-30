@@ -2,10 +2,9 @@
 #define CHESSBOARDITEM_H
 
 #include "chess/game.h"
+#include "ui.h"
 
 #include <QGraphicsObject>
-
-enum class SquareState{NONE, SOURCE, NORMAL_MOVE, CAPTURE, CHECK, PREV_SRC, PREV_DST};
 
 class ChessBoardItem : public QGraphicsObject
 {
@@ -20,9 +19,7 @@ public:
     int type() const override{ return Type; }
 
 public slots:
-    void setSelectedState(const Chess::BP& src, const Chess::Game& game);
-    void setDeselectedState();
-    void updateState(const Chess::Game& game, const Chess::Move& prevMove);
+    void setBPStates(const ui::BPStates& states);
     void updateHoverPos(const Chess::BP& pos);
 
 signals:
@@ -38,9 +35,7 @@ private:
     void drawSquare(int i, int j, QPainter* painter);
     void drawBoard(QPainter *painter);
 
-    bool isInCheck_ = false;
-    Chess::BP checkPos_;
-    std::array<std::array<SquareState, NUM_COLS>, NUM_ROWS> states_;
+    ui::BPStates states_;
     Chess::BP hoverPos_;
     Chess::Move previousMove_;
 };

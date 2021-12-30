@@ -12,7 +12,7 @@ ChessBoardItem::ChessBoardItem(const Chess::Game& game)
 {
     setAcceptDrops(true);
     setAcceptHoverEvents(true);
-    std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
+    std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(ui::BPInfo::NONE); });
 }
 
 QRectF ChessBoardItem::boundingRect() const
@@ -69,47 +69,52 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
         painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardBlack);
     }
 
-    const SquareState state = states_[i][j];
-    switch(state)
+    const ui::BPState state = states_[i][j];
+
+    // Paint position w/ your piece
+    if (state & ui::BPInfo::CHECK)
     {
-        case SquareState::CHECK:
-            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCheck);
-            break;
-        case SquareState::SOURCE:
-            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardSource);
-            break;
-        case SquareState::PREV_SRC:
-            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardPrevSrc);
-            break;
-        case SquareState::PREV_DST:
-            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardPrevDst);
-            break;
-        case SquareState::CAPTURE:
-            painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCapture);
-            if (isMouseOver)
-            {
-                drawMouseOverMove();
-            }
-            break;
-        case SquareState::NORMAL_MOVE:
+        painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCheck);
+    }
+    else if (state & ui::BPInfo::SOURCE)
+    {
+        painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardSource);
+    }
+
+    // Paint position w/ enemy piece
+    if (state & ui::BPInfo::CAPTURE)
+    {
+        painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCapture);
+        if (isMouseOver)
         {
-            static const QPointF center(SQUARE_WIDTH/2, SQUARE_WIDTH/2);
-            static const int radius = 15;
-
-            painter->save();
-            painter->setPen(Qt::NoPen);
-            painter->setBrush(ui::colour::kBoardCapture);
-            painter->drawEllipse(center, radius,  radius);
-            painter->restore();
-
-            if (isMouseOver)
-            {
-                drawMouseOverMove();
-            }
-            break;
+            drawMouseOverMove();
         }
-        case SquareState::NONE:
-            break;
+    }
+    else if (state & ui::BPInfo::PREV_DST)
+    {
+        painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardPrevDst);
+    }
+
+    // Paint position w/ no piece
+    if (state & ui::BPInfo::PREV_SRC)
+    {
+        painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardPrevSrc);
+    }
+    if (state & ui::BPInfo::NORMAL_MOVE)
+    {
+        static const QPointF center(SQUARE_WIDTH/2, SQUARE_WIDTH/2);
+        static const int radius = 15;
+
+        painter->save();
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(ui::colour::kBoardCapture);
+        painter->drawEllipse(center, radius,  radius);
+        painter->restore();
+
+        if (isMouseOver)
+        {
+            drawMouseOverMove();
+        }
     }
 
     painter->restore();
@@ -125,80 +130,12 @@ void ChessBoardItem::drawBoard(QPainter* painter)
     }
 }
 
-void ChessBoardItem::setSelectedState(const Chess::BP& src, const Chess::Game& game)
+void ChessBoardItem::setBPStates(const ui::BPStates& states)
 {
-    // initialize all states to normal
-    std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
-
-    // move source square
-    states_[src.row()][src.col()] = SquareState::SOURCE;
-
-    // king square if in check
-    if (isInCheck_)
-    {
-        states_[checkPos_.row()][checkPos_.col()] = SquareState::CHECK;
-    }
-
-    // previous move
-    if (previousMove_.isValid())
-    {
-        const Chess::BP src = previousMove_.src();
-        states_[src.row()][src.col()] = SquareState::PREV_SRC;
-
-        const Chess::BP dst = previousMove_.dst();
-        states_[dst.row()][dst.col()] = SquareState::PREV_DST;
-    }
-
-    // move squares (normal and captures)
-    const auto moves = game.moves(src);
-    for (const auto& move: moves)
-    {
-        const Chess::BP dst = move.dst();
-        if (move.type() == Chess::MoveType::Capture)
-        {
-            states_[dst.row()][dst.col()] = SquareState::CAPTURE;
-        }
-        else
-        {
-            states_[dst.row()][dst.col()] = SquareState::NORMAL_MOVE;
-        }
-    }
-
+    states_ = states;
     update();
 }
 
-void ChessBoardItem::setDeselectedState()
-{
-    std::for_each(states_.begin(), states_.end(), [](auto& row){ row.fill(SquareState::NONE); });
-
-    // king square if in check
-    if (isInCheck_)
-    {
-        states_[checkPos_.row()][checkPos_.col()] = SquareState::CHECK;
-    }
-
-    // previous move
-    if (previousMove_.isValid())
-    {
-        const Chess::BP src = previousMove_.src();
-        states_[src.row()][src.col()] = SquareState::PREV_SRC;
-
-        const Chess::BP dst = previousMove_.dst();
-        states_[dst.row()][dst.col()] = SquareState::PREV_DST;
-    }
-    update();
-}
-
-void ChessBoardItem::updateState(const Chess::Game& game, const Chess::Move& prevMove)
-{
-    isInCheck_ = game.isInCheck();
-    if (isInCheck_)
-    {
-        checkPos_ = game.kingPosition(game.activePlayer());
-    }
-    previousMove_ = prevMove;
-    setDeselectedState();
-}
 
 void ChessBoardItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {

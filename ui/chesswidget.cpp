@@ -1,4 +1,5 @@
 #include "chesswidget.h"
+#include "chess/common.h"
 
 #include <QFrame>
 #include <QMouseEvent>
@@ -6,8 +7,7 @@
 
 #include <iostream>
 
-ChessWidget::ChessWidget(Chess::Game& game, QWidget *parent)
-    : QGraphicsView(parent), game_(game)
+ChessWidget::ChessWidget(QWidget *parent) : QGraphicsView(parent)
 {
     setBackgroundBrush(ui::colour::kSceneBackground);
     setRenderHint(QPainter::Antialiasing);
@@ -32,68 +32,24 @@ void ChessWidget::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
 }
 
-void ChessWidget::newGame()
+void ChessWidget::showGameCompleteDialog(const Chess::ResultType result, const Chess::Player lastPlayer)
 {
-    game_ = Chess::Game();
-    startTurn();
-}
-
-void ChessWidget::startTurn()
-{
-    Chess::Player active = game_.activePlayer();
-    PlayerType ptype = playerType[active];
-    std::cout << "Start turn: " << active << (ptype == PlayerType::HUMAN ? "(Human)" : "(AI)") << std::endl;
-
-    if(ptype == PlayerType::HUMAN)
+    switch(result)
     {
-        //HUMAN player -> wait for them to select move
-        emit readyToReceiveUserMove();
-    }
-    else
-    {
-        //AI player -> wait for move from chess engine
-    }
-}
-
-void ChessWidget::completeTurn(Chess::Move move)
-{
-    std::cout << "Selected move: " << move << std::endl;
-
-    try
-    {
-        game_.performMove(move);
-        std::cout << "Performed move: " << move << std::endl;
-    }
-    catch (...)
-    {
-        std::cout << "Move failed: " << move << std::endl;
-        return;
-    }
-    emit movePerformed(move);
-
-    if (game_.isComplete())
-    {
-        switch(game_.result())
+        case Chess::ResultType::Checkmate:
         {
-            case Chess::ResultType::Checkmate:
-            {
-                std::string winner = (game_.activePlayer() == Chess::Player::White ? "Black" : "White");
-                gameEndBox.setText(QString::fromStdString("Checkmate - " + winner + " wins"));
-                break;
-            }
-            case Chess::ResultType::Draw:
-            case Chess::ResultType::Stalemate:
-            default:
-                gameEndBox.setText(QString::fromStdString("Stalemate - Nobody wins"));
+            std::string winner = (lastPlayer == Chess::Player::White ? "Black" : "White");
+            gameEndBox.setText(QString::fromStdString("Checkmate - " + winner + " wins"));
+            break;
         }
-
-        if(gameEndBox.exec() == QMessageBox::Yes)
-        {
-            newGame();
-        }
+        case Chess::ResultType::Draw:
+        case Chess::ResultType::Stalemate:
+        default:
+            gameEndBox.setText(QString::fromStdString("Stalemate - Nobody wins"));
     }
-    else
+
+    if(gameEndBox.exec() == QMessageBox::Yes)
     {
-        startTurn();
+        emit requestNewGame();
     }
 }

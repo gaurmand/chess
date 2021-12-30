@@ -4,6 +4,7 @@
 #include "chessboarditem.h"
 #include "chesspieceitem.h"
 #include "chess/game.h"
+#include "ui.h"
 
 #include <QGraphicsScene>
 #include <QPropertyAnimation>
@@ -14,37 +15,46 @@ class ChessBoardScene: public QGraphicsScene
 public:
     ChessBoardScene(const Chess::Game& game, QObject* parent = nullptr);
 
+    enum class MoveType {Invalid, BoardClick, PieceClick, PieceDrag};
+
     void onChessBoardClick(QGraphicsSceneMouseEvent* event);
     void onChessPieceClick(const ChessPieceItem* pieceItem);
     void onChessPieceRelease(QGraphicsSceneMouseEvent* event);
 
 public slots:
-    void onReadyForNextMove();
-    void onPerformMove(const Chess::Move& move);
+    void enablePlayerMoveSelection(const Chess::Player active, const Chess::PlayerType type);
+    void onMovePerformed(const Chess::Move& move);
+    void onMoveFailed(const Chess::Move& move);
+    void reset();
+    void disablePlayerMoveSelection();
+    void updateBoard(const ui::BPStates& states);
 
 signals:
-    void moveSelected(Chess::Move move);
+    void moveSelected(const Chess::BP& src, const Chess::BP& dst);
+    void pieceSelected(const Chess::BP& pos);
+    void deselected();
 
 private:
     void onClick(QGraphicsSceneMouseEvent* event);
 
-    bool attemptClickMove(const Chess::BP& src, const Chess::BP& dst);
-    bool attemptDragMove(const Chess::BP& src, const Chess::BP& dst);
+    void selectMove(const Chess::BP& src, const Chess::BP& dst, MoveType type);
+    MoveType attemptedMoveType = MoveType::Invalid;
 
     void selectPiece(const Chess::Piece* piece);
-    void deselectPiece();
+    void deselect(const bool emitSignal = true);
 
-    void updatePiecePositions();
+    void updatePieces();
     void setPiecesMovable(Chess::Player player);
     void setPiecesMovable(bool movable);
 
-    static QPropertyAnimation* moveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst);
+    void setActiveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst);
+    QPropertyAnimation activeAnimation_;
 
     bool isSelected_ = false;
     const Chess::Piece* selectedPiece_ = nullptr;
     bool isRecentSelection_ = false;
 
-    const Chess::Game& game_;
+    Chess::Player active_;
     ChessBoardItem* board_;
     std::array<std::array<ChessPieceItem, NUM_CHESS_PIECES>, NUM_PLAYERS> pieces_;
 };

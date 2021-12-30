@@ -31,10 +31,26 @@ namespace ui
         extern QColor kSceneBackground;
     }
 
+    enum BPInfo
+    {
+        NONE = 0x0,
+        SOURCE = 0x1,
+        NORMAL_MOVE = 0x2,
+        CAPTURE = 0x4,
+        CHECK = 0x8,
+        PREV_SRC = 0x10,
+        PREV_DST = 0x20
+    };
+    Q_DECLARE_FLAGS(BPState, BPInfo)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(BPState)
+
+    typedef std::array<std::array<ui::BPState, NUM_COLS>, NUM_ROWS> BPStates;
+
     const QPixmap& piecePixmap(Chess::Player player, Chess::PieceType type);
 
     Chess::BP sceneToBP(QPointF point);
     QPointF BPToScene(Chess::BP pos);
 }
+
 
 #endif // UI_H
