@@ -1,12 +1,8 @@
 #include "chesspieceitem.h"
 #include "ui.h"
 
-#include <QPainter>
 #include <QGraphicsSceneEvent>
 #include <QApplication>
-#include <QDrag>
-#include <QMimeData>
-#include <QString>
 
 #include <iostream>
 
@@ -14,31 +10,28 @@ ChessPieceItem::ChessPieceItem(const Chess::Piece* piece): piece_(piece)
 {
     setZValue(0);
     setAcceptedMouseButtons(Qt::LeftButton);
-}
-
-QRectF ChessPieceItem::boundingRect() const
-{
-    return ui::kBoardSquareRect;
-}
-
-void ChessPieceItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
-{
-    painter->save();
-    painter->setRenderHint(QPainter::SmoothPixmapTransform);
-    painter->drawPixmap(ui::kBoardSquareRect, ui::piecePixmap(piece_->owner(), piece_->type()));
-    painter->restore();
+    setShapeMode(ShapeMode::MaskShape);
+    type_ = piece_->type();
+    setPixmap(ui::piecePixmap(piece_->owner(), type_));
 }
 
 void ChessPieceItem::updatePos()
 {
-
-    const int x = piece_->pos().col()*SQUARE_WIDTH;
-    const int y = piece_->pos().row()*SQUARE_WIDTH;
-    setPos(QPointF(x,y));
-
     if (piece_->isCaptured())
     {
         setVisible(false);
+        return;
+    }
+
+    const QPointF expectedPos = ui::BPToScene(piece_->pos());
+    if (pos() != expectedPos)
+    {
+        setPos(expectedPos);
+    }
+    else if (type_ != piece_->type())
+    {
+        type_ = piece_->type();
+        setPixmap(ui::piecePixmap(piece_->owner(), type_));
     }
     update();
 }

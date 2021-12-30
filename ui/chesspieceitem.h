@@ -3,15 +3,14 @@
 
 #include "chess/game.h"
 
-#include <QGraphicsObject>
+#include <QGraphicsPixmapItem>
 
-class ChessPieceItem : public QGraphicsObject
+class ChessPieceItem : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
+    Q_PROPERTY(QPointF pos READ pos WRITE setPos FINAL)
 public:
     ChessPieceItem(const Chess::Piece* piece);
-    QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
@@ -32,6 +31,7 @@ signals:
 
 private:
     const Chess::Piece* piece_;
+    Chess::PieceType type_;
 };
 
 #endif // CHESSPIECEITEM_H
