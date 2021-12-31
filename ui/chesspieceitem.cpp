@@ -10,7 +10,7 @@ ChessPieceItem::ChessPieceItem(const Chess::Piece* piece): piece_(piece)
 {
     setZValue(0);
     setAcceptedMouseButtons(Qt::LeftButton);
-    setShapeMode(ShapeMode::MaskShape);
+    setShapeMode(ShapeMode::BoundingRectShape);
     type_ = piece_->type();
     setPixmap(ui::piecePixmap(piece_->owner(), type_));
 }
