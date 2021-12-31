@@ -1,0 +1,51 @@
+#include "chessengine.h"
+
+#include <QThread>
+
+#include <random>
+
+ChessEngine::ChessEngine(const Chess::PlayerType wtype, const Chess::PlayerType btype)
+    : playerTypes_{wtype, btype}, rng_(std::random_device()())
+{
+}
+
+void ChessEngine::performMove(const Chess::Move& move)
+{
+    game_.performMove(move);
+}
+
+void ChessEngine::selectMove(const Chess::Player player, const Chess::PlayerType playerType)
+{
+    if (playerType != Chess::PlayerType::AI)
+    {
+        return;
+    }
+
+    Chess::Move selected = randomStrategy();
+    emit moveSelected(selected.src(), selected.dst());
+}
+
+
+void ChessEngine::reset()
+{
+    game_ = Chess::Game();
+}
+
+Chess::Move ChessEngine::randomStrategy()
+{
+    const std::vector<Chess::Piece> pieces = game_.pieces(game_.activePlayer());
+    std::uniform_int_distribution<int> dist1(0, pieces.size()-1);
+
+    const int randPieceIndex = dist1(rng_);
+    const std::vector<Chess::Move> moves = game_.moves(pieces[randPieceIndex].pos());
+
+    if (moves.size() == 0)
+    {
+        return randomStrategy();
+    }
+
+    std::uniform_int_distribution<int> dist2(0, moves.size()-1);
+    const int randMoveIndex = dist2(rng_);
+
+    return moves[randMoveIndex];
+}

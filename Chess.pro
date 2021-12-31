@@ -26,6 +26,7 @@ SOURCES += \
     tests/state_test.cpp \
     ui/chessboarditem.cpp \
     ui/chessboardscene.cpp \
+    ui/chessengine.cpp \
     ui/chesspieceitem.cpp \
     ui/chesswidget.cpp \
     ui/chesswindow.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     tests/test.h \
     ui/chessboarditem.h \
     ui/chessboardscene.h \
+    ui/chessengine.h \
     ui/chesspieceitem.h \
     ui/chesswidget.h \
     ui/chesswindow.h \

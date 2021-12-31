@@ -6,6 +6,7 @@
 #include "playablechessgame.h"
 #include "chesswidget.h"
 #include "chessboardscene.h"
+#include "chessengine.h"
 
 class ChessWidget;
 
@@ -19,6 +20,7 @@ public:
 
 private:
     PlayableChessGame game_;
+    ChessEngine engine_;
     ChessWidget view_;
     ChessBoardScene* scene_ = nullptr;
 };

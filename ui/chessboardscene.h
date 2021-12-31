@@ -37,6 +37,8 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
+    ChessPieceItem* chessPieceItemAt(const Chess::BP& pos);
+
     void onChessBoardPress(const Chess::BP& pressPos);
     void onChessPiecePress(const ChessPieceItem* pieceItem);
     void onChessPieceRelease(const Chess::BP& releasePos);

@@ -72,7 +72,7 @@ void ChessBoardScene::onMovePerformed(const Chess::Move& move)
     if (attemptedMoveType == MoveType::PieceClick || attemptedMoveType == MoveType::BoardClick)
     {
         // animate successful move
-        ChessPieceItem* pieceItem = pieces_[selectedPiece_->owner()][selectedPiece_->id()];
+        ChessPieceItem* pieceItem = chessPieceItemAt(move.dst());
         currAnimation_ = moveAnimation(pieceItem, move.dst());
         connect(currAnimation_, &QPropertyAnimation::finished, this, [=]() {
             pieceItem->setZValue(0);
@@ -93,7 +93,7 @@ void ChessBoardScene::onMoveFailed(const Chess::Move& move)
     if (attemptedMoveType == MoveType::PieceDrag)
     {
         // animate returning piece
-        ChessPieceItem* pieceItem = pieces_[selectedPiece_->owner()][selectedPiece_->id()];
+        ChessPieceItem* pieceItem = chessPieceItemAt(move.src());
         currAnimation_ = moveAnimation(pieceItem, move.src());
         connect(currAnimation_, &QPropertyAnimation::finished, this, [=]() {
             pieceItem->setZValue(0);
@@ -299,4 +299,21 @@ void ChessBoardScene::setPiecesMovable(bool movable)
         pieces_[Chess::Player::White][pid]->setCursor(movable ? Qt::OpenHandCursor : Qt::ArrowCursor);
         pieces_[Chess::Player::Black][pid]->setCursor(movable ? Qt::OpenHandCursor : Qt::ArrowCursor);
     }
+}
+
+ChessPieceItem* ChessBoardScene::chessPieceItemAt(const Chess::BP& pos)
+{
+    for(int player = 0; player < NUM_PLAYERS; player++)
+    {
+        for(int id = 0; id < NUM_CHESS_PIECES; id++)
+        {
+            ChessPieceItem* res = pieces_[player][id];
+            if (res->chessPiece()->pos() == pos)
+            {
+                return res;
+            }
+        }
+    }
+
+    return nullptr;
 }

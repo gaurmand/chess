@@ -4,7 +4,8 @@
 
 ChessWindow::ChessWindow(QWidget *parent)
     : QMainWindow(parent),
-      game_(Chess::PlayerType::Human, Chess::PlayerType::Human),
+      game_(Chess::PlayerType::Human, Chess::PlayerType::AI),
+      engine_(Chess::PlayerType::Human, Chess::PlayerType::AI),
       view_(this)
 {
     std::vector<std::vector<ChessPieceItem*>> pieceItems;
@@ -25,8 +26,16 @@ ChessWindow::ChessWindow(QWidget *parent)
     connect(scene_, &ChessBoardScene::pieceSelected, &game_, &PlayableChessGame::emitSelectedBPStates);
     connect(scene_, &ChessBoardScene::deselected, &game_, &PlayableChessGame::emitDefaultBPStates);
 
+    connect(&game_, &PlayableChessGame::movePerformed, &engine_, &ChessEngine::performMove);
+    connect(&game_, &PlayableChessGame::waitingForMove, &engine_, &ChessEngine::selectMove);
+    connect(&game_, &PlayableChessGame::gameStarted, &engine_, &ChessEngine::reset);
+
+    connect(&engine_, &ChessEngine::moveSelected, &game_, &PlayableChessGame::performMove);
+
     connect(&game_, &PlayableChessGame::gameCompleted, &view_, &ChessWidget::showGameCompleteDialog);
     connect(&view_, &ChessWidget::requestNewGame, &game_, &PlayableChessGame::newGame);
+
+
 
     game_.newGame();
 }
