@@ -17,9 +17,9 @@ ChessPieceItem::ChessPieceItem(const Chess::Piece* piece): piece_(piece)
 
 void ChessPieceItem::updatePos()
 {
-    if (piece_->isCaptured())
+    setVisible(!piece_->isCaptured());
+    if (!isVisible())
     {
-        setVisible(false);
         return;
     }
 
