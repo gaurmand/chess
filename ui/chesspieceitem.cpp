@@ -44,7 +44,6 @@ void ChessPieceItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
         setCursor(Qt::ClosedHandCursor);
     }
     QGraphicsItem::mousePressEvent(event);
-    emit mousePress(this);
 }
 
 void ChessPieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
@@ -55,13 +54,4 @@ void ChessPieceItem::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
         setCursor(Qt::OpenHandCursor);
     }
     QGraphicsItem::mouseReleaseEvent(event);
-    emit mouseRelease(event);
 }
-
-void ChessPieceItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
-{
-    QGraphicsItem::mouseMoveEvent(event);
-
-    emit mouseMove(ui::sceneToBP(event->lastScenePos()));
-}
-

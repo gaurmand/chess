@@ -136,13 +136,6 @@ void ChessBoardItem::setBPStates(const ui::BPStates& states)
     update();
 }
 
-
-void ChessBoardItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
-{
-    QGraphicsItem::mousePressEvent(event);
-    emit mousePress(event);
-}
-
 void ChessBoardItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
     updateHoverPos(ui::sceneToBP(event->lastScenePos()));

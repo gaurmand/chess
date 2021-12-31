@@ -7,6 +7,7 @@
 
 #include <QGraphicsScene>
 #include <QPropertyAnimation>
+#include <QPointer>
 
 class ChessBoardScene: public QGraphicsScene
 {
@@ -16,10 +17,6 @@ public:
     ~ChessBoardScene();
 
     enum class MoveType {Invalid, BoardClick, PieceClick, PieceDrag};
-
-    void onChessBoardClick(QGraphicsSceneMouseEvent* event);
-    void onChessPieceClick(const ChessPieceItem* pieceItem);
-    void onChessPieceRelease(QGraphicsSceneMouseEvent* event);
 
 public slots:
     void enablePlayerMoveSelection(const Chess::Player active, const Chess::PlayerType type);
@@ -34,8 +31,15 @@ signals:
     void pieceSelected(const Chess::BP& pos);
     void deselected();
 
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+
 private:
-    void onClick(QGraphicsSceneMouseEvent* event);
+    void onChessBoardPress(const Chess::BP& pressPos);
+    void onChessPiecePress(const ChessPieceItem* pieceItem);
+    void onChessPieceRelease(const Chess::BP& releasePos);
 
     void selectMove(const Chess::BP& src, const Chess::BP& dst, MoveType type);
     MoveType attemptedMoveType = MoveType::Invalid;
@@ -47,8 +51,8 @@ private:
     void setPiecesMovable(Chess::Player player);
     void setPiecesMovable(bool movable);
 
-    void setActiveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst);
-    QPropertyAnimation activeAnimation_;
+    QPropertyAnimation* moveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst);
+    QPointer<QPropertyAnimation> currAnimation_ = nullptr;
 
     bool isSelected_ = false;
     const Chess::Piece* selectedPiece_ = nullptr;

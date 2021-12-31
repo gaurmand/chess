@@ -3,8 +3,8 @@
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsItem>
-#include <QMimeData>
 #include <QCursor>
+#include <QTimer>
 
 ChessBoardScene::ChessBoardScene(std::vector<std::vector<ChessPieceItem*>>& pieces, QObject* parent):
     QGraphicsScene(parent),
@@ -13,23 +13,15 @@ ChessBoardScene::ChessBoardScene(std::vector<std::vector<ChessPieceItem*>>& piec
 {
     setItemIndexMethod(QGraphicsScene::NoIndex);
     setSceneRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
-    connect(board_, &ChessBoardItem::mousePress, this, &ChessBoardScene::onChessBoardClick);
     addItem(board_);
 
     for(int player = 0; player < NUM_PLAYERS; player++)
     {
         for(int id = 0; id < NUM_CHESS_PIECES; id++)
         {
-            connect(pieces_[player][id], &ChessPieceItem::mousePress, this, &ChessBoardScene::onChessPieceClick);
-            connect(pieces_[player][id], &ChessPieceItem::mouseRelease, this, &ChessBoardScene::onChessPieceRelease);
-            connect(pieces_[player][id], &ChessPieceItem::mouseMove, board_, &ChessBoardItem::updateHoverPos);
             addItem(pieces_[player][id]);
         }
     }
-
-    activeAnimation_.setPropertyName("pos");
-    activeAnimation_.setEasingCurve(QEasingCurve::OutQuad);
-    activeAnimation_.setDuration(200);
 }
 
 ChessBoardScene::~ChessBoardScene()
@@ -57,11 +49,22 @@ void ChessBoardScene::updatePieces()
 
 void ChessBoardScene::enablePlayerMoveSelection(const Chess::Player active, const Chess::PlayerType type)
 {
-    if (type == Chess::PlayerType::Human)
+    if (type != Chess::PlayerType::Human)
     {
-        setPiecesMovable(active);
+        return;
     }
     active_ = active;
+
+    if (currAnimation_ && currAnimation_->state() == QAbstractAnimation::Running)
+    {
+        connect(currAnimation_, &QAbstractAnimation::finished, this, [=]() {
+            enablePlayerMoveSelection(active, type);
+        });
+    }
+    else
+    {
+        setPiecesMovable(active_);
+    }
 }
 
 void ChessBoardScene::onMovePerformed(const Chess::Move& move)
@@ -70,13 +73,18 @@ void ChessBoardScene::onMovePerformed(const Chess::Move& move)
     {
         // animate successful move
         ChessPieceItem* pieceItem = pieces_[selectedPiece_->owner()][selectedPiece_->id()];
-        setActiveAnimation(pieceItem, move.dst());
-        connect(&activeAnimation_, &QPropertyAnimation::finished, this, [=]() {
+        currAnimation_ = moveAnimation(pieceItem, move.dst());
+        connect(currAnimation_, &QPropertyAnimation::finished, this, [=]() {
             pieceItem->setZValue(0);
             deselect(false);
+            setPiecesMovable(active_);
         });
         pieceItem->setZValue(1);
-        activeAnimation_.start();
+        currAnimation_->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+    else
+    {
+        setPiecesMovable(active_);
     }
 }
 
@@ -86,16 +94,18 @@ void ChessBoardScene::onMoveFailed(const Chess::Move& move)
     {
         // animate returning piece
         ChessPieceItem* pieceItem = pieces_[selectedPiece_->owner()][selectedPiece_->id()];
-        setActiveAnimation(pieceItem, move.src());
-        connect(&activeAnimation_, &QPropertyAnimation::finished, this, [=]() {
+        currAnimation_ = moveAnimation(pieceItem, move.src());
+        connect(currAnimation_, &QPropertyAnimation::finished, this, [=]() {
             pieceItem->setZValue(0);
+            setPiecesMovable(active_);
         });
         pieceItem->setZValue(1);
-        activeAnimation_.start();
+        currAnimation_->start(QAbstractAnimation::DeleteWhenStopped);
     }
     else if (attemptedMoveType == MoveType::BoardClick)
     {
         deselect();
+        setPiecesMovable(active_);
     }
 }
 
@@ -113,11 +123,10 @@ void ChessBoardScene::disablePlayerMoveSelection()
 
 void ChessBoardScene::updateBoard(const ui::BPStates& states)
 {
-    if (activeAnimation_.state() == QAbstractAnimation::Running)
+    if (currAnimation_ && currAnimation_->state() == QAbstractAnimation::Running)
     {
-        connect(&activeAnimation_, &QAbstractAnimation::finished, this, [&](){
-            board_->setBPStates(states);
-            updatePieces();
+        connect(currAnimation_, &QAbstractAnimation::finished, this, [=](){
+            updateBoard(states);
         });
     }
     else
@@ -127,31 +136,64 @@ void ChessBoardScene::updateBoard(const ui::BPStates& states)
     }
 }
 
-void ChessBoardScene::onClick(QGraphicsSceneMouseEvent* event)
+void ChessBoardScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
+    QGraphicsScene::mousePressEvent(event);
     QGraphicsItem* item = itemAt(event->scenePos(), QTransform());
-    if (item == board_)
-    {
-        onChessBoardClick(event);
-    }
-    else if(auto pieceItem = qgraphicsitem_cast<ChessPieceItem*>(item))
-    {
-        onChessPieceClick(pieceItem);
-        pieceItem->mousePressEvent(event);
-    }
+    const Chess::BP pressPos = ui::sceneToBP(event->scenePos());
+
+    QTimer::singleShot(0, [=](){
+        auto pieceItem = qgraphicsitem_cast<ChessPieceItem*>(item);
+        if(pieceItem && (pieceItem->flags() & QGraphicsItem::ItemIsMovable))
+        {
+            onChessPiecePress(pieceItem);
+        }
+        else
+        {
+            onChessBoardPress(pressPos);
+        }
+    });
 }
 
-void ChessBoardScene::onChessBoardClick(QGraphicsSceneMouseEvent* event)
+void ChessBoardScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+    QGraphicsItem* item = itemAt(event->scenePos(), QTransform());
+    const Chess::BP releasePos = ui::sceneToBP(event->scenePos());
+
+    QGraphicsScene::mouseReleaseEvent(event);
+    QTimer::singleShot(0, [=](){
+        auto pieceItem = qgraphicsitem_cast<ChessPieceItem*>(item);
+        if(pieceItem && (pieceItem->flags() & QGraphicsItem::ItemIsMovable))
+        {
+            onChessPieceRelease(releasePos);
+        }
+    });
+}
+
+void ChessBoardScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+    QGraphicsItem* item = itemAt(event->scenePos(), QTransform());
+    const QPointF lastPos = event->lastScenePos();
+
+    QGraphicsScene::mouseMoveEvent(event);
+    QTimer::singleShot(0, [=](){
+        if(auto pieceItem = qgraphicsitem_cast<ChessPieceItem*>(item))
+        {
+            board_->updateHoverPos(ui::sceneToBP(lastPos));
+        }
+    });
+}
+
+void ChessBoardScene::onChessBoardPress(const Chess::BP& pressPos)
 {
     if (isSelected_)
     {
-        const auto clickedPos = ui::sceneToBP(event->scenePos());
         const auto selectedPiecePos = selectedPiece_->pos();
-        selectMove(selectedPiecePos, clickedPos, MoveType::BoardClick);
+        selectMove(selectedPiecePos, pressPos, MoveType::BoardClick);
     }
 }
 
-void ChessBoardScene::onChessPieceClick(const ChessPieceItem* pieceItem)
+void ChessBoardScene::onChessPiecePress(const ChessPieceItem* pieceItem)
 {
     const Chess::Piece* clickedPiece = pieceItem->chessPiece();
     const Chess::Player clickedPlayer = clickedPiece->owner();
@@ -179,10 +221,8 @@ void ChessBoardScene::onChessPieceClick(const ChessPieceItem* pieceItem)
     }
 }
 
-void ChessBoardScene::onChessPieceRelease(QGraphicsSceneMouseEvent* event)
+void ChessBoardScene::onChessPieceRelease(const Chess::BP& releasePos)
 {
-    const auto releasePos = ui::sceneToBP(event->scenePos());
-
     if (isSelected_)
     {
         const auto selectedPiecePos = selectedPiece_->pos();
@@ -222,13 +262,17 @@ void ChessBoardScene::deselect(const bool emitSignal)
 void ChessBoardScene::selectMove(const Chess::BP& src, const Chess::BP& dst, MoveType type)
 {
     attemptedMoveType = type;
+    setPiecesMovable(false);
     emit moveSelected(src, dst);
 }
 
-void ChessBoardScene::setActiveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst)
+QPropertyAnimation* ChessBoardScene::moveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst)
 {
-    activeAnimation_.setTargetObject(pieceItem);
-    activeAnimation_.setEndValue(ui::BPToScene(dst));
+    auto animation = new QPropertyAnimation(pieceItem, "pos");
+    animation->setEasingCurve(QEasingCurve::OutQuad);
+    animation->setDuration(200);
+    animation->setEndValue(ui::BPToScene(dst));
+    return animation;
 }
 
 void ChessBoardScene::setPiecesMovable(Chess::Player player)

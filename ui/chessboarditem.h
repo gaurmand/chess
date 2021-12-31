@@ -21,11 +21,7 @@ public slots:
     void setBPStates(const ui::BPStates& states);
     void updateHoverPos(const Chess::BP& pos);
 
-signals:
-    void mousePress(QGraphicsSceneMouseEvent* event);
-
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
     void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
     void hoverMoveEvent(QGraphicsSceneHoverEvent* event) override;
