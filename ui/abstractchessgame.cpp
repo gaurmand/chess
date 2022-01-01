@@ -37,5 +37,4 @@ void AbstractChessGame::newGame()
     game_ = Chess::Game();
     emit gameStarted();
     updateVisual();
-    nextMove();
 }
