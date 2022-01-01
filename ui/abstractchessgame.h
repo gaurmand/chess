@@ -15,9 +15,13 @@ public:
     AbstractChessGame(const Chess::PlayerType wtype, const Chess::PlayerType btype)
         : playerTypes_{wtype, btype} {}
 
+    enum class Status {Stopped, Running, WaitingForAnimation, WaitingForEngineMove, WaitingForHumanMove};
+    Status status() { return status_; }
+
 public slots:
     void newGame();
     void performMove(const Chess::Move& move);
+    void reset();
 
 protected:
     Chess::Player activePlayer() { return game_.activePlayer(); }
@@ -42,6 +46,8 @@ private:
     Chess::Game game_;
     Chess::Move prevMove_;
     std::array<Chess::PlayerType, NUM_PLAYERS> playerTypes_;
+    bool resetFlag_ = false;
+    Status status_ = Status::Stopped;
 };
 
 #endif // ABSTRACTCHESSGAME_H

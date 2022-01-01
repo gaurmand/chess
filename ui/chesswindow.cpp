@@ -2,6 +2,8 @@
 #include "chesswidget.h"
 #include "chessboardscene.h"
 
+#include <QShortcut>
+
 ChessWindow::ChessWindow(QWidget *parent)
     : QMainWindow(parent),
       engine_(Chess::PlayerType::Human, Chess::PlayerType::AI),
@@ -19,6 +21,9 @@ ChessWindow::ChessWindow(QWidget *parent)
     connect(&scene_, &InteractiveChessBoardScene::readyForEngineMove, &engine_, &ChessEngine::selectMove);
     connect(&scene_, &InteractiveChessBoardScene::gameStarted, &engine_, &ChessEngine::reset);
     connect(&engine_, &ChessEngine::moveSelected, &scene_, &InteractiveChessBoardScene::performMove);
+
+    refresh_ = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
+    connect(refresh_, &QShortcut::activated, &scene_, &InteractiveChessBoardScene::reset);
 
     scene_.newGame();
 }

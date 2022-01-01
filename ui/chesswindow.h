@@ -2,6 +2,7 @@
 #define CHESSWINDOW_H
 
 #include <QMainWindow>
+#include <QShortcut>
 
 #include "chesswidget.h"
 #include "chessboardscene.h"
@@ -21,5 +22,6 @@ private:
     ChessEngine engine_;
     ChessWidget view_;
     InteractiveChessBoardScene scene_;
+    QShortcut* refresh_;
 };
 #endif // CHESSWINDOW_H
