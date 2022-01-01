@@ -23,6 +23,8 @@ signals:
 
 private:
     Chess::Move randomStrategy();
+    Chess::Move shallowSearchStrategy();
+
     Chess::PlayerType activePlayerType() const { return playerTypes_[game_.activePlayer()]; }
 
     Chess::Game game_;
