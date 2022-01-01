@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 
-#include "playablechessgame.h"
 #include "chesswidget.h"
 #include "chessboardscene.h"
 #include "chessengine.h"
@@ -19,9 +18,8 @@ public:
     ~ChessWindow();
 
 private:
-    PlayableChessGame game_;
     ChessEngine engine_;
     ChessWidget view_;
-    ChessBoardScene* scene_ = nullptr;
+    InteractiveChessBoardScene scene_;
 };
 #endif // CHESSWINDOW_H

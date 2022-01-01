@@ -15,14 +15,15 @@ public:
 
 public slots:
     void performMove(const Chess::Move& move);
-    void selectMove(const Chess::Player player, const Chess::PlayerType playerType);
+    void selectMove();
     void reset();
 
 signals:
-    void moveSelected(const Chess::BP& src, const Chess::BP& dst);
+    void moveSelected(const Chess::Move& move);
 
 private:
     Chess::Move randomStrategy();
+    Chess::PlayerType activePlayerType() const { return playerTypes_[game_.activePlayer()]; }
 
     Chess::Game game_;
     std::array<Chess::PlayerType, NUM_PLAYERS> playerTypes_;

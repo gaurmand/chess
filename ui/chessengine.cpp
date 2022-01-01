@@ -1,6 +1,6 @@
 #include "chessengine.h"
 
-#include <QThread>
+#include <QTimer>
 
 #include <random>
 
@@ -14,15 +14,16 @@ void ChessEngine::performMove(const Chess::Move& move)
     game_.performMove(move);
 }
 
-void ChessEngine::selectMove(const Chess::Player player, const Chess::PlayerType playerType)
+void ChessEngine::selectMove()
 {
-    if (playerType != Chess::PlayerType::AI)
+    if (activePlayerType() != Chess::PlayerType::AI)
     {
         return;
     }
 
-    Chess::Move selected = randomStrategy();
-    emit moveSelected(selected.src(), selected.dst());
+    QTimer::singleShot(500, [=](){
+        emit moveSelected(randomStrategy());
+    });
 }
 
 

@@ -3,66 +3,66 @@
 
 #include "chessboarditem.h"
 #include "chesspieceitem.h"
+#include "abstractchessgame.h"
 #include "ui.h"
+#include "chess/common.h"
 
 #include <QGraphicsScene>
 #include <QPropertyAnimation>
 #include <QPointer>
 
-class ChessBoardScene: public QGraphicsScene
+class ChessBoardScene: public AbstractChessGame, public QGraphicsScene
 {
-    Q_OBJECT
 public:
-    ChessBoardScene(std::vector<std::vector<ChessPieceItem*>>& pieces, QObject* parent = nullptr);
+    ChessBoardScene();
     ~ChessBoardScene();
 
-    enum class MoveType {Invalid, BoardClick, PieceClick, PieceDrag};
+protected:
+    void readyForHumanMove() override;
+    void finishGame() override;
+    void updateVisual() override;
 
-public slots:
-    void enablePlayerMoveSelection(const Chess::Player active, const Chess::PlayerType type);
-    void onMovePerformed(const Chess::Move& move);
-    void onMoveFailed(const Chess::Move& move);
-    void reset();
-    void disablePlayerMoveSelection();
-    void updateBoard(const ui::BPStates& states);
+    void enablePieceInteraction();
+    void disablePieceInteraction();
+    void visualBoardUpdate(const Chess::BP& selected = Chess::BP());
+    void visualPiecesUpdate();
+    void resetPiecePositions();
 
-signals:
-    void moveSelected(const Chess::BP& src, const Chess::BP& dst);
-    void pieceSelected(const Chess::BP& pos);
-    void deselected();
+    void animatePiece(ChessPieceItem* pieceItem, const Chess::BP& dst, std::function<void()> cb = [](){});
+
+    bool isPieceSelected();
+    const Chess::Piece* selectedPiece_ = nullptr;
+    ChessPieceItem* selectedPieceItem_ = nullptr;
+
+    void selectPiece(ChessPieceItem* piece);
+    void deselectPiece();
+    void clearSelection();
+    ChessPieceItem* chessPieceItemAt(const Chess::BP& pos);
+
+    ChessBoardItem* board_;
+
+private:
+    ui::BPStates computeDefaultBPStates() const;
+    ui::BPStates computeSelectedBPStates(const Chess::BP selected) const;
+
+    ui::BPStates defaultStates_;
+    std::vector<std::vector<ChessPieceItem*>> pieces_;
+};
+
+class InteractiveChessBoardScene: public ChessBoardScene
+{
+public:
+    InteractiveChessBoardScene() {}
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
-private:
-    ChessPieceItem* chessPieceItemAt(const Chess::BP& pos);
-
     void onChessBoardPress(const Chess::BP& pressPos);
-    void onChessPiecePress(const ChessPieceItem* pieceItem);
+    void onChessPiecePress(ChessPieceItem* pieceItem);
     void onChessPieceRelease(const Chess::BP& releasePos);
-
-    void selectMove(const Chess::BP& src, const Chess::BP& dst, MoveType type);
-    MoveType attemptedMoveType = MoveType::Invalid;
-
-    void selectPiece(const Chess::Piece* piece);
-    void deselect(const bool emitSignal = true);
-
-    void updatePieces();
-    void setPiecesMovable(Chess::Player player);
-    void setPiecesMovable(bool movable);
-
-    QPropertyAnimation* moveAnimation(ChessPieceItem* pieceItem, const Chess::BP& dst);
-    QPointer<QPropertyAnimation> currAnimation_ = nullptr;
-
-    bool isSelected_ = false;
-    const Chess::Piece* selectedPiece_ = nullptr;
     bool isRecentSelection_ = false;
-
-    Chess::Player active_;
-    ChessBoardItem* board_;
-    std::vector<std::vector<ChessPieceItem*>> pieces_;
 };
 
 #endif // CHESSBOARDSCENE_H

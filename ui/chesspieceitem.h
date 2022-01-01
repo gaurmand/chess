@@ -19,7 +19,8 @@ public:
     const Chess::Piece* chessPiece() const { return piece_; }
 
 public slots:
-    void updatePos();
+    void updatePosition();
+    void updateVisual();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;

@@ -15,9 +15,8 @@ ChessPieceItem::ChessPieceItem(const Chess::Piece* piece): piece_(piece)
     setPixmap(ui::piecePixmap(piece_->owner(), type_));
 }
 
-void ChessPieceItem::updatePos()
+void ChessPieceItem::updatePosition()
 {
-    setVisible(!piece_->isCaptured());
     if (!isVisible())
     {
         return;
@@ -28,12 +27,21 @@ void ChessPieceItem::updatePos()
     {
         setPos(expectedPos);
     }
-    else if (type_ != piece_->type())
+}
+
+void ChessPieceItem::updateVisual()
+{
+    setVisible(!piece_->isCaptured());
+    if (!isVisible())
+    {
+        return;
+    }
+
+    if (type_ != piece_->type())
     {
         type_ = piece_->type();
         setPixmap(ui::piecePixmap(piece_->owner(), type_));
     }
-    update();
 }
 
 void ChessPieceItem::mousePressEvent(QGraphicsSceneMouseEvent* event)

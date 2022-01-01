@@ -24,6 +24,7 @@ SOURCES += \
     tests/piece_test.cpp \
     tests/position_test.cpp \
     tests/state_test.cpp \
+    ui/abstractchessgame.cpp \
     ui/chessboarditem.cpp \
     ui/chessboardscene.cpp \
     ui/chessengine.cpp \
@@ -31,7 +32,6 @@ SOURCES += \
     ui/chesswidget.cpp \
     ui/chesswindow.cpp \
     ui/main.cpp \
-    ui/playablechessgame.cpp \
     ui/ui.cpp
 
 HEADERS += \
@@ -44,13 +44,13 @@ HEADERS += \
     chess/position.h \
     chess/state.h \
     tests/test.h \
+    ui/abstractchessgame.h \
     ui/chessboarditem.h \
     ui/chessboardscene.h \
     ui/chessengine.h \
     ui/chesspieceitem.h \
     ui/chesswidget.h \
     ui/chesswindow.h \
-    ui/playablechessgame.h \
     ui/ui.h
 
 # Default rules for deployment.
