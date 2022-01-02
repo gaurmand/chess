@@ -14,8 +14,10 @@
 
 namespace ui
 {
-    extern QRect kBoardSquareRect;
-    extern QRect kBoardRect;
+    extern QRectF kBoardSquareRect;
+    extern QRectF kBoardRect;
+
+    void updateBoardSize(const QSize& size);
 
     namespace colour
     {
@@ -46,10 +48,10 @@ namespace ui
 
     typedef std::array<std::array<ui::BPState, NUM_COLS>, NUM_ROWS> BPStates;
 
-    const QPixmap& piecePixmap(Chess::Player player, Chess::PieceType type);
+    QPixmap piecePixmap(const Chess::Player player, const Chess::PieceType type);
 
-    Chess::BP sceneToBP(QPointF point);
-    QPointF BPToScene(Chess::BP pos);
+    Chess::BP sceneToBP(const QPointF& point);
+    QPointF BPToScene(const Chess::BP& pos);
 }
 
 

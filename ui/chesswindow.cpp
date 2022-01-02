@@ -3,6 +3,7 @@
 #include "chessboardscene.h"
 
 #include <QShortcut>
+#include <QResizeEvent>
 
 ChessWindow::ChessWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -26,6 +27,13 @@ ChessWindow::ChessWindow(QWidget *parent)
     connect(refresh_, &QShortcut::activated, &scene_, &InteractiveChessBoardScene::reset);
 
     scene_.newGame();
+}
+
+void ChessWindow::resizeEvent(QResizeEvent *event)
+{
+    ui::updateBoardSize(event->size());
+    QMainWindow::resizeEvent(event);
+    scene_.resizeScene(event->size());
 }
 
 ChessWindow::~ChessWindow()

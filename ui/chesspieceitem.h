@@ -21,6 +21,7 @@ public:
 public slots:
     void updatePosition();
     void updateVisual();
+    void resizePixmap();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;

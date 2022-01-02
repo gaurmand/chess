@@ -13,11 +13,11 @@ class ChessWidget;
 class ChessWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     ChessWindow(QWidget* parent = nullptr);
     ~ChessWindow();
 
+    void resizeEvent(QResizeEvent *event) override;
 private:
     ChessEngine engine_;
     ChessWidget view_;

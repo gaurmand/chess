@@ -13,7 +13,6 @@ class ChessWidget : public QGraphicsView
 public:
     ChessWidget(QWidget *parent = nullptr);
     ~ChessWidget() = default;
-    void resizeEvent(QResizeEvent *event) override;
 
 public slots:
     void showGameCompleteDialog(const Chess::ResultType result, const Chess::Player lastPlayer);

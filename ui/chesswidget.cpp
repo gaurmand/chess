@@ -1,12 +1,6 @@
 #include "chesswidget.h"
 #include "chess/common.h"
 
-#include <QFrame>
-#include <QMouseEvent>
-#include <QGraphicsItem>
-
-#include <iostream>
-
 ChessWidget::ChessWidget(QWidget *parent) : QGraphicsView(parent)
 {
     setBackgroundBrush(ui::colour::kSceneBackground);
@@ -17,19 +11,13 @@ ChessWidget::ChessWidget(QWidget *parent) : QGraphicsView(parent)
     setFrameStyle(QFrame::NoFrame);
 
     //set min widget size
-    setMinimumSize(400, 400);
+    setMinimumSize(256, 256);
 
     //init msg box
     gameEndBox.setText("Checkmate");
     gameEndBox.setInformativeText("Do you want to start a new game?");
     gameEndBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     gameEndBox.setDefaultButton(QMessageBox::Yes);
-}
-
-void ChessWidget::resizeEvent(QResizeEvent *event)
-{
-    fitInView(ui::kBoardRect, Qt::AspectRatioMode::KeepAspectRatio);
-    QWidget::resizeEvent(event);
 }
 
 void ChessWidget::showGameCompleteDialog(const Chess::ResultType result, const Chess::Player lastPlayer)

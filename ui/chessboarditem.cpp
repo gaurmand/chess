@@ -17,7 +17,7 @@ ChessBoardItem::ChessBoardItem()
 
 QRectF ChessBoardItem::boundingRect() const
 {
-    return QRectF(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+    return ui::kBoardRect;
 }
 
 void ChessBoardItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
@@ -42,23 +42,10 @@ void drawBounds(QPainter *painter) {
 }
 
 void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
-{
-    const bool isMouseOver = Chess::BP(i,j) == hoverPos_;
-    const auto drawMouseOverMove = [&]()
-    {
-        static const int width = 5;
-        static const QRect outline = ui::kBoardSquareRect.marginsRemoved(QMargins(2, 2, 2, 2));
-        QPen pen(ui::colour::kBoardMoveMouseOver);
-        pen.setWidth(width);
-
-        painter->save();
-        painter->setPen(pen);
-        painter->drawRect(outline);
-        painter->restore();
-    };
-
+{    
     painter->save();
-    painter->translate(j*SQUARE_WIDTH, i*SQUARE_WIDTH);
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    painter->translate(j*ui::kBoardSquareRect.width(), i*ui::kBoardSquareRect.height());
 
     if((i+j) % 2 == 0)
     {
@@ -85,10 +72,6 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
     if (state & ui::BPInfo::CAPTURE)
     {
         painter->fillRect(ui::kBoardSquareRect, ui::colour::kBoardCapture);
-        if (isMouseOver)
-        {
-            drawMouseOverMove();
-        }
     }
     else if (state & ui::BPInfo::PREV_DST)
     {
@@ -102,19 +85,14 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
     }
     if (state & ui::BPInfo::NORMAL_MOVE)
     {
-        static const QPointF center(SQUARE_WIDTH/2, SQUARE_WIDTH/2);
-        static const int radius = 15;
+        const QPointF center = ui::kBoardSquareRect.center();
+        const double radius = ui::kBoardSquareRect.width() / 5;
 
         painter->save();
         painter->setPen(Qt::NoPen);
         painter->setBrush(ui::colour::kBoardCapture);
         painter->drawEllipse(center, radius,  radius);
         painter->restore();
-
-        if (isMouseOver)
-        {
-            drawMouseOverMove();
-        }
     }
 
     painter->restore();
@@ -122,11 +100,36 @@ void ChessBoardItem::drawSquare(int i, int j, QPainter *painter)
 
 void ChessBoardItem::drawBoard(QPainter* painter)
 {
-    painter->setRenderHint(QPainter::Antialiasing, true);
     for(int i=0; i<NUM_ROWS; i++) {
         for(int j=0; j<NUM_COLS; j++) {
             drawSquare(i, j, painter);
         }
+    }
+
+    const auto drawOutline = [&](int i, int j)
+    {
+        const double width = ui::kBoardSquareRect.width() / 20.0;
+        QPen pen(ui::colour::kBoardMoveMouseOver);
+        pen.setWidth(width);
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+        painter->translate(j*ui::kBoardSquareRect.width(), i*ui::kBoardSquareRect.height());
+        painter->setPen(pen);
+        painter->drawRect(ui::kBoardSquareRect);
+        painter->restore();
+    };
+
+    if (!hoverPos_.isValid())
+    {
+        return;
+    }
+
+    const int i = hoverPos_.row(), j = hoverPos_.col();
+    const ui::BPState state = states_[i][j];
+    if (state & ui::BPInfo::CAPTURE || state & ui::BPInfo::NORMAL_MOVE)
+    {
+        drawOutline(i, j);
     }
 }
 

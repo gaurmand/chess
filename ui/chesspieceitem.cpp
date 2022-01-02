@@ -12,7 +12,7 @@ ChessPieceItem::ChessPieceItem(const Chess::Piece* piece): piece_(piece)
     setAcceptedMouseButtons(Qt::LeftButton);
     setShapeMode(ShapeMode::BoundingRectShape);
     type_ = piece_->type();
-    setPixmap(ui::piecePixmap(piece_->owner(), type_));
+    setPixmap(ui::piecePixmap(piece_->owner(), piece_->type()));
 }
 
 void ChessPieceItem::updatePosition()
@@ -40,8 +40,13 @@ void ChessPieceItem::updateVisual()
     if (type_ != piece_->type())
     {
         type_ = piece_->type();
-        setPixmap(ui::piecePixmap(piece_->owner(), type_));
+        setPixmap(ui::piecePixmap(piece_->owner(), piece_->type()));
     }
+}
+
+void ChessPieceItem::resizePixmap()
+{
+    setPixmap(ui::piecePixmap(piece_->owner(), piece_->type()));
 }
 
 void ChessPieceItem::mousePressEvent(QGraphicsSceneMouseEvent* event)

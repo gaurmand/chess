@@ -6,7 +6,7 @@
 #include <QCursor>
 #include <QTimer>
 
-ChessBoardScene::ChessBoardScene(): AbstractChessGame(Chess::PlayerType::Human, Chess::PlayerType::AI)
+ChessBoardScene::ChessBoardScene(): AbstractChessGame(Chess::PlayerType::Human, Chess::PlayerType::AI), QGraphicsScene(ui::kBoardRect)
 {
     board_ = new ChessBoardItem();
     addItem(board_);
@@ -209,6 +209,19 @@ ui::BPStates ChessBoardScene::computeDefaultBPStates() const
     }
 
     return states;
+}
+
+void ChessBoardScene::resizeScene(const QSize& size)
+{
+    setSceneRect(ui::kBoardRect);
+    resetPiecePositions();
+    for(int player = 0; player < NUM_PLAYERS; player++)
+    {
+        for(int id = 0; id < NUM_CHESS_PIECES; id++)
+        {
+            pieces_[player][id]->resizePixmap();
+        }
+    }
 }
 
 ui::BPStates ChessBoardScene::computeSelectedBPStates(const Chess::BP selected) const

@@ -16,6 +16,7 @@ class ChessBoardScene: public AbstractChessGame, public QGraphicsScene
 public:
     ChessBoardScene();
     ~ChessBoardScene();
+    void resizeScene(const QSize& size);
 
 protected:
     void readyForHumanMove() override;

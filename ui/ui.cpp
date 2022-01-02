@@ -1,9 +1,19 @@
 #include "ui.h"
 
+#include <QIcon>
+
 namespace ui
 {
-    QRect kBoardSquareRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
-    QRect kBoardRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+    QRectF kBoardSquareRect(0, 0, SQUARE_WIDTH, SQUARE_WIDTH);
+    QRectF kBoardRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+
+    void updateBoardSize(const QSize& size)
+    {
+        const int min = std::min(size.width(), size.height());
+        const double newWidth = min / 8.0;
+        kBoardSquareRect = QRectF(0, 0, newWidth, newWidth);
+        kBoardRect = QRectF(0, 0, 8.0 * newWidth, 8.0 * newWidth);
+    }
 
     namespace colour
     {
@@ -19,21 +29,21 @@ namespace ui
         QColor kSceneBackground(40, 40, 40);
     }
 
-    const QPixmap& piecePixmap(Chess::Player player, Chess::PieceType type)
+    const QIcon& pieceIcon(const Chess::Player player, const Chess::PieceType type)
     {
-        static const QPixmap whiteKing(":/images/w0");
-        static const QPixmap whiteQueen(":/images/w1");
-        static const QPixmap whiteRook(":/images/w2");
-        static const QPixmap whiteBishop(":/images/w3");
-        static const QPixmap whiteKnight(":/images/w4");
-        static const QPixmap whitePawn(":/images/w5");
+        static const QIcon whiteKing(":/images/wking.svg");
+        static const QIcon whiteQueen(":/images/wqueen.svg");
+        static const QIcon whiteRook(":/images/wrook.svg");
+        static const QIcon whiteBishop(":/images/wbishop.svg");
+        static const QIcon whiteKnight(":/images/wknight.svg");
+        static const QIcon whitePawn(":/images/wpawn.svg");
 
-        static const QPixmap blackKing(":/images/b0");
-        static const QPixmap blackQueen(":/images/b1");
-        static const QPixmap blackRook(":/images/b2");
-        static const QPixmap blackBishop(":/images/b3");
-        static const QPixmap blackKnight(":/images/b4");
-        static const QPixmap blackPawn(":/images/b5");
+        static const QIcon blackKing(":/images/bking.svg");
+        static const QIcon blackQueen(":/images/bqueen.svg");
+        static const QIcon blackRook(":/images/brook.svg");
+        static const QIcon blackBishop(":/images/bbishop.svg");
+        static const QIcon blackKnight(":/images/bknight.svg");
+        static const QIcon blackPawn(":/images/bpawn.svg");
 
         switch (type)
         {
@@ -54,17 +64,22 @@ namespace ui
         }
     }
 
-    Chess::BP sceneToBP(QPointF point)
+    QPixmap piecePixmap(const Chess::Player player, const Chess::PieceType type)
     {
-        const int row = point.y() / SQUARE_WIDTH;
-        const int col = point.x() / SQUARE_WIDTH;
+        return pieceIcon(player, type).pixmap(kBoardSquareRect.toAlignedRect().size());
+    }
+
+    Chess::BP sceneToBP(const QPointF& point)
+    {
+        const int row = point.y() / kBoardSquareRect.width();
+        const int col = point.x() / kBoardSquareRect.width();
         return Chess::BP(row, col);
     }
 
-    QPointF BPToScene(Chess::BP pos)
+    QPointF BPToScene(const Chess::BP& pos)
     {
-        const int x = pos.col() * SQUARE_WIDTH;
-        const int y = pos.row() * SQUARE_WIDTH;
+        const double x = pos.col() * kBoardSquareRect.width();
+        const double y = pos.row() * kBoardSquareRect.width();
         return QPointF(x, y);
     }
 }

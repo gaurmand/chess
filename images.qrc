@@ -1,16 +1,16 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/b0.png</file>
-        <file>images/b1.png</file>
-        <file>images/b2.png</file>
-        <file>images/b3.png</file>
-        <file>images/b4.png</file>
-        <file>images/b5.png</file>
-        <file>images/w0.png</file>
-        <file>images/w1.png</file>
-        <file>images/w2.png</file>
-        <file>images/w3.png</file>
-        <file>images/w4.png</file>
-        <file>images/w5.png</file>
+        <file>images/wking.svg</file>
+        <file>images/bking.svg</file>
+        <file>images/bqueen.svg</file>
+        <file>images/wqueen.svg</file>
+        <file>images/bbishop.svg</file>
+        <file>images/bknight.svg</file>
+        <file>images/bpawn.svg</file>
+        <file>images/brook.svg</file>
+        <file>images/wbishop.svg</file>
+        <file>images/wknight.svg</file>
+        <file>images/wpawn.svg</file>
+        <file>images/wrook.svg</file>
     </qresource>
 </RCC>
