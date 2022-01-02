@@ -27,7 +27,6 @@ void ChessEngine::selectMove()
     });
 }
 
-
 void ChessEngine::reset()
 {
     game_ = Chess::Game();
@@ -43,26 +42,6 @@ Chess::Move ChessEngine::randomStrategy()
 
 Chess::Move ChessEngine::shallowSearchStrategy()
 {
-    static const auto pieceValue = [&](Chess::PieceType type)
-    {
-        switch(type) {
-            case Chess::PieceType::King:
-                return 10.0;
-            case Chess::PieceType::Queen:
-                return 7.0;
-            case Chess::PieceType::Rook:
-                return 4.0;
-            case Chess::PieceType::Bishop:
-                return 3.5;
-            case Chess::PieceType::Knight:
-                return 3.0;
-            case Chess::PieceType::Pawn:
-                return 1.0;
-            default:
-                throw 1;
-        }
-    };
-
     static const auto evaluatePosition = [&]()
     {
       Chess::Player active = game_.activePlayer();
@@ -127,4 +106,24 @@ Chess::Move ChessEngine::shallowSearchStrategy()
     std::uniform_int_distribution<int> dist(0, maxMoves.size() - 1);
     const int randMoveIndex = dist(rng_);
     return maxMoves[randMoveIndex];
+}
+
+double ChessEngine::pieceValue(const Chess::PieceType type)
+{
+    switch(type) {
+        case Chess::PieceType::King:
+            return 10.0;
+        case Chess::PieceType::Queen:
+            return 9.0;
+        case Chess::PieceType::Rook:
+            return 5.0;
+        case Chess::PieceType::Bishop:
+            return 3.0;
+        case Chess::PieceType::Knight:
+            return 3.0;
+        case Chess::PieceType::Pawn:
+            return 1.0;
+        default:
+            throw 1;
+    }
 }
