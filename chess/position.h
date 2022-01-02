@@ -14,7 +14,7 @@ public:
     Position(): Board(INIT_BOARD), State() {}
     Position(const FENState& state);
     void setFENState(const FENState& state);
-    FENState toFENState() const { return FENState();} // TODO
+    FENState toFENState() const { return Board::toFENState() + " " + State::toFENState(); }
     static bool isValidFENState(const FENState& state);
 
     Position save() const;

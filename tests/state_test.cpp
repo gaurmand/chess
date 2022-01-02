@@ -57,7 +57,7 @@ void stateTest3()
     VERIFY(s.canEnPassant() == false);
     VERIFY(s.enPassantPosition() == BP(-1, -1));
 
-    s.setFENState(" b Qk g8 1 99");
+    s.setFENState(" b Qk g8 1 99"); // leading spaces should be ignored
     VERIFY(s.numHalfMoves() == 1);
     VERIFY(s.numFullMoves() == 99);
     VERIFY(s.activePlayer() == Player::Black);
@@ -69,6 +69,21 @@ void stateTest3()
     VERIFY(s.enPassantPosition() == BP("g8"));
 }
 
+void stateTest4()
+{
+    State s1;
+    VERIFY(s1.toFENState() == FENState("w KQkq - 0 1"));
+
+    State s2("b Kq e4 11 120");
+    VERIFY(s2.toFENState() == FENState("b Kq e4 11 120"));
+
+    State s3("w KQkq - 0 1");
+    VERIFY(s3.toFENState() == FENState("w KQkq - 0 1"));
+
+    s3.setFENState(" b Qk g8 1 99");
+    VERIFY(s3.toFENState() == FENState("b Qk g8 1 99"));
+}
+
 }; // unnamed namespace
 
 void Chess::Tester::stateTests()
@@ -76,5 +91,6 @@ void Chess::Tester::stateTests()
     RUN(stateTest1);
     RUN(stateTest2);
     RUN(stateTest3);
+    RUN(stateTest4);
 }
 

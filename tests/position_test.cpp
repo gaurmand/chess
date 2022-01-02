@@ -172,6 +172,18 @@ void positionTest3()
     verifyInitalState(p);
 }
 
+void positionTest4()
+{
+    Position p1;
+    VERIFY(p1.toFENState() == FENState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+
+    Position p2("rnb2bnr/pp3kpp/2pp4/8/2Pp4/4PP2/PP3P1P/RNBQ1RK1 b - c3 0 8");
+    VERIFY(p2.toFENState() == FENState("rnb2bnr/pp3kpp/2pp4/8/2Pp4/4PP2/PP3P1P/RNBQ1RK1 b - c3 0 8"));
+
+    p2.setFENState("r1b4r/pp3kpp/2pb3n/2n5/5P2/2N1P3/PP1B1P1P/R4RK1 w - - 3 13");
+    VERIFY(p2.toFENState() == FENState("r1b4r/pp3kpp/2pb3n/2n5/5P2/2N1P3/PP1B1P1P/R4RK1 w - - 3 13"));
+}
+
 
 }; // unnamed namespace
 
@@ -180,4 +192,5 @@ void Chess::Tester::positionTests()
     RUN(positionTest1);
     RUN(positionTest2);
     RUN(positionTest3);
+    RUN(positionTest4);
 }

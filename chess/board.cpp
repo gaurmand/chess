@@ -85,6 +85,44 @@ void Board::setFENState(const FENState& state)
     }
 }
 
+FENState Board::toFENState() const
+{
+    std::ostringstream fen;
+    for (int i = 0; i < NUM_ROWS; i++)
+    {
+        int numEmptyPositions = 0;
+        for (int j = 0; j < NUM_COLS; j++)
+        {
+            if (board_[i][j] != nullptr)
+            {
+                if (numEmptyPositions > 0)
+                {
+                    fen << numEmptyPositions;
+                    numEmptyPositions = 0;
+                }
+                Piece* piece = board_[i][j];
+                fen << *piece;
+            }
+            else
+            {
+                numEmptyPositions++;
+            }
+        }
+
+        if (numEmptyPositions > 0)
+        {
+            fen << numEmptyPositions;
+        }
+
+        if (i < NUM_ROWS - 1)
+        {
+            fen << "/"; // only output if not last row
+        }
+    }
+
+    return fen.str();
+}
+
 Board& Board::operator=(const Board& board)
 {
     pieces_ = board.pieces_;

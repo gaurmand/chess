@@ -15,7 +15,7 @@ public:
     State() {};
     State(const FENState& state);
     void setFENState(const FENState& state);
-    FENState toFENState() const { return FENState();} // TODO
+    FENState toFENState() const;
 
     Player activePlayer() const {return active_;}
     int numHalfMoves() const {return numHalfMoves_;}

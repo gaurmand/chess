@@ -19,7 +19,7 @@ public:
     Board() {}
     Board(const FENState& state): Board() { setFENState(state); }
     void setFENState(const FENState& state);
-    FENState toFENState() const { return FENState();} // TODO
+    FENState toFENState() const;
 
     Board& operator=(const Board& board);
     Board(const Board& board) { *this = board; }

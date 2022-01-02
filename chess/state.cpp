@@ -81,6 +81,49 @@ void State::setFENState(const FENState& state)
     numFullMoves_ = fullmoveClock;
 }
 
+FENState State::toFENState() const
+{
+    std::ostringstream fen;
+
+    // active player
+    fen << (active_ == Player::White ? "w " : "b ");
+
+    // castling rights
+    int numCastles = 0;
+    if (canShortCastle_[Player::White])
+    {
+        fen << "K";
+        numCastles++;
+    }
+    if (canLongCastle_[Player::White])
+    {
+        fen << "Q";
+        numCastles++;
+    }
+    if (canShortCastle_[Player::Black])
+    {
+        fen << "k";
+        numCastles++;
+    }
+    if (canLongCastle_[Player::Black])
+    {
+        fen << "q";
+        numCastles++;
+    }
+    fen << (numCastles > 0 ? " " : "- ");
+
+    // en passant
+    fen << (canEnPassant_ ? enPassantPosition_.toANBP() + " " : "- ");
+
+    // half move clock
+    fen << numHalfMoves_ << " ";
+
+    // full move clock
+    fen << numFullMoves_;
+
+    return fen.str();
+}
+
 std::ostream& operator<<(std::ostream& os, const State& rhs)
 {
     return os << rhs.toFENState();

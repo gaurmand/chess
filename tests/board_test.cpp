@@ -394,6 +394,22 @@ void boardTest10()
     VERIFY(ss.str() == ". . . . . . R . \n. . . . . . . k \n. . . . . . . p \n. p . . r . . . \n. . B . P P . . \n. K . . . . . . \nr . . . . . . P \n. . . . . . . . \n")
 }
 
+void boardTest11()
+{
+    Board b1("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    VERIFY(b1.toFENState() == FENState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"));
+
+    Board b2("r1Q2rk1/1p1b1N2/2pp1n1p/Q5p1/6P1/B1b5/P1K1PP1P/RN3BR1");
+    VERIFY(b2.toFENState() == FENState("r1Q2rk1/1p1b1N2/2pp1n1p/Q5p1/6P1/B1b5/P1K1PP1P/RN3BR1"));
+
+    Board b3("r1Q2rk1/1p1b1N2/2pp1n1p/Q5p1/6P1/B1b5/P1K1PP1P/RN3BR1");
+    VERIFY(b3.toFENState() == FENState("r1Q2rk1/1p1b1N2/2pp1n1p/Q5p1/6P1/B1b5/P1K1PP1P/RN3BR1"));
+
+    b3.setFENState("6R1/7k/7p/1p2r3/2B1PP2/1K6/r6P/8");
+    VERIFY(b3.toFENState() == FENState("6R1/7k/7p/1p2r3/2B1PP2/1K6/r6P/8"));
+}
+
+
 }; // unnamed namespace
 
 void Chess::Tester::boardTests()
@@ -408,4 +424,5 @@ void Chess::Tester::boardTests()
     RUN(boardTest8);
     RUN(boardTest9);
     RUN(boardTest10);
+    RUN(boardTest11);
 }
