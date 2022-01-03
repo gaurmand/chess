@@ -1,4 +1,5 @@
 #include "chessengine.h"
+#include "chess/engine/minimax.h"
 
 #include <QTimer>
 
@@ -22,9 +23,7 @@ void ChessEngine::selectMove()
         return;
     }
 
-    QTimer::singleShot(500, [=](){
-        emit moveSelected(shallowSearchStrategy());
-    });
+    emit moveSelected(Minimax().evaluate(game_.toFENState()));
 }
 
 void ChessEngine::reset()

@@ -10,6 +10,7 @@ CONFIG += c++17
 SOURCES += \
     chess/board.cpp \
     chess/boardpos.cpp \
+    chess/engine/minimax.cpp \
     chess/game.cpp \
     chess/move.cpp \
     chess/piece.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     chess/board.h \
     chess/boardpos.h \
     chess/common.h \
+    chess/engine/minimax.h \
     chess/game.h \
     chess/move.h \
     chess/piece.h \
