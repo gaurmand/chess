@@ -20,6 +20,11 @@ std::uint64_t perft(Game& g, int depth)
 
    MoveArray moves;
    int n = g.generate(moves);
+   if (depth == 1)
+   {
+      return n;
+   }
+
    for (int i = 0; i < n; i++)
    {
       g.move(moves[i]);
@@ -38,13 +43,13 @@ TEST(PerformanceTest, perft1)
       Game::fromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
    ASSERT_TRUE(g.has_value());
 
-   // EXPECT_EQ(perft(g.value(), 0), 1);
-   // EXPECT_EQ(perft(g.value(), 1), 20);
-   // EXPECT_EQ(perft(g.value(), 2), 400);
-   // EXPECT_EQ(perft(g.value(), 3), 8902);
-   // EXPECT_EQ(perft(g.value(), 4), 197281);
-   // EXPECT_EQ(perft(g.value(), 5), 4865609); // ~4s
-   EXPECT_EQ(perft(g.value(), 6), 119060324);
+   EXPECT_EQ(perft(g.value(), 0), 1);
+   EXPECT_EQ(perft(g.value(), 1), 20);
+   EXPECT_EQ(perft(g.value(), 2), 400);
+   EXPECT_EQ(perft(g.value(), 3), 8902);
+   EXPECT_EQ(perft(g.value(), 4), 197281);
+   EXPECT_EQ(perft(g.value(), 5), 4865609); // ~4s
+   // EXPECT_EQ(perft(g.value(), 6), 119060324);
    // EXPECT_EQ(perft(g.value(), 7), 3195901860);
 }
 
