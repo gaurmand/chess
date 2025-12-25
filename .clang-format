@@ -1,0 +1,29 @@
+BasedOnStyle: Microsoft
+Language: Cpp
+
+ColumnLimit: 80
+IndentWidth: 3
+ContinuationIndentWidth: 3
+ConstructorInitializerIndentWidth: 3
+AccessModifierOffset: -3
+
+AlignConsecutiveAssignments: Consecutive
+AllowShortBlocksOnASingleLine: Always # Empty doesnt work?
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeTernaryOperators: false
+BreakStringLiterals: true
+AlwaysBreakTemplateDeclarations: true
+IncludeBlocks: Regroup
+IndentAccessModifiers: false
+IndentCaseLabels: true
+InsertNewlineAtEOF: true
+LambdaBodyIndentation: OuterScope
+PackConstructorInitializers: NextLine
+PointerAlignment: Left
+QualifierAlignment: Left
+#QualifierOrder: [inline, static, type, const, volatile, override]
